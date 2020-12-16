@@ -51,7 +51,7 @@ Neuron::Neuron(const Neuron& rhs)
 #ifdef DEBUG
 	std::cout << "copy ctr" << std::endl;
 #endif
-	*this = rhs;
+	* this = rhs;
 }
 
 Neuron::Neuron(Neuron&& rhs) noexcept
@@ -59,7 +59,7 @@ Neuron::Neuron(Neuron&& rhs) noexcept
 #ifdef DEBUG
 	std::cout << "move ctr" << std::endl;
 #endif
-	*this = std::move(rhs);
+	* this = std::move(rhs);
 }
 
 N_TYPE Neuron::Algoritmo(const std::vector<N_TYPE>& inputs) //el primer input es 1, para multiplicar por beta
@@ -83,10 +83,12 @@ N_TYPE Neuron::Algoritmo(const std::vector<N_TYPE>& inputs) //el primer input es
 		if (sumatorio < 0)
 			sumatorio = 0;
 		break;
-	case 2: //algo sigmoide
-		sumatorio = (N_TYPE)(BASE / (1 + exp(-sumatorio)));
-		break;
+		//case 2: //algo sigmoide
+		//	sumatorio = (N_TYPE)(BASE / (1 + exp(-sumatorio)));
+		//	break;
 	default:
+		std::cout << "algoritmo no definido" << std::endl;
+		return 0;
 		break;
 	}
 
@@ -98,7 +100,38 @@ void Neuron::ChangeAlgo(uint algoIndex)
 	this->algoIndex = algoIndex;
 }
 
-void Neuron::GetCoefs()
+float Neuron::Alfa(N_TYPE e)
+{
+	switch (algoIndex)
+	{
+	case 0: //algo 2relu
+		return e < 0 ? (float)1 / 256 : 1;
+		break;
+	case 1: //algo relu básica
+		return e < 0 ? 0 : 1;
+		break;
+		//case 2: //algo sigmoide
+		//	return;
+		//	break;
+	default:
+		std::cout << "algoritmo no definido" << std::endl;
+		return 0;
+		break;
+	}
+
+}
+
+uint Neuron::GetInputNum()
+{
+	return inputNum;
+}
+
+const std::vector<N_TYPE>& Neuron::GetCoefs()
+{
+	return coefs;
+}
+
+void Neuron::PrintCoefs()
 {
 	std::cout << "coefs neurona" << std::endl;
 

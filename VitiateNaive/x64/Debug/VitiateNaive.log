@@ -1,0 +1,8 @@
+﻿  RED.cpp
+D:\Gabriel\Vitiate\VitiateNaive\RED.cpp(7,12): warning C4244: 'argument': conversion from 'time_t' to 'unsigned int', possible loss of data
+D:\Gabriel\Vitiate\VitiateNaive\RED.cpp(104,36): warning C4267: 'initializing': conversion from 'size_t' to 'unsigned int', possible loss of data
+D:\Gabriel\Vitiate\VitiateNaive\RED.cpp(120,32): warning C4244: '=': conversion from 'float' to 'int', possible loss of data
+D:\Gabriel\Vitiate\VitiateNaive\RED.cpp(126,14): warning C4244: 'initializing': conversion from 'float' to 'int', possible loss of data
+  VitiateNaive.cpp
+  Generating Code...
+  VitiateNaive.vcxproj -> D:\Gabriel\Vitiate\VitiateNaive\x64\Debug\VitiateNaive.exe

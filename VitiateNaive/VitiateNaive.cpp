@@ -60,7 +60,7 @@ int main()
 	//for (auto i : outs)
 	//	std::cout << i << " " << std::endl;
 	//
-	//red.GetCoefs();
+	//red.PrintCoefs();
 
 	Matrix ma(2);
 	ma.PlaceRow({ 2,2 });

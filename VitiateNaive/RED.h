@@ -7,8 +7,12 @@
 class RED
 {
 private:
+	uint inputNum;
 	uint layerNum;
 	std::vector<std::vector<Neuron>> layers;
+
+	void Forward(std::vector<N_TYPE> inputs, std::vector<std::vector<N_TYPE>>& e); //guarda cosas intermedias
+
 
 public:
 	RED() = delete;
@@ -18,7 +22,8 @@ public:
 	RED& operator = (const RED& rhs);
 	RED& operator = (RED&& rhs) noexcept;
 
-	std::vector<N_TYPE> Forward(std::vector<N_TYPE> inputs);
+	std::vector<N_TYPE> Forward(std::vector<N_TYPE> inputs); //ejecuta todo de forma continua sin guardar cosas intermedias
+	std::vector<std::vector<std::vector<N_TYPE>>> Gradient(std::vector<N_TYPE> inputs, std::vector<N_TYPE> s);
 	void GetCoefs();
 };
 

@@ -1,0 +1,4 @@
+C:\Users\usuario\Desktop\Elise\vitiate\PRJ1\VitiateNaive\x64\Debug\VitiateNaive.exe
+C:\Users\usuario\Desktop\Elise\vitiate\PRJ1\VitiateNaive\x64\Debug\VitiateNaive.pdb
+D:\Gabriel\Vitiate\VitiateNaive\x64\Debug\VitiateNaive.exe
+D:\Gabriel\Vitiate\VitiateNaive\x64\Debug\VitiateNaive.pdb
