@@ -51,7 +51,7 @@ RED& RED::operator=(RED&& rhs) noexcept
 	return *this;
 }
 
-std::vector<N_TYPE> RED::Forward(std::vector<N_TYPE> inputs)
+std::vector<N_TYPE> RED::Forward(std::vector<N_TYPE> inputs) //forward público
 {
 	std::vector<N_TYPE> tmpOuts;
 
@@ -78,23 +78,10 @@ std::vector<N_TYPE> RED::Forward(std::vector<N_TYPE> inputs)
 	return tmpOuts;
 }
 
-void RED::BuildMatrix(Matrix& A, Matrix& C, uint layer, std::vector<std::vector<N_TYPE>>& e)
-{
-	std::vector<N_TYPE> zeroRow(layers[layer].size(), 0);
-
-	for (uint i = 0;i < layers[layer].size();i++)
-	{
-		C.PlaceRow(layers[layer][i].GetCoefs()); //matriz C
-
-		zeroRow[i] = layers[layer][i].Alfa(e[(size_t)layer + 1][i]); //layer+1 pq el tamaño de e es layerNum+1
-		A.PlaceRow(zeroRow); //matriz A
-		zeroRow[i] = 0;
-	}
-}
-
-void RED::Forward(std::vector<N_TYPE> inputs, std::vector<std::vector<N_TYPE>>& e)
+void RED::Forward(std::vector<N_TYPE> inputs, std::vector<std::vector<N_TYPE>>& e) //forward privado
 {
 	std::vector<N_TYPE> tmpOuts;
+	e.reserve((size_t)layerNum + 1);
 	e.emplace_back(inputs); //inputs iniciales
 
 	for (uint i = 0; i < layerNum; i++)
@@ -110,23 +97,35 @@ void RED::Forward(std::vector<N_TYPE> inputs, std::vector<std::vector<N_TYPE>>& 
 	}
 }
 
+void RED::BuildMatrix(Matrix& A, Matrix& C, uint layer, std::vector<std::vector<N_TYPE>>& e)
+{
+	std::vector<N_TYPE> zeroRow(layers[layer].size(), 0);
+
+	for (uint i = 0;i < layers[layer].size();i++)
+	{
+		C.PlaceRow(layers[layer][i].GetCoefs()); //matriz C
+
+		zeroRow[i] = layers[layer][i].Alfa(e[(size_t)layer + 1][i]); //layer+1 pq el tamaño de e es layerNum+1
+		A.PlaceRow(zeroRow); //matriz A
+		zeroRow[i] = 0;
+	}
+}
+
 std::vector<std::vector<std::vector<N_TYPE>>> RED::Gradient(std::vector<N_TYPE> inputs, std::vector<N_TYPE> s)
 {
 	std::vector<std::vector<std::vector<N_TYPE>>> output(layerNum); //entradas+salidas+capas internas
 
 	for (uint i = 0;i < layerNum;i++) //reserva y creación de los vectores internos de "output"
 	{
-		uint neuronNum = layers[i].size();
-		output[i].reserve(neuronNum);
+		output[i].reserve(layers[i].size());
 
-		for (uint j = 0;j < neuronNum;j++)
-		{
-			output[i].emplace_back();
-			output[i][j].reserve((size_t)layers[i][j].GetInputNum() + 1);
-		}
+		for (uint j = 0; j < layers[i].size(); j++)
+			output[i].emplace_back((size_t)layers[i][j].GetInputNum() + 1, 0); //crear vector asociado a neurona, inicializando valores del gradiente a 0 (valores de ese vector)
+			//Al ser primitivas, no debería volver a copiar todo si modificas algún valor
 	}
 
-	std::vector<std::vector<N_TYPE>> e((size_t)layerNum + 1); //nº de capas + 1 para guardar los valores de inputs
+
+	std::vector<std::vector<N_TYPE>> e; //nº de capas + 1 para guardar los valores de inputs
 	Forward(inputs, e);
 	N_TYPE E = 0;
 	std::vector<N_TYPE> Evec;
@@ -140,7 +139,7 @@ std::vector<std::vector<std::vector<N_TYPE>>> RED::Gradient(std::vector<N_TYPE> 
 		for (uint j = 0; j < layers[(size_t)layerNum - 2].size(); j++) //-2=penúltima capa
 		{
 			output.back()[i][(size_t)j + 1] = E * e[(size_t)layerNum - 1][j]; //salidas de la última capa oculta. Como en e hay layerNum+1, la última capa es layerNum y la penúltima -1
-			N_TYPE E2 = layers.back()[i].GetCoefs()[j] * layers[(size_t)layerNum - 2][j].Alfa(e[(size_t)layerNum - 2][j]); //wn*A de la última capa oculta
+			N_TYPE E2 = layers.back()[i].GetCoefs()[j] * layers[(size_t)layerNum - 2][j].Alfa(e[(size_t)layerNum - 1][j]); //wn*A de la última capa oculta
 
 			if (i == 0) //primera neurona
 			{
@@ -174,7 +173,7 @@ std::vector<std::vector<std::vector<N_TYPE>>> RED::Gradient(std::vector<N_TYPE> 
 
 	if (layerNum > 2) //si hay más de dos capas
 	{
-		for (uint i2 = 0; i2 < layers[(size_t)layerNum-3].size();i2++)
+		for (uint i2 = 0; i2 < layers[(size_t)layerNum - 3].size();i2++)
 		{
 			float alfa = layers[(size_t)layerNum - 3][i2].Alfa(e[(size_t)layerNum - 2][i2]); //-3+1 pq tiene layerNum+1
 			std::vector<N_TYPE> aux;
@@ -194,19 +193,15 @@ std::vector<std::vector<std::vector<N_TYPE>>> RED::Gradient(std::vector<N_TYPE> 
 				{
 					output[(size_t)layerNum - 3][i2][0] = val; //término independiente
 
-					for (uint i4 = 0; i4 < layers[(size_t)layerNum - 3][i2].GetInputNum() + 1; i4++) //+1 el término independiente
-					{
+					for (uint i4 = 0; i4 < layers[(size_t)layerNum - 3][i2].GetInputNum(); i4++) //+1 el término independiente
 						output[(size_t)layerNum - 3][i2][(size_t)i4 + 1] = val * layers[(size_t)layerNum - 3][i2].GetCoefs()[i4]; //+1 término independiente
-					}
 				}
 				else //neuronas siguientes acumulamos
 				{
 					output[(size_t)layerNum - 3][i2][0] += val; //término independiente
 
-					for (uint i4 = 0; i4 < layers[(size_t)layerNum - 3][i2].GetInputNum() + 1; i4++) //+1 el término independiente
-					{
+					for (uint i4 = 0; i4 < layers[(size_t)layerNum - 3][i2].GetInputNum(); i4++) //+1 el término independiente
 						output[(size_t)layerNum - 3][i2][(size_t)i4 + 1] += val * layers[(size_t)layerNum - 3][i2].GetCoefs()[i4]; //+1 término independiente
-					}
 				}
 
 			}
@@ -249,7 +244,7 @@ std::vector<std::vector<std::vector<N_TYPE>>> RED::Gradient(std::vector<N_TYPE> 
 					{
 						output[i][i2][0] = val; //término independiente
 
-						for (uint i4 = 0; i4 < layers[i][i2].GetInputNum() + 1; i4++) //+1 el término independiente
+						for (uint i4 = 0; i4 < layers[i][i2].GetInputNum(); i4++) //+1 el término independiente
 						{
 							output[i][i2][(size_t)i4 + 1] = val * layers[i][i2].GetCoefs()[i4]; //+1 término independiente
 						}
@@ -258,7 +253,7 @@ std::vector<std::vector<std::vector<N_TYPE>>> RED::Gradient(std::vector<N_TYPE> 
 					{
 						output[i][i2][0] += val; //término independiente
 
-						for (uint i4 = 0; i4 < layers[i][i2].GetInputNum() + 1; i4++) //+1 el término independiente
+						for (uint i4 = 0; i4 < layers[i][i2].GetInputNum(); i4++) //+1 el término independiente
 						{
 							output[i][i2][(size_t)i4 + 1] += val * layers[i][i2].GetCoefs()[i4]; //+1 término independiente
 						}
@@ -272,16 +267,37 @@ std::vector<std::vector<std::vector<N_TYPE>>> RED::Gradient(std::vector<N_TYPE> 
 	return output;
 }
 
-void RED::GetCoefs()
+void RED::PrintCoefs()
 {
 	for (uint i = 0; i < layerNum;i++)
 	{
-		std::cout << "capa " << i << std::endl;
+		std::cout << "CAPA " << i << std::endl;
 
 		for (auto& j : layers[i])
-			j.GetCoefs();
+			j.PrintCoefs();
 	}
+}
 
+void RED::PrintGradient(const std::vector<std::vector<std::vector<N_TYPE>>>& gradient)
+{
+	std::cout << "GRADIENTE" << std::endl;
+
+	for (uint i = 0; i < gradient.size();i++)
+	{
+		std::cout << "CAPA " << i << std::endl;
+
+		for (uint j = 0; j < gradient[i].size();j++)
+		{
+			std::cout << "coefs neurona " << j << std::endl;
+
+			for (auto& n : gradient[i][j])
+			{
+				std::cout << n << " ";
+			}
+
+			std::cout << std::endl << std::endl;
+		}
+	}
 }
 
 

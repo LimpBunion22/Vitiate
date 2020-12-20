@@ -77,7 +77,7 @@ N_TYPE Neuron::Algoritmo(const std::vector<N_TYPE>& inputs) //el primer input es
 	{
 	case 0: //algo 2relu
 		if (sumatorio < 0)
-			sumatorio = sumatorio >> 8;
+			sumatorio /= 256;
 		break;
 	case 1: //algo relu básica
 		if (sumatorio < 0)
@@ -134,9 +134,10 @@ const std::vector<N_TYPE>& Neuron::GetCoefs()
 void Neuron::PrintCoefs()
 {
 	std::cout << "coefs neurona" << std::endl;
+	std::cout << beta << std::endl;
 
 	for (auto i : coefs)
 		std::cout << i << " ";
 
-	std::cout << beta << std::endl;
+	std::cout << std::endl <<std::endl;
 }

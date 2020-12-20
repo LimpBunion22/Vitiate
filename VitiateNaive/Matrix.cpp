@@ -67,7 +67,6 @@ Matrix Matrix::operator*(const Matrix& rhs)
 		return{};
 	}
 
-
 	Matrix output(rows);
 
 	for (uint i = 0; i < rows; i++)
@@ -86,6 +85,8 @@ Matrix Matrix::operator*(const Matrix& rhs)
 		}
 	}
 
+	output.rows = rows;
+	output.cols = rhs.cols;
 	return output;
 }
 

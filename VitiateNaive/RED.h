@@ -26,6 +26,7 @@ public:
 	std::vector<N_TYPE> Forward(std::vector<N_TYPE> inputs); //ejecuta todo de forma continua sin guardar cosas intermedias
 	void BuildMatrix(Matrix& A, Matrix& C, uint layer, std::vector<std::vector<N_TYPE>>&e);
 	std::vector<std::vector<std::vector<N_TYPE>>> Gradient(std::vector<N_TYPE> inputs, std::vector<N_TYPE> s);
-	void GetCoefs();
+	void PrintCoefs();
+	void PrintGradient(const std::vector<std::vector<std::vector<N_TYPE>>>& gradient);
 };
 
