@@ -3,6 +3,7 @@
 #include "Neuron.h"
 #include <vector>
 
+class Matrix;
 
 class RED
 {
@@ -23,6 +24,7 @@ public:
 	RED& operator = (RED&& rhs) noexcept;
 
 	std::vector<N_TYPE> Forward(std::vector<N_TYPE> inputs); //ejecuta todo de forma continua sin guardar cosas intermedias
+	void BuildMatrix(Matrix& A, Matrix& C, uint layer, std::vector<std::vector<N_TYPE>>&e);
 	std::vector<std::vector<std::vector<N_TYPE>>> Gradient(std::vector<N_TYPE> inputs, std::vector<N_TYPE> s);
 	void GetCoefs();
 };

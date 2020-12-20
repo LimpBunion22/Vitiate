@@ -20,4 +20,5 @@ public:
 	void ShowElements();
 	void ShowRC();
 	Matrix operator * (const Matrix& rhs);
+	std::vector<N_TYPE>& operator [](uint i);
 };

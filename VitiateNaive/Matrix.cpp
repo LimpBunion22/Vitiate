@@ -89,6 +89,17 @@ Matrix Matrix::operator*(const Matrix& rhs)
 	return output;
 }
 
+std::vector<N_TYPE>& Matrix::operator[](uint i)
+{
+	if (i >= rows || i < 0)
+	{
+		std::cout << "fuera de rango, se usará la última fila" << std::endl;
+		return matrix[(size_t)rows - 1];
+	}
+	else
+		return matrix[(size_t)i];
+}
+
 void Matrix::ShowElements()
 {
 	std::cout << "la matriz es: " << std::endl;
