@@ -17,8 +17,8 @@ public:
 
 	void PlaceRow(const std::vector<N_TYPE>& row);
 	void ColVector(const std::vector<N_TYPE>& col);
-	
 	void ShowElements();
 	void ShowRC();
 	Matrix operator * (const Matrix& rhs);
+	std::vector<N_TYPE>& operator [](uint i);
 };

@@ -60,21 +60,23 @@ int main()
 	//for (auto i : outs)
 	//	std::cout << i << " " << std::endl;
 	//
-	//red.GetCoefs();
+	//red.PrintCoefs();
 
-	Matrix ma(2);
-	ma.PlaceRow({ 2,3 });
-	ma.PlaceRow({ 3,2 });
-	ma.ShowElements();
-	ma.ShowRC();
+	uint neurons[] = { 2,2,2};
+	uint layers = sizeof(neurons) / sizeof(neurons[0]);
+	RED red(2, neurons, layers);
+	std::vector<N_TYPE> outs = red.Forward({ 4,-1 });
 
-	Matrix mb;
-	mb.ColVector({ 1,1 });
-	mb.ShowElements();
-	mb.ShowRC();
+	std::cout << "SALIDAS FINALES" << std::endl;
 
-	Matrix mc = ma * mb;
-	mc.ShowElements();
+	for (auto i : outs)
+		std::cout << i << " ";
+
+	std::cout << std::endl << std::endl;
+
+	red.PrintCoefs();
+
+	red.PrintGradient(red.Gradient({ 4,-1 }, { 0,1000 }));
 }
 
 // Run program: Ctrl + F5 or Debug > Start Without Debugging menu

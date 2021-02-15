@@ -59,8 +59,14 @@ void Matrix::ColVector(const std::vector<N_TYPE>& col)
 		matrix.emplace_back(std::vector < N_TYPE>(1, col[i]));
 }
 
-Matrix Matrix::operator *(const Matrix& rhs)
+Matrix Matrix::operator*(const Matrix& rhs)
 {
+	if (cols != rhs.rows)
+	{
+		std::cout << "dimenisones para multiplicar incorrectas" << std::endl;
+		return{};
+	}
+
 	Matrix output(rows);
 
 	for (uint i = 0; i < rows; i++)
@@ -79,7 +85,20 @@ Matrix Matrix::operator *(const Matrix& rhs)
 		}
 	}
 
+	output.rows = rows;
+	output.cols = rhs.cols;
 	return output;
+}
+
+std::vector<N_TYPE>& Matrix::operator[](uint i)
+{
+	if (i >= rows || i < 0)
+	{
+		std::cout << "fuera de rango, se usará la última fila" << std::endl;
+		return matrix[(size_t)rows - 1];
+	}
+	else
+		return matrix[(size_t)i];
 }
 
 void Matrix::ShowElements()
