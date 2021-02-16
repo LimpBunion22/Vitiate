@@ -1,2 +1,2 @@
 # Vitiate
-Y sobre ese polvo caminará un nuevo dios
+Proyecto interno: Uso intensivo de hardware sobre redes neuronales artificiales
