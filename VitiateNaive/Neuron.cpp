@@ -40,10 +40,10 @@ Neuron::Neuron(uint inputNum, uint algoIndex) :algoIndex(algoIndex), inputNum(in
 #ifdef DEBUG
 	std::cout << "default ctr" << std::endl;
 #endif
-	coefs.reserve(inputNum);
+	coefs.reserve(inputNum); //se reserva memoria para que no tenga que realojarse cada vez que se añade un elemento
 
 	for (uint i = 0; i < inputNum; i++)
-		coefs.emplace_back((N_TYPE)((float)rand() / (RAND_MAX + 1) * (MAX_RANGE - MIN_RANGE) + MIN_RANGE));
+		coefs.emplace_back((N_TYPE)((float)rand() / (RAND_MAX + 1) * (MAX_RANGE - MIN_RANGE) + MIN_RANGE)); //coeficientes aleatorios
 }
 
 Neuron::Neuron(const Neuron& rhs)

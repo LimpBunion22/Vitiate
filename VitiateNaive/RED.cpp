@@ -7,15 +7,16 @@ RED::RED(uint inputNum, uint* neuronsPerLayer, uint layerNum) : inputNum(inputNu
 {
 	srand(time(NULL));
 
-	for (uint i = 0;i < layerNum;i++)
+	for (uint i = 0;i < layerNum;i++) //para cada capa
 	{
-		layers[i].reserve(neuronsPerLayer[i]); //neuronas por capa
-		if (i)
-			for (uint j = 0;j < neuronsPerLayer[i];j++)
-				layers[i].emplace_back(neuronsPerLayer[i - 1], ACTIVATION_FUNC); // entradas por neurona, activación
-		else
-			for (uint j = 0;j < neuronsPerLayer[i];j++)
-				layers[i].emplace_back(inputNum, ACTIVATION_FUNC);
+		layers[i].reserve(neuronsPerLayer[i]); //reservar el número de neuronas por capa
+
+		if (i) //si no es la primera capa
+			for (uint j = 0;j < neuronsPerLayer[i];j++) //para cada neurona
+				layers[i].emplace_back(neuronsPerLayer[i - 1], ACTIVATION_FUNC); //crear neurona, siendo el número de entradas la cantidad de neuronas de la capa anterior
+		else //si es la primera capa
+			for (uint j = 0;j < neuronsPerLayer[i];j++) //para cada neurona 
+				layers[i].emplace_back(inputNum, ACTIVATION_FUNC); //crear neurona, siendo el número de entradas la cantidad de entradas de la red
 	}
 }
 
@@ -80,48 +81,54 @@ std::vector<N_TYPE> RED::Forward(std::vector<N_TYPE> inputs) //forward público
 
 void RED::Forward(std::vector<N_TYPE> inputs, std::vector<std::vector<N_TYPE>>& e) //forward privado
 {
-	std::vector<N_TYPE> tmpOuts;
-	e.reserve((size_t)layerNum + 1);
+	std::vector<N_TYPE> tmpOuts; //vector temporal en el que se guardan los resultados
+	e.reserve((size_t)layerNum + 1); //reservamos número de capas + entradas
 	e.emplace_back(inputs); //inputs iniciales
 
 	for (uint i = 0; i < layerNum; i++)
 	{
 		tmpOuts.clear();
-		tmpOuts.reserve(layers[i].size());
+		tmpOuts.reserve(layers[i].size()); //número de neuronas por capa
 
-		for (auto& j : layers[i])
-			tmpOuts.emplace_back(j.Algoritmo(inputs));
+		for (auto& j : layers[i]) //para cada neurona
+			tmpOuts.emplace_back(j.Algoritmo(inputs)); //ejecutar algoritmo forward
 
-		inputs = tmpOuts;
-		e.emplace_back(inputs);
+		inputs = tmpOuts; //los cálculos obtenidos en la capa anterior son las entradas de la siguiente
+		e.emplace_back(inputs); //se guardan los cálculos en el vector e
 	}
 }
 
 void RED::BuildMatrix(Matrix& A, Matrix& C, uint layer, std::vector<std::vector<N_TYPE>>& e)
 {
-	std::vector<N_TYPE> zeroRow(layers[layer].size(), 0);
+	std::vector<N_TYPE> zeroRow(layers[layer].size(), 0); //fila con todo ceros
 
 	for (uint i = 0;i < layers[layer].size();i++)
 	{
-		C.PlaceRow(layers[layer][i].GetCoefs()); //matriz C
+		C.PlaceRow(layers[layer][i].GetCoefs()); //matriz C de coeficientes 
 
-		zeroRow[i] = layers[layer][i].Alfa(e[(size_t)layer + 1][i]); //layer+1 pq el tamaño de e es layerNum+1
-		A.PlaceRow(zeroRow); //matriz A
-		zeroRow[i] = 0;
+		zeroRow[i] = layers[layer][i].Alfa(e[(size_t)layer + 1][i]); //layer+1 pq el tamaño de e es layerNum+1 (el primer vector es el de entradas de la red)
+																	// Solo la posición "i" de zeroRow contendrá una derivada, el resto son ceros
+																	//^Al ser primitivas, no debería volver a copiar todo si modificas algún valor
+		A.PlaceRow(zeroRow); //matriz A diagonal de derivadas 
+		zeroRow[i] = 0; //se resetea la fila con todo ceros
 	}
 }
 
 std::vector<std::vector<std::vector<N_TYPE>>> RED::Gradient(std::vector<N_TYPE> inputs, std::vector<N_TYPE> s)
 {
-	std::vector<std::vector<std::vector<N_TYPE>>> output(layerNum); //entradas+salidas+capas internas
+	std::vector<std::vector<std::vector<N_TYPE>>> output(layerNum);
+	//*vector exterior: capas (externas e internas)
+	//*vector intermedio: neuronas de la capa
+	//*vector interno: valores de gradiente asociados a los coeficientes de cada neurona
 
 	for (uint i = 0;i < layerNum;i++) //reserva y creación de los vectores internos de "output"
 	{
-		output[i].reserve(layers[i].size());
+		output[i].reserve(layers[i].size()); //para cada capa, se reserva el número de neuronas correspondiente
 
-		for (uint j = 0; j < layers[i].size(); j++)
-			output[i].emplace_back((size_t)layers[i][j].GetInputNum() + 1, 0); //crear vector asociado a neurona, inicializando valores del gradiente a 0 (valores de ese vector)
-			//Al ser primitivas, no debería volver a copiar todo si modificas algún valor
+		for (uint j = 0; j < layers[i].size(); j++) //para cada neurona de la capa
+			output[i].emplace_back((size_t)layers[i][j].GetInputNum() + 1, 0); 	//crear un vector igual al tamaño de coefs. + término independiente 
+																				//inicializando valores del gradiente a 0 (valores de ese vector)
+																				//^Al ser primitivas, no debería volver a copiar todo si modificas algún valor
 	}
 
 
@@ -129,7 +136,7 @@ std::vector<std::vector<std::vector<N_TYPE>>> RED::Gradient(std::vector<N_TYPE> 
 	Forward(inputs, e);
 	N_TYPE E = 0;
 	std::vector<N_TYPE> Evec;
-	std::vector<Matrix> outputRow(layers.back().size(), 1);
+	std::vector<Matrix> outputRow(layers.back().size(), 1); //resevar 1 fila para cada matriz del vector de salidas
 
 	for (uint i = 0; i < layers.back().size(); i++) //índice de neuronas de la última capa
 	{

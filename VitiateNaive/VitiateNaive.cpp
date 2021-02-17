@@ -30,37 +30,37 @@ public:
 
 int main()
 {
-	//Prueba* prueba = reinterpret_cast<Prueba*>(operator new(sizeof(Prueba) * 5));
-	//for (int i = 0; i < 5; i++)
-	//{
-	//	new(&prueba[i]) Prueba();
-	//}
+	// Prueba* prueba = reinterpret_cast<Prueba*>(operator new(sizeof(Prueba) * 5));
+	// for (int i = 0; i < 5; i++)
+	// {
+	// 	new(&prueba[i]) Prueba();
+	// }
 
-	//for (int i = 0; i < 5; i++)
-	//{
-	//	prueba[i].~Prueba();
-	//}
+	// for (int i = 0; i < 5; i++)
+	// {
+	// 	prueba[i].~Prueba();
+	// }
 
-	//operator delete (prueba);
+	// operator delete (prueba);
 
-	//std::vector<Prueba> vec1(5);
-	//std::cout << "nuevo vec" << std::endl;
-	//std::vector<Prueba> vec2(8);
-	//std::cout << "copiando" << std::endl;
-	//vec1 = vec2;
-	//std::cout << "copiado" << std::endl;
+	// std::vector<Prueba> vec1(5);
+	// std::cout << "nuevo vec" << std::endl;
+	// std::vector<Prueba> vec2(8);
+	// std::cout << "copiando" << std::endl;
+	// vec1 = vec2;
+	// std::cout << "copiado" << std::endl;
 
-	//uint neurons[] = { 2,2 };
-	//uint layers = sizeof(neurons) / sizeof(neurons[0]);
-	//RED red(1, neurons, layers);
-	//std::vector<N_TYPE> outs = red.Forward({4});
+	// uint neurons[] = { 2,2 };
+	// uint layers = sizeof(neurons) / sizeof(neurons[0]);
+	// RED red(1, neurons, layers);
+	// std::vector<N_TYPE> outs = red.Forward({4});
 
-	//std::cout << "salidas finales" << std::endl;
+	// std::cout << "salidas finales" << std::endl;
 
-	//for (auto i : outs)
-	//	std::cout << i << " " << std::endl;
-	//
-	//red.PrintCoefs();
+	// for (auto i : outs)
+	// 	std::cout << i << " " << std::endl;
+	
+	// red.PrintCoefs();
 
 	uint neurons[] = { 2,2,2};
 	uint layers = sizeof(neurons) / sizeof(neurons[0]);

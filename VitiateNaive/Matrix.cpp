@@ -48,7 +48,7 @@ void Matrix::PlaceRow(const std::vector<N_TYPE>& row)
 	matrix.emplace_back(row);
 }
 
-void Matrix::ColVector(const std::vector<N_TYPE>& col)
+void Matrix::ColVector(const std::vector<N_TYPE>& col) //crea un vector de vectores de tamaño 1, transformando el vector fila "col" en el vector columna
 {
 	cols = 1;
 	rows = col.size();
@@ -67,11 +67,11 @@ Matrix Matrix::operator*(const Matrix& rhs)
 		return{};
 	}
 
-	Matrix output(rows);
+	Matrix output(rows); //número de filas que tendrá la matriz resultante
 
-	for (uint i = 0; i < rows; i++)
+	for (uint i = 0; i < rows; i++) //para cada fila
 	{
-		output.matrix.emplace_back(); //crear el vector fila
+		output.matrix.emplace_back(); //crear el vector fila correspondiente
 		output.matrix[i].reserve(rhs.cols); //reservar espacios
 
 		for (uint j = 0; j < rhs.cols; j++)
