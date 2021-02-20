@@ -22,7 +22,7 @@ classdef neurona
             sumatorio = obj.beta+obj.coefs*inputs;
             switch obj.algoIndex
                 case 1
-                    if obj.sumatorio<0
+                    if sumatorio<0
                         sumatorio = sumatorio/256;
                     end
                 otherwise

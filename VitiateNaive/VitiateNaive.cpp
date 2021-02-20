@@ -3,6 +3,7 @@
 
 #include <iostream>
 #include <vector>
+#include <fstream>
 #include "RED.h"
 #include "Matrix.h"
 
@@ -61,11 +62,20 @@ int main()
 	// 	std::cout << i << " " << std::endl;
 	
 	// red.PrintCoefs();
+	ofstream myfile;
+	myfile.open("example.txt");
+	myfile << "Writing this to a file.\n";
+	myfile.close();
 
-	uint neurons[] = { 2,2,2};
-	uint layers = sizeof(neurons) / sizeof(neurons[0]);
-	RED red(2, neurons, layers);
-	std::vector<N_TYPE> outs = red.Forward({ 4,-1 });
+	uint neurons[] = { 3,3,2,2,2};
+	uint layers = 5;
+	uint inputNum = 4;
+	RED red(inputNum, neurons, layers);
+
+	std::cout << "COEFICIENTES" << std::endl;
+	red.PrintCoefs();
+
+	std::vector<N_TYPE> outs = red.Forward({ -2,1,10,-1 });
 
 	std::cout << "SALIDAS FINALES" << std::endl;
 
@@ -74,9 +84,9 @@ int main()
 
 	std::cout << std::endl << std::endl;
 
-	red.PrintCoefs();
+	
 
-	red.PrintGradient(red.Gradient({ 4,-1 }, { 0,1000 }));
+	red.PrintGradient(red.Gradient({ -2,1,10,-1 } ,{ 4,-1 }));
 }
 
 // Run program: Ctrl + F5 or Debug > Start Without Debugging menu

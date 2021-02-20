@@ -235,7 +235,7 @@ std::vector<std::vector<std::vector<N_TYPE>>> RED::Gradient(std::vector<N_TYPE> 
 		{	
 			Matrix A(layers[i+2].size()); //! código modificado (matriz de la capa i+2)
 			Matrix C(layers[i+2].size());
-			BuildMatrix(A, C, i, e);
+			BuildMatrix(A, C, i+2, e);
 
 			if (i == layerNum - 4) //^ diferenciación ya que alfa ya se tiene en cuenta en output row, necesario para el cálculo if layerNum > 2. En las siguientes capas se procede normalmente
 				result = C;
@@ -263,7 +263,7 @@ std::vector<std::vector<std::vector<N_TYPE>>> RED::Gradient(std::vector<N_TYPE> 
 
 					for (uint i4 = 0; i4 < layers[i][i2].GetInputNum(); i4++) //+1 el término independiente
 					{
-						output[i][i2][(size_t)i4 + 1] += val * layers[i][i2].GetCoefs()[i4]; //+1 término independiente
+						output[i][i2][(size_t)i4 + 1] += val * e[(size_t)i][i4]; //+1 término independiente
 					}				
 
 				}
