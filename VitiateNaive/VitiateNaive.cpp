@@ -62,26 +62,20 @@ int main()
 	
 	// red.PrintCoefs();
 
-	uint neurons[] = { 3,3,2,2,2};
-	uint layers = 5;
-	uint inputNum = 4;
-	RED red(inputNum, neurons, layers);
-
+	std::vector<N_TYPE> neurons = { 5,5,5,5,5};
+	std::vector<N_TYPE> inputs = { -2,1,10,-1};
+	std::vector<N_TYPE> outputs ={ 4,-1,1,1,2 };
+	RED red(inputs, outputs, neurons);
 	std::cout << "COEFICIENTES" << std::endl;
 	red.PrintCoefs();
-
 	std::vector<N_TYPE> outs = red.Forward({ -2,1,10,-1 });
-
 	std::cout << "SALIDAS FINALES" << std::endl;
 
 	for (auto i : outs)
 		std::cout << i << " ";
 
 	std::cout << std::endl << std::endl;
-
-	
-
-	red.PrintGradient(red.Gradient({ -2,1,10,-1 } ,{ 4,-1 }));
+	red.PrintGradient(red.Gradient());
 }
 
 // Run program: Ctrl + F5 or Debug > Start Without Debugging menu

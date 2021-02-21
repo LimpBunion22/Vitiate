@@ -5,7 +5,7 @@ classdef neurona
     properties
         algoIndex
         inputNum
-        beta = randn();
+        beta = 0;
         coefs
     end
     

@@ -1,11 +1,12 @@
 #include "RED.h"
-#include <time.h>
 #include <iostream>
 #include "Matrix.h"
 #include <fstream>
 
-RED::RED(uint inputNum, uint* neuronsPerLayer, uint layerNum) : inputNum(inputNum), layerNum(layerNum), layers(layerNum)
+RED::RED(std::vector<N_TYPE> &inputs, std::vector<N_TYPE> &s, std::vector<N_TYPE> &neuronsPerLayer) :
+inputs(inputs), s(s), layerNum(neuronsPerLayer.size()), layers(neuronsPerLayer.size()) //layers(número de vectores a crear)
 {
+	QueryPerformanceFrequency(&freq); 
 	srand(time(NULL));
 
 	std::ofstream coefsFile;
@@ -24,7 +25,7 @@ RED::RED(uint inputNum, uint* neuronsPerLayer, uint layerNum) : inputNum(inputNu
 		else //si es la primera capa
 			for (uint j = 0;j < neuronsPerLayer[i];j++) //para cada neurona 
 			{
-				layers[i].emplace_back(inputNum, ACTIVATION_FUNC); //crear neurona, siendo el número de entradas la cantidad de entradas de la red
+				layers[i].emplace_back(inputs.size(), ACTIVATION_FUNC); //crear neurona, siendo el número de entradas la cantidad de entradas de la red
 				layers[i].back().WriteCoefs(coefsFile,i,j);
 			}
 	}
@@ -93,6 +94,8 @@ std::vector<N_TYPE> RED::Forward(std::vector<N_TYPE> inputs) //forward público
 
 void RED::Forward(std::vector<N_TYPE> inputs, std::vector<std::vector<N_TYPE>>& e) //forward privado
 {
+	LARGE_INTEGER start, end;
+	QueryPerformanceCounter(&start);
 	std::vector<N_TYPE> tmpOuts; //vector temporal en el que se guardan los resultados
 	e.reserve((size_t)layerNum + 1); //reservamos número de capas + entradas
 	e.emplace_back(inputs); //inputs iniciales
@@ -108,6 +111,9 @@ void RED::Forward(std::vector<N_TYPE> inputs, std::vector<std::vector<N_TYPE>>& 
 		inputs = tmpOuts; //los cálculos obtenidos en la capa anterior son las entradas de la siguiente
 		e.emplace_back(inputs); //se guardan los cálculos en el vector e
 	}
+
+	QueryPerformanceCounter(&end);
+	microsFwd.QuadPart=end.QuadPart-start.QuadPart;
 }
 
 void RED::BuildMatrix(Matrix& A, Matrix& C, uint layer, std::vector<std::vector<N_TYPE>>& e)
@@ -126,8 +132,10 @@ void RED::BuildMatrix(Matrix& A, Matrix& C, uint layer, std::vector<std::vector<
 	}
 }
 
-std::vector<std::vector<std::vector<N_TYPE>>> RED::Gradient(std::vector<N_TYPE> inputs, std::vector<N_TYPE> s)
+std::vector<std::vector<std::vector<N_TYPE>>> RED::Gradient()
 {
+	LARGE_INTEGER start, end;
+	QueryPerformanceCounter(&start);
 	std::vector<std::vector<std::vector<N_TYPE>>> output(layerNum);
 	//*vector exterior: capas (externas e internas)
 	//*vector intermedio: neuronas de la capa
@@ -250,6 +258,8 @@ std::vector<std::vector<std::vector<N_TYPE>>> RED::Gradient(std::vector<N_TYPE> 
 		}
 	}
 
+	QueryPerformanceCounter(&end);
+	microsGradient.QuadPart=end.QuadPart-start.QuadPart;
 	return output;
 }
 
@@ -284,6 +294,13 @@ void RED::PrintGradient(const std::vector<std::vector<std::vector<N_TYPE>>>& gra
 			std::cout << std::endl << std::endl;
 		}
 	}
+
+	microsFwd.QuadPart*=1000000;
+	microsFwd.QuadPart/=freq.QuadPart;
+	microsGradient.QuadPart*=1000000;
+	microsGradient.QuadPart/=freq.QuadPart;
+	std::cout<<"Forward tardo "<<microsFwd.QuadPart<<" us"<<std::endl;
+	std::cout<<"Gradiente tardo "<<microsGradient.QuadPart<<" us"<<std::endl;
 }
 
 
