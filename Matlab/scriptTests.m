@@ -10,47 +10,44 @@ layerNum = 5;
 neuronsPerLayer = [3,3 ,2,2,2]; 
 myRED = RED(inputNum,neuronsPerLayer,layerNum)
 %%
+myRED.layers{1}(1).beta = [-7.1405];
+myRED.layers{1}(1).coefs = [5.24841 5.71472 5.62622 9.33533 ];
+
+myRED.layers{1}(2).beta = [-4.24194];
+myRED.layers{1}(2).coefs = [-9.80347 -3.31116 5.00488 -4.9707 ];
+
+myRED.layers{1}(3).beta = [-5.01099];
+myRED.layers{1}(3).coefs = [-9.83826 -5.95276 0.497437 -2.12891 ];
+
+myRED.layers{2}(1).beta = [-7.55981];
+myRED.layers{2}(1).coefs = [8.06641 -5.02502 7.52869 ];
+
+myRED.layers{2}(2).beta = [-3.88794];
+myRED.layers{2}(2).coefs = [3.3728 -2.68555 -5.94788 ];
+
+myRED.layers{2}(3).beta = [0.955811];
+myRED.layers{2}(3).coefs = [0.48584 -3.60168 9.47632 ];
+
+myRED.layers{3}(1).beta = [4.82056];
+myRED.layers{3}(1).coefs = [-6.01013 -5.93018 1.48376 ];
+
+myRED.layers{3}(2).beta = [-4.98169];
+myRED.layers{3}(2).coefs = [0.865479 -7.3645 -6.59973 ];
+
+myRED.layers{4}(1).beta = [0.843506];
+myRED.layers{4}(1).coefs = [5.42786 -7.43652 ];
+
+myRED.layers{4}(2).beta = [-6.40381];
+myRED.layers{4}(2).coefs = [-2.146 8.98132 ];
+
+myRED.layers{5}(1).beta = [-3.99963];
+myRED.layers{5}(1).coefs = [7.43896 4.53247 ];
+
+myRED.layers{5}(2).beta = [2.33704];
+myRED.layers{5}(2).coefs = [1.73584 -5.10376 ];
 
 
-myRED.layers{1}(1).beta = [-6.20239];
-myRED.layers{1}(1).coefs = [-7.34497 -6.24512 7.97546 -8.85864];
 
-myRED.layers{1}(2).beta = [-1.00403];
-myRED.layers{1}(2).coefs = [8.87207 -7.56836 -8.32886 5.75012];
-
-myRED.layers{1}(3).beta = [-6.54114];
-myRED.layers{1}(3).coefs = [-5.53101 7.10571 7.96753 1.75476];
-%-
-
-myRED.layers{2}(1).beta = [3.21838];
-myRED.layers{2}(1).coefs = [4.51904 -8.96484 7.7594];
-
-myRED.layers{2}(2).beta = [-3.81836];
-myRED.layers{2}(2).coefs = [2.89612 -6.48193 -0.770874];
-
-myRED.layers{2}(3).beta = [9.74609];
-myRED.layers{2}(3).coefs = [4.10095 6.74561 1.40198];
-%-
-
-myRED.layers{3}(1).beta = [0.513306];
-myRED.layers{3}(1).coefs = [-8.61328 -8.20984 8.57117];
-
-myRED.layers{3}(2).beta = [3.07495];
-myRED.layers{3}(2).coefs = [-1.43372 4.44824 -8.36426];
-%-
-
-myRED.layers{4}(1).beta = [-0.141602];
-myRED.layers{4}(1).coefs = [2.97485 8.85925];
-
-myRED.layers{4}(2).beta = [-0.244141];
-myRED.layers{4}(2).coefs = [8.67065 5.34363];
-%-
-
-myRED.layers{5}(1).beta = [-9.62646];
-myRED.layers{5}(1).coefs = [4.22852 3.55713];
-
-myRED.layers{5}(2).beta = [9.71863];
-myRED.layers{5}(2).coefs = [8.31421 2.72156];
 
 
 

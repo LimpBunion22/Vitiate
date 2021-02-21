@@ -128,7 +128,7 @@ classdef RED
             A = eye(length(obj.layers{layer}));
             C = zeros(length(obj.layers{layer}),obj.layers{layer}(1).inputNum);
             for i = 1: length(obj.layers{layer})
-                A(i,:)= A(i,:)*obj.layers{layer}(i).Alfa(e{layer}(i));
+                A(i,:)= A(i,:)*obj.layers{layer}(i).Alfa(e{layer+1}(i));
                 C(i,:)= obj.layers{layer}(i).coefs;
             end
         end

@@ -1,6 +1,9 @@
 #pragma once
 #include "Parameters.h"
 #include <vector>
+#include <fstream>
+
+class ofstream;
 
 class Neuron
 {
@@ -25,4 +28,5 @@ public:
 	uint GetInputNum(); //getter
 	const std::vector<N_TYPE>& GetCoefs(); //getter
 	void PrintCoefs();
+	void WriteCoefs(std::ofstream &coefsFile, uint layer, uint neuronPos);
 };

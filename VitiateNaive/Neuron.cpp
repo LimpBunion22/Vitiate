@@ -141,3 +141,14 @@ void Neuron::PrintCoefs()
 
 	std::cout << std::endl <<std::endl;
 }
+
+void Neuron::WriteCoefs(std::ofstream &coefsFile, uint layer, uint neuronPos)
+{
+	coefsFile<<"myRED.layers{"<<layer+1<<"}("<<neuronPos+1<<").beta = ["<<beta<<"];\n";
+	coefsFile<<"myRED.layers{"<<layer+1<<"}("<<neuronPos+1<<").coefs = [";
+
+	for(const auto &coef:coefs)
+		coefsFile<<coef<<" ";
+
+	coefsFile<<"];\n\n";
+}

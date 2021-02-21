@@ -3,7 +3,6 @@
 
 #include <iostream>
 #include <vector>
-#include <fstream>
 #include "RED.h"
 #include "Matrix.h"
 
@@ -62,10 +61,6 @@ int main()
 	// 	std::cout << i << " " << std::endl;
 	
 	// red.PrintCoefs();
-	ofstream myfile;
-	myfile.open("example.txt");
-	myfile << "Writing this to a file.\n";
-	myfile.close();
 
 	uint neurons[] = { 3,3,2,2,2};
 	uint layers = 5;
