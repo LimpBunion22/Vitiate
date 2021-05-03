@@ -1,11 +1,16 @@
 #include "RED.h"
-#include <time.h>
 #include <iostream>
 #include "Matrix.h"
+#include <fstream>
 
-RED::RED(uint inputNum, uint* neuronsPerLayer, uint layerNum) : inputNum(inputNum), layerNum(layerNum), layers(layerNum)
+RED::RED(std::vector<N_TYPE> &inputs, std::vector<N_TYPE> &s, std::vector<N_TYPE> &neuronsPerLayer) :
+inputs(inputs), s(s), layerNum(neuronsPerLayer.size()), layers(neuronsPerLayer.size()) //layers(número de vectores a crear)
 {
+	QueryPerformanceFrequency(&freq); 
 	srand(time(NULL));
+
+	std::ofstream coefsFile;
+	coefsFile.open("coefsFile.txt");
 
 	for (uint i = 0;i < layerNum;i++) //para cada capa
 	{
@@ -13,11 +18,19 @@ RED::RED(uint inputNum, uint* neuronsPerLayer, uint layerNum) : inputNum(inputNu
 
 		if (i) //si no es la primera capa
 			for (uint j = 0;j < neuronsPerLayer[i];j++) //para cada neurona
+			{
 				layers[i].emplace_back(neuronsPerLayer[i - 1], ACTIVATION_FUNC); //crear neurona, siendo el número de entradas la cantidad de neuronas de la capa anterior
+				layers[i].back().WriteCoefs(coefsFile,i,j);
+			}
 		else //si es la primera capa
 			for (uint j = 0;j < neuronsPerLayer[i];j++) //para cada neurona 
-				layers[i].emplace_back(inputNum, ACTIVATION_FUNC); //crear neurona, siendo el número de entradas la cantidad de entradas de la red
+			{
+				layers[i].emplace_back(inputs.size(), ACTIVATION_FUNC); //crear neurona, siendo el número de entradas la cantidad de entradas de la red
+				layers[i].back().WriteCoefs(coefsFile,i,j);
+			}
 	}
+
+	coefsFile.close();
 }
 
 RED::RED(const RED& rhs)
@@ -81,6 +94,8 @@ std::vector<N_TYPE> RED::Forward(std::vector<N_TYPE> inputs) //forward público
 
 void RED::Forward(std::vector<N_TYPE> inputs, std::vector<std::vector<N_TYPE>>& e) //forward privado
 {
+	LARGE_INTEGER start, end;
+	QueryPerformanceCounter(&start);
 	std::vector<N_TYPE> tmpOuts; //vector temporal en el que se guardan los resultados
 	e.reserve((size_t)layerNum + 1); //reservamos número de capas + entradas
 	e.emplace_back(inputs); //inputs iniciales
@@ -96,6 +111,9 @@ void RED::Forward(std::vector<N_TYPE> inputs, std::vector<std::vector<N_TYPE>>& 
 		inputs = tmpOuts; //los cálculos obtenidos en la capa anterior son las entradas de la siguiente
 		e.emplace_back(inputs); //se guardan los cálculos en el vector e
 	}
+
+	QueryPerformanceCounter(&end);
+	microsFwd.QuadPart=end.QuadPart-start.QuadPart;
 }
 
 void RED::BuildMatrix(Matrix& A, Matrix& C, uint layer, std::vector<std::vector<N_TYPE>>& e)
@@ -114,8 +132,10 @@ void RED::BuildMatrix(Matrix& A, Matrix& C, uint layer, std::vector<std::vector<
 	}
 }
 
-std::vector<std::vector<std::vector<N_TYPE>>> RED::Gradient(std::vector<N_TYPE> inputs, std::vector<N_TYPE> s)
+std::vector<std::vector<std::vector<N_TYPE>>> RED::Gradient()
 {
+	LARGE_INTEGER start, end;
+	QueryPerformanceCounter(&start);
 	std::vector<std::vector<std::vector<N_TYPE>>> output(layerNum);
 	//*vector exterior: capas (externas e internas)
 	//*vector intermedio: neuronas de la capa
@@ -148,24 +168,6 @@ std::vector<std::vector<std::vector<N_TYPE>>> RED::Gradient(std::vector<N_TYPE> 
 			output.back()[i][(size_t)j + 1] = E * e[(size_t)layerNum - 1][j]; //Derivada de cada coeficiente. Salidas de la última capa oculta (Como en e hay layerNum+1, la última capa es layerNum y la penúltima -1)
 			N_TYPE E2 = layers.back()[i].GetCoefs()[j] * layers[(size_t)layerNum - 2][j].Alfa(e[(size_t)layerNum - 1][j]); //wn*A de la última capa oculta
 
-			// if (i == 0) //primera neurona
-			// {
-			// 	output[(size_t)layerNum - 2][j][0] = E * E2; //término independiente
-
-			// 	for (uint n = 0; n < layers[(size_t)layerNum - 2][0].GetInputNum(); n++) //cualquier neurona de la capa vale para el índice
-			// 	{
-			// 		output[(size_t)layerNum - 2][j][(size_t)n + 1] = E * E2 * e[(size_t)layerNum - 2][n]; //salidas de la penúltima capa
-			// 	}
-			// }
-			// else //neuronas siguientes acumulamos
-			// {
-			// 	output[(size_t)layerNum - 2][j][0] += E * E2; //término independiente
-
-			// 	for (uint n = 0; n < layers[(size_t)layerNum - 2][0].GetInputNum(); n++) //cualquier neurona de la capa vale para el índice
-			// 	{
-			// 		output[(size_t)layerNum - 2][j][(size_t)n + 1] += E * E2 * e[(size_t)layerNum - 2][n]; //salidas de la penúltima capa
-			// 	}
-			// }
 			//? no debería hacer falta distinguir entre primera neurona y el resto, ya que todos los valores de output están inicializados a cero (no hay valores "extraños" que debamos sobreescribir)
 			output[(size_t)layerNum - 2][j][0] += E * E2; //derivada del término independiente
 
@@ -202,21 +204,6 @@ std::vector<std::vector<std::vector<N_TYPE>>> RED::Gradient(std::vector<N_TYPE> 
 			{
 				N_TYPE val = (outputRow[i3] * col)[0][0]; //la multiplicación es una matriz, de la cual extraemos el primer término (fila 1, col 1)
 
-				// if (i3 == 0) //primera neurona
-				// {
-				// 	output[(size_t)layerNum - 3][i2][0] = val; //término independiente
-
-				// 	for (uint i4 = 0; i4 < layers[(size_t)layerNum - 3][i2].GetInputNum(); i4++) //+1 el término independiente
-				// 		output[(size_t)layerNum - 3][i2][(size_t)i4 + 1] = val * layers[(size_t)layerNum - 3][i2].GetCoefs()[i4]; //+1 término independiente
-				// }
-				// else //neuronas siguientes acumulamos
-				// {
-				// 	output[(size_t)layerNum - 3][i2][0] += val; //término independiente
-
-				// 	for (uint i4 = 0; i4 < layers[(size_t)layerNum - 3][i2].GetInputNum(); i4++) //+1 el término independiente
-				// 		output[(size_t)layerNum - 3][i2][(size_t)i4 + 1] += val * layers[(size_t)layerNum - 3][i2].GetCoefs()[i4]; //+1 término independiente
-				// }
-
 			//? no debería hacer falta distinguir entre primera neurona y el resto, ya que todos los valores de output están inicializados a cero (no hay valores "extraños" que debamos sobreescribir)
 				output[(size_t)layerNum - 3][i2][0] += val; //derivada del término independiente
 
@@ -235,7 +222,7 @@ std::vector<std::vector<std::vector<N_TYPE>>> RED::Gradient(std::vector<N_TYPE> 
 		{	
 			Matrix A(layers[i+2].size()); //! código modificado (matriz de la capa i+2)
 			Matrix C(layers[i+2].size());
-			BuildMatrix(A, C, i, e);
+			BuildMatrix(A, C, i+2, e);
 
 			if (i == layerNum - 4) //^ diferenciación ya que alfa ya se tiene en cuenta en output row, necesario para el cálculo if layerNum > 2. En las siguientes capas se procede normalmente
 				result = C;
@@ -263,7 +250,7 @@ std::vector<std::vector<std::vector<N_TYPE>>> RED::Gradient(std::vector<N_TYPE> 
 
 					for (uint i4 = 0; i4 < layers[i][i2].GetInputNum(); i4++) //+1 el término independiente
 					{
-						output[i][i2][(size_t)i4 + 1] += val * layers[i][i2].GetCoefs()[i4]; //+1 término independiente
+						output[i][i2][(size_t)i4 + 1] += val * e[(size_t)i][i4]; //+1 término independiente
 					}				
 
 				}
@@ -271,6 +258,8 @@ std::vector<std::vector<std::vector<N_TYPE>>> RED::Gradient(std::vector<N_TYPE> 
 		}
 	}
 
+	QueryPerformanceCounter(&end);
+	microsGradient.QuadPart=end.QuadPart-start.QuadPart;
 	return output;
 }
 
@@ -305,6 +294,13 @@ void RED::PrintGradient(const std::vector<std::vector<std::vector<N_TYPE>>>& gra
 			std::cout << std::endl << std::endl;
 		}
 	}
+
+	microsFwd.QuadPart*=1000000;
+	microsFwd.QuadPart/=freq.QuadPart;
+	microsGradient.QuadPart*=1000000;
+	microsGradient.QuadPart/=freq.QuadPart;
+	std::cout<<"Forward tardo "<<microsFwd.QuadPart<<" us"<<std::endl;
+	std::cout<<"Gradiente tardo "<<microsGradient.QuadPart<<" us"<<std::endl;
 }
 
 
