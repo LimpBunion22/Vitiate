@@ -1,3 +1,0 @@
-﻿  RED.cpp
-D:\Gabriel\Vitiate\VitiateNaive\RED.cpp(7,12): warning C4244: 'argument': conversion from 'time_t' to 'unsigned int', possible loss of data
-  VitiateNaive.vcxproj -> D:\Gabriel\Vitiate\VitiateNaive\Debug\VitiateNaive.exe

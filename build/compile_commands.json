@@ -1,0 +1,7 @@
+[
+{
+  "directory": "/home/hai/Desktop/Vitiate/build",
+  "command": "/usr/bin/x86_64-linux-gnu-g++-7    -g   -o CMakeFiles/Vitiate.dir/main.cpp.o -c /home/hai/Desktop/Vitiate/main.cpp",
+  "file": "/home/hai/Desktop/Vitiate/main.cpp"
+}
+]

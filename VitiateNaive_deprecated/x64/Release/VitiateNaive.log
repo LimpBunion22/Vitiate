@@ -1,9 +1,0 @@
-﻿  Neuron.cpp
-  RED.cpp
-C:\Users\usuario\Desktop\Elise\vitiate\PRJ1\VitiateNaive\RED.cpp(7,12): warning C4244: 'argumento': conversión de 'time_t' a 'unsigned int'; posible pérdida de datos
-  VitiateNaive.cpp
-  Generando código
-  Previous IPDB not found, fall back to full compilation.
-  All 209 functions were compiled because no usable IPDB/IOBJ from previous compilation was found.
-  Generación de código finalizada
-  VitiateNaive.vcxproj -> C:\Users\usuario\Desktop\Elise\vitiate\PRJ1\VitiateNaive\x64\Release\VitiateNaive.exe

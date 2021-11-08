@@ -4,7 +4,8 @@
             "name": "Linux",
             "includePath": [
                 "${workspaceFolder}/**",
-                "~/anaconda3/envs/vitiate/include/python3.7m"
+                "~/anaconda3/envs/vitiate/include/python3.7m",
+                "${workspaceFolder}/VitiateNaive/utils/pybind11/include"
             ],
             "defines": [],
             "compilerPath": "/usr/bin/gcc",
