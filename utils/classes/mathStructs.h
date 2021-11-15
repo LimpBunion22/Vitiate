@@ -9,6 +9,7 @@ constexpr long MIN_RANGE = -10;
 constexpr long RANGE = 2 * MAX_RANGE;
 constexpr long DERIVATE = true;
 constexpr long NOT_DERIVATE = false;
+#define RANDOM nullptr
 
 using namespace std;
 
@@ -48,17 +49,17 @@ private:
     }
 
 public:
-    myVec(size_t size, T *vals) : size(size)
+    myVec(size_t size, vector<T> *vals) : size(size)
     {
-        v.reserve(size);
-
         if (vals)
-        {
-            //TODO: Implementar
-        }
+            v = move(*vals);
         else
+        {
+            v.reserve(size);
+
             for (int i = 0; i < size; i++)
                 v.emplace_back(T(((float)random() / RAND_MAX * RANGE + MIN_RANGE)));
+        }
     }
 
     myVec(initializer_list<T> l) : v(l), size(l.size()) {}
@@ -88,8 +89,8 @@ public:
     {
         if (this != &rh)
         {
-            v = move(rh.v);
             size = rh.size;
+            v = move(rh.v);
         }
 
         return *this;
@@ -191,30 +192,70 @@ private:
     myVec() = delete;
 
 public:
-    myVec(size_t size, bool derivate, myFun<T> *funs) : size(size)
+    myVec(size_t size, bool derivate, vector<myFun<T>> *funs) : size(size)
     {
         v.reserve(size);
 
-        if (funs)
+        if (derivate == DERIVATE)
         {
-            //TODO: implementar
-        }
-        else
-        {
-            if (derivate == DERIVATE)
-            {
-                fx.reserve(size);
+            fx.reserve(size);
 
+            if (funs)
+                for (int i = 0; i < size; i++)
+                {
+                    v.emplace_back((*funs)[i]);
+                    fx.emplace_back((*funs)[i + size]);
+                }
+            else
                 for (int i = 0; i < size; i++)
                 {
                     v.emplace_back(myVec::relu);    //TODO: implementar bien
                     fx.emplace_back(myVec::fxrelu); //TODO: implementar bien
                 }
-            }
+        }
+        else
+        {
+            if (funs)
+                for (int i = 0; i < size; i++)
+                    v.emplace_back((*funs)[i]);
             else
                 for (int i = 0; i < size; i++)
                     v.emplace_back(myVec::relu); //TODO: implementar bien
         }
+    }
+
+    myVec(const myVec &rh)
+    {
+        *this = rh;
+    }
+
+    myVec(myVec &&rh)
+    {
+        *this = move(rh);
+    }
+
+    myVec &operator=(const myVec &rh)
+    {
+        if (this != &rh)
+        {
+            v = rh.v;
+            fx = rh.fx;
+            size = rh.size;
+        }
+
+        return *this;
+    }
+
+    myVec &operator=(myVec &&rh)
+    {
+        if (this != &rh)
+        {
+            size = rh.size;
+            v = move(rh.v);
+            fx = move(rh.fx);
+        }
+
+        return *this;
     }
 
     static T relu(T &in)
@@ -292,20 +333,18 @@ private:
     }
 
 public:
-    myMatrix(size_t rows, size_t cols, T **vecs) : rows(rows), cols(cols)
+    myMatrix(size_t rows, size_t cols, vector<vector<T>> *vecs) : rows(rows), cols(cols)
     {
         m.reserve(rows);
 
         if (vecs)
         {
-            //TODO: implementar
+            for (int i = 0; i < rows; i++)
+                m.emplace_back(cols, &(*vecs)[i]);
         }
         else
             for (int i = 0; i < rows; i++)
-            {
-                myVec<T> vec(cols, nullptr);
-                m.emplace_back(vec);
-            }
+                m.emplace_back(cols, RANDOM);
     }
 
     myMatrix(initializer_list<initializer_list<T>> m)
@@ -358,9 +397,9 @@ public:
     {
         if (this != &rh)
         {
-            m = move(rh.m);
             rows = rh.rows;
             cols = rh.cols;
+            m = move(rh.m);
         }
 
         return *this;

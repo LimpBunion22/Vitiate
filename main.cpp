@@ -1,15 +1,13 @@
-#include <pybind11/pybind11.h>
 #include <stdio.h>
 #include <network.h>
 #include <time.h>
-#include <pybind11/embed.h>
 #include <python_handler.h>
 
 namespace py = pybind11;
 using namespace std;
 
 int main()
-{   
+{
     srand(time(NULL));
 
     myVec<size_t> neurons_per_layer = {2, 3, 2};
@@ -24,7 +22,27 @@ int main()
     net.printfxActivations();
     net.printfxNet();
 
-    network<float> my_network = load_network<float>("test_json",true);
-	return 0;
-}
+    //network<float> my_network = load_network<float>("test_json", true);
+    vector<vector<vector<float>>> params =
+        {{{1, 3},
+          {5, 7}},
+         {{1, 1},
+          {2, 1},
+          {3, 2}},
+         {{1, 1, 5},
+          {2, 2, 3}}};
 
+    vector<vector<float>> bias =
+        {{1, 5},
+         {3, 4, 1},
+         {2, 2}};
+
+    network<float> my_network(ins.size, neurons_per_layer, DERIVATE, &params, &bias);
+    my_network.printParams();
+    my_network.initGradient();
+    my_network.gradient(ins, set_outs);
+    my_network.printInnerVals();
+    my_network.printfxActivations();
+    my_network.printfxNet();
+    return 0;
+}

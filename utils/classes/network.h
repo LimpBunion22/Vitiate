@@ -5,8 +5,6 @@
 
 using namespace std;
 
-constexpr size_t BIAS = 1;
-
 template <class T>
 class network
 {
@@ -38,14 +36,110 @@ public:
         for (int i = 0; i < n_layers; i++)
         {
             if (i == 0)
-                params.emplace_back(neurons_per_layer[i], n_ins, nullptr);
+                params.emplace_back(neurons_per_layer[i], n_ins, RANDOM);
             else
-                params.emplace_back(neurons_per_layer[i], neurons_per_layer[i - 1], nullptr);
+                params.emplace_back(neurons_per_layer[i], neurons_per_layer[i - 1], RANDOM);
 
-            activations.emplace_back(neurons_per_layer[i], derivate, nullptr);
-            inner_vals.emplace_back(neurons_per_layer[i], nullptr);
-            bias.emplace_back(neurons_per_layer[i], nullptr);
+            activations.emplace_back(neurons_per_layer[i], derivate, RANDOM);
+            inner_vals.emplace_back(neurons_per_layer[i], RANDOM);
+            bias.emplace_back(neurons_per_layer[i], RANDOM);
         }
+    }
+
+    network(size_t n_ins, myVec<size_t> &neurons_per_layer, bool derivate,
+            vector<vector<vector<T>>> *p, vector<vector<T>> *b) : n_ins(n_ins),
+                                                                  n_layers(neurons_per_layer.size),
+                                                                  n_outs(neurons_per_layer[neurons_per_layer.size - 1]),
+                                                                  neurons_per_layer(neurons_per_layer)
+    {
+        params.reserve(n_layers);
+        activations.reserve(n_layers);
+        inner_vals.reserve(n_layers);
+        bias.reserve(n_layers);
+
+        for (int i = 0; i < n_layers; i++)
+        {
+            if (i == 0)
+                params.emplace_back(neurons_per_layer[i], n_ins, &(*p)[i]);
+            else
+                params.emplace_back(neurons_per_layer[i], neurons_per_layer[i - 1], &(*p)[i]);
+
+            activations.emplace_back(neurons_per_layer[i], derivate, RANDOM);
+            inner_vals.emplace_back(neurons_per_layer[i], RANDOM);
+            bias.emplace_back(neurons_per_layer[i], &(*b)[i]);
+        }
+    }
+
+    network &operator=(const network &rh)
+    {
+        if (this != &rh)
+        {
+            n_ins = rh.n_ins;
+            n_outs = rh.n_outs;
+            n_layers = rh.n_layers;
+            params = rh.params;
+            activations = rh.activations;
+            inner_vals = rh.inner_vals;
+            bias = rh.bias;
+            fx_activations = rh.fx_activations;
+            neurons_per_layer = rh.neurons_per_layer;
+            fx_params = rh.fx_params;
+            fx_bias = rh.bias;
+            tmp_gradient = rh.tmp_gradient;
+        }
+
+        return *this;
+    }
+
+    network &operator=(network &&rh)
+    {
+        if (this != &rh)
+        {
+            n_ins = rh.n_ins;
+            n_outs = rh.n_outs;
+            n_layers = rh.n_layers;
+            params = move(rh.params);
+            activations = move(rh.activations);
+            inner_vals = move(rh.inner_vals);
+            bias = move(rh.bias);
+            fx_activations = move(rh.fx_activations);
+            neurons_per_layer = move(rh.neurons_per_layer);
+            fx_params = move(rh.fx_params);
+            fx_bias = move(rh.bias);
+            tmp_gradient = move(rh.tmp_gradient);
+        }
+
+        return *this;
+    }
+
+    network(const network &rh) : n_ins(rh.n_ins),
+                                 n_outs(rh.n_outs),
+                                 n_layers(rh.n_layers),
+                                 params(rh.params),
+                                 activations(rh.activations),
+                                 inner_vals(rh.inner_vals),
+                                 bias(rh.bias),
+                                 fx_activations(rh.fx_activations),
+                                 neurons_per_layer(rh.neurons_per_layer),
+                                 fx_params(rh.fx_params),
+                                 fx_bias(rh.bias),
+                                 tmp_gradient(rh.tmp_gradient)
+    {
+    }
+
+    network(network &&rh) : n_ins(rh.n_ins),
+                            n_outs(rh.n_outs),
+                            n_layers(rh.n_layers),
+                            params(move(rh.params)),
+                            activations(move(rh.activations)),
+                            inner_vals(move(rh.inner_vals)),
+                            bias(move(rh.bias)),
+                            fx_activations(move(rh.fx_activations)),
+                            neurons_per_layer(move(rh.neurons_per_layer)),
+                            fx_params(move(rh.fx_params)),
+                            fx_bias(move(rh.bias)),
+                            tmp_gradient(move(rh.tmp_gradient))
+    {
     }
 
     void forward(myVec<T> &ins)
@@ -94,13 +188,13 @@ public:
         for (int i = 0; i < n_layers; i++)
         {
             if (i == 0)
-                fx_params.emplace_back(neurons_per_layer[i], n_ins, nullptr);
+                fx_params.emplace_back(neurons_per_layer[i], n_ins, RANDOM);
             else
-                fx_params.emplace_back(neurons_per_layer[i], neurons_per_layer[i - 1], nullptr);
+                fx_params.emplace_back(neurons_per_layer[i], neurons_per_layer[i - 1], RANDOM);
 
-            fx_activations.emplace_back(neurons_per_layer[i], nullptr);
-            fx_bias.emplace_back(neurons_per_layer[i], nullptr);
-            tmp_gradient.emplace_back(neurons_per_layer[i], nullptr);
+            fx_activations.emplace_back(neurons_per_layer[i], RANDOM);
+            fx_bias.emplace_back(neurons_per_layer[i], RANDOM);
+            tmp_gradient.emplace_back(neurons_per_layer[i], RANDOM);
         }
     }
 

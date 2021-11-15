@@ -8,12 +8,13 @@ INCLUDE_DIRECTORIES(./ ./utils/classes ./utils/python)
 # ADD_SUBDIRECTORY(utils/classes)
 
 
-add_subdirectory(utils/python)
+# add_subdirectory(utils/python)
 add_subdirectory(utils/pybind11)
-add_executable(Main main.cpp)
+add_executable(Vitiate main.cpp)
 
-target_link_libraries(Main PRIVATE pybind11::embed)
-target_link_libraries (Main LINK_PUBLIC mypy)
+target_link_libraries(Vitiate PRIVATE pybind11::embed)
+set(DPYTHON_EXECUTABLE /home/hai/anaconda3/envs/vitiate/include/python3.7m)
+# target_link_libraries (Main LINK_PUBLIC mypy)
 
 set(CPACK_PROJECT_NAME ${PROJECT_NAME})
 set(CPACK_PROJECT_VERSION ${PROJECT_VERSION})
