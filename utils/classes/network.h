@@ -271,5 +271,39 @@ public:
             cout << endl;
         }
     }
+
+    size_t get_n_ins() const
+    {
+        return n_ins;
+    }
+
+    size_t get_n_layers() const
+    {
+        return n_layers;
+    }
+
+    size_t get_neurons_per_layer(size_t i)
+    {
+        return neurons_per_layer[i];
+    }
+
+    T get_params(size_t i, size_t j, size_t k)
+    {
+        if (i < params.size())
+            return params[i][j][k];
+
+        cout << "invalid access" << endl;
+        exit(EXIT_FAILURE);
+    }
+
+    T get_bias(size_t i, size_t j)
+
+    {
+        if (i < bias.size())
+            return bias[i][j];
+
+        cout << "invalid access" << endl;
+        exit(EXIT_FAILURE);
+    }
 };
 #endif

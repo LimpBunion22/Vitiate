@@ -7,8 +7,11 @@
 constexpr long MAX_RANGE = 10;
 constexpr long MIN_RANGE = -10;
 constexpr long RANGE = 2 * MAX_RANGE;
-constexpr long DERIVATE = true;
-constexpr long NOT_DERIVATE = false;
+constexpr bool DERIVATE = true;
+constexpr bool NOT_DERIVATE = false;
+constexpr int RELU = 0;
+constexpr int RELU2 = 1;
+constexpr int SIGMOID = 2;
 #define RANDOM nullptr
 
 using namespace std;
@@ -192,7 +195,7 @@ private:
     myVec() = delete;
 
 public:
-    myVec(size_t size, bool derivate, vector<myFun<T>> *funs) : size(size)
+    myVec(size_t size, bool derivate, vector<size_t> *funs) : size(size)
     {
         v.reserve(size);
 
@@ -203,8 +206,16 @@ public:
             if (funs)
                 for (int i = 0; i < size; i++)
                 {
-                    v.emplace_back((*funs)[i]);
-                    fx.emplace_back((*funs)[i + size]);
+                    switch ((*funs)[i])
+                    {
+                    case RELU:
+                    case RELU2:
+                    case SIGMOID:
+                    default:
+                        v.emplace_back(myVec::relu);
+                        fx.emplace_back(myVec::fxrelu);
+                        break;
+                    }
                 }
             else
                 for (int i = 0; i < size; i++)
@@ -217,7 +228,17 @@ public:
         {
             if (funs)
                 for (int i = 0; i < size; i++)
-                    v.emplace_back((*funs)[i]);
+                {
+                    switch ((*funs)[i])
+                    {
+                    case RELU:
+                    case RELU2:
+                    case SIGMOID:
+                    default:
+                        v.emplace_back(myVec::relu);
+                        break;
+                    }
+                }
             else
                 for (int i = 0; i < size; i++)
                     v.emplace_back(myVec::relu); //TODO: implementar bien

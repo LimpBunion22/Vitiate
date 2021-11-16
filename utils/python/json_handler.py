@@ -40,7 +40,7 @@ def write_vector_param(param, ind, param_val):
     global my_json
     if not(param in my_json):
         my_json[param] = []
-    while ind>len(my_json[param]):
+    while ind+1>len(my_json[param]):
         my_json[param].append(param_val)
     my_json[param][ind] = param_val
     return
