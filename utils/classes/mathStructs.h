@@ -156,6 +156,17 @@ public:
         return tmp;
     }
 
+    myVec &operator+=(const myVec &rh)
+    {
+        if (size != rh.size)
+            cout << "invalid dimensions lh is " << size << " rh is " << rh.size << endl;
+        else
+            for (int i = 0; i < size; i++)
+                v[i] += rh.v[i];
+
+        return *this;
+    }
+
     myVec operator-(const myVec &rh)
     {
         if (size != rh.size)
@@ -463,6 +474,33 @@ public:
         }
 
         return tmp;
+    }
+
+    myMatrix operator+(myMatrix &rh)
+    {
+        if (rows != rh.rows || cols != rh.cols)
+        {
+            cout << "invalid dimensions lh is " << cols << " rh is " << rh.cols << endl;
+            return myMatrix(0, 0);
+        }
+
+        myMatrix tmp(rows, cols);
+
+        for (int i = 0; i < rows; i++)
+            tmp.m.emplace_back((*this)[i] + rh[i]);
+
+        return tmp;
+    }
+
+    myMatrix &operator+=(myMatrix &rh)
+    {
+        if (rows != rh.rows || cols != rh.cols)
+            cout << "invalid dimensions lh is " << cols << " rh is " << rh.cols << endl;
+        else
+            for (int i = 0; i < rows; i++)
+                (*this)[i] += rh[i];
+
+        return *this;
     }
 
     template <class U>

@@ -11,8 +11,6 @@ int main()
     srand(time(NULL));
 
     // myVec<size_t> neurons_per_layer = {2, 3, 2};
-    myVec<float> ins = {2.0f, 1.0f};
-    myVec<float> set_outs = {0, 0, 0, 0 ,0};
 
     // network<float> net(ins.size, neurons_per_layer, DERIVATE);
     // net.printParams();
@@ -36,16 +34,27 @@ int main()
     //      {3, 4, 1},
     //      {2, 2}};
 
+    myVec<float> ins = {2.0f, 1.0f};
+    myVec<float> set_outs = {0, 0, 0, 0, 0};
     // network<float> my_network(ins.size, neurons_per_layer, DERIVATE, &params, &bias);
     network<float> my_network = load_network<float>("test_net", DERIVATE);
-    my_network.printParams();
+    network<float>::fx_container my_container(my_network);
+    my_network.print_params();
     my_network.initGradient();
-    my_network.gradient(ins, set_outs);
-    my_network.printInnerVals();
-    my_network.printfxActivations();
-    my_network.printfxNet();
-
-    save_network<float>("saved_net", my_network);
+    
+    for (int i = 0; i < 10; i++)
+    {
+        my_network.gradient(ins, set_outs, my_container);
+        // my_network.print_inner_vals();
+        // my_network.print_fx_activations();
+        // my_container.print_fx();
+        my_container.normalize_1();
+        // my_container.print_fx();
+        my_network.update_params(my_container);
+    }
+    // my_network.print_params();
+    my_network.print_inner_vals();
+    //save_network<float>("saved_net", my_network);
 
     return 0;
 }
