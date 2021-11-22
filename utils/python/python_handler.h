@@ -109,4 +109,25 @@ void save_network(std::string network_name, network<T> &my_network)
     return;
 }
 
+template <class T>
+void save_xy(std::string plot_name, vector<T> &x_vector,  vector<T> &y_vector)
+{
+    py::scoped_interpreter guard{};
+    py::module_ in_out = py::module_::import("in_out");
+
+    std::string x_name = plot_name + "_x";
+    std::string y_name = plot_name + "_y";
+    in_out.attr("add_key")(x_name);
+    in_out.attr("add_key")(y_name);
+
+    for(int cnt= 0; cnt<x_vector.size(); cnt++){
+        in_out.attr("add_value")(x_name, x_vector[cnt]);
+        in_out.attr("add_value")(y_name, y_vector[cnt]);
+    }
+
+    in_out.attr("save_dict")(plot_name);
+
+    return;
+}
+
 #endif

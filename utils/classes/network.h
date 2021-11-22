@@ -413,6 +413,10 @@ public:
         cout << endl;
     }
 
+    myVec<T> &get_output(){
+        return inner_vals.back();
+    }
+
     size_t get_n_ins() const
     {
         return n_ins;
