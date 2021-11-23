@@ -57,9 +57,11 @@ public:
 
         fx_container &operator+=(fx_container &rh)
         {
+#ifdef ASSERT
             if (n_layers != rh.n_layers)
                 cout << "invalid dimensions lh is " << n_layers << " rh is " << rh.n_layers << endl;
             else
+#endif
                 for (int i = 0; i < n_layers; i++)
                 {
                     fx_params[i] += rh.fx_params[i];
@@ -71,9 +73,11 @@ public:
 
         fx_container &operator-=(fx_container &rh)
         {
+#ifdef ASSERT
             if (n_layers != rh.n_layers)
                 cout << "invalid dimensions lh is " << n_layers << " rh is " << rh.n_layers << endl;
             else
+#endif
                 for (int i = 0; i < n_layers; i++)
                 {
                     fx_params[i] -= rh.fx_params[i];
@@ -321,7 +325,7 @@ public:
         }
     }
 
-    void forwardGradient(myVec<T> &ins)
+    void forward_gradient(myVec<T> &ins)
     {
         for (int i = 0; i < n_layers; i++)
         {
@@ -342,7 +346,7 @@ public:
         }
     }
 
-    void initGradient()
+    void init_gradient()
     {
         fx_activations.reserve(n_layers);
         tmp_gradient.reserve(n_layers);
@@ -357,12 +361,12 @@ public:
     //* R*(fx^P)*(fx^P)...^(fx matrix I)
     void gradient(myVec<T> &ins, myVec<T> &set_outs, fx_container &fx)
     {
-        forwardGradient(ins);
+        forward_gradient(ins);
         myVec<T> R = set_outs - inner_vals[n_layers - 1];
 
         //* caso salidas
         tmp_gradient[n_layers - 1] = R;
-        fx.fx_params[n_layers - 1] = makeFrom(fx_activations[n_layers - 1], inner_vals[n_layers - 2]);
+        fx.fx_params[n_layers - 1] = make_from(fx_activations[n_layers - 1], inner_vals[n_layers - 2]);
         fx.fx_params[n_layers - 1] ^= tmp_gradient[n_layers - 1];
         fx.fx_bias[n_layers - 1] = tmp_gradient[n_layers - 1] ^ fx_activations[n_layers - 1];
 
@@ -371,7 +375,7 @@ public:
         {
             myMatrix<T> fx_special_product_params = params[i + 1] ^ fx_activations[i + 1];
             tmp_gradient[i] = tmp_gradient[i + 1] * fx_special_product_params;
-            fx.fx_params[i] = makeFrom(fx_activations[i], inner_vals[i - 1]);
+            fx.fx_params[i] = make_from(fx_activations[i], inner_vals[i - 1]);
             fx.fx_params[i] ^= tmp_gradient[i];
             fx.fx_bias[i] = tmp_gradient[i] ^ fx_activations[i];
         }
@@ -379,16 +383,18 @@ public:
         //* caso entradas
         myMatrix<T> fx_special_product_params = params[1] ^ fx_activations[1];
         tmp_gradient[0] = tmp_gradient[1] * fx_special_product_params;
-        fx.fx_params[0] = makeFrom(fx_activations[0], ins);
+        fx.fx_params[0] = make_from(fx_activations[0], ins);
         fx.fx_params[0] ^= tmp_gradient[0];
         fx.fx_bias[0] = tmp_gradient[0] ^ fx_activations[0];
     }
 
     void update_params(fx_container &rh)
     {
+#ifdef ASSERT
         if (n_layers != rh.get_n_layers())
             cout << "invalid dimensions lh is " << n_layers << " rh is " << rh.get_n_layers() << endl;
         else
+#endif
             for (int i = 0; i < n_layers; i++)
             {
                 params[i] += rh.fx_params[i];
@@ -448,21 +454,28 @@ public:
 
     T get_params(size_t i, size_t j, size_t k)
     {
+#ifdef ASSERT
         if (i < params.size())
             return params[i][j][k];
 
         cout << "invalid access" << endl;
         exit(EXIT_FAILURE);
+#else
+        return params[i][j][k];
+#endif
     }
 
     T get_bias(size_t i, size_t j)
-
     {
+#ifdef ASSERT
         if (i < bias.size())
             return bias[i][j];
 
         cout << "invalid access" << endl;
         exit(EXIT_FAILURE);
+#else
+        return bias[i][j];
+#endif
     }
 };
 #endif

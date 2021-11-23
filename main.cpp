@@ -5,6 +5,8 @@
 
 using namespace std;
 
+#define ASSERT
+
 int main()
 {
     srand(time(NULL));
@@ -34,7 +36,7 @@ int main()
 
     network<float> my_network(ins.size(), neurons_per_layer, DERIVATE, &params, &bias);
     network<float>::fx_container my_container(my_network);
-    my_network.initGradient();
+    my_network.init_gradient();
 
     int iterations = 10;
 
