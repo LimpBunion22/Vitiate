@@ -4,17 +4,12 @@ project(Vitiate VERSION 0.1.0)
 include(CTest)
 enable_testing()
 
-INCLUDE_DIRECTORIES(./ ./utils/classes ./utils/python)
-# ADD_SUBDIRECTORY(utils/classes)
+INCLUDE_DIRECTORIES(./ ./utils/classes)
 
-
-# add_subdirectory(utils/python)
 add_subdirectory(utils/pybind11)
-add_executable(Vitiate main.cpp)
+add_executable(main main.cpp)
 
-target_link_libraries(Vitiate PRIVATE pybind11::embed)
-set(DPYTHON_EXECUTABLE /home/hai/anaconda3/envs/vitiate/include/python3.7m)
-# target_link_libraries (Main LINK_PUBLIC mypy)
+target_link_libraries(main PRIVATE pybind11::embed)
 
 set(CPACK_PROJECT_NAME ${PROJECT_NAME})
 set(CPACK_PROJECT_VERSION ${PROJECT_VERSION})

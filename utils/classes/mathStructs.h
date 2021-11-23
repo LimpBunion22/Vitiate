@@ -38,51 +38,43 @@ class myVec
     friend myMatrix<U> makeFrom(myVec<U> &lh, myVec<U> &rh);
 
 private:
+    size_t _size;
     vector<T> v;
-
-public:
-    size_t size;
 
 private:
     myVec() = delete;
 
-    myVec(size_t size) : size(size)
+    myVec(size_t _size) : _size(_size)
     {
-        v.reserve(size);
+        v.reserve(_size);
     }
 
 public:
-    myVec(size_t size, vector<T> *vals) : size(size)
+    myVec(size_t _size, vector<T> *vals) : _size(_size)
     {
         if (vals)
             v = move(*vals);
         else
         {
-            v.reserve(size);
+            v.reserve(_size);
 
-            for (int i = 0; i < size; i++)
-                v.emplace_back(T(((float)random() / RAND_MAX * RANGE + MIN_RANGE)));
+            for (int i = 0; i < _size; i++)
+                v.emplace_back(T((float)random() / RAND_MAX * RANGE + MIN_RANGE));
         }
     }
 
-    myVec(initializer_list<T> l) : v(l), size(l.size()) {}
+    myVec(initializer_list<T> l) : v(l), _size(l.size()) {}
 
-    myVec(const myVec &rh)
-    {
-        *this = rh;
-    }
+    myVec(const myVec &rh) : _size(rh._size), v(rh.v) {}
 
-    myVec(myVec &&rh)
-    {
-        *this = move(rh);
-    }
+    myVec(myVec &&rh) : _size(rh._size), v(move(rh.v)) {}
 
     myVec &operator=(const myVec &rh)
     {
         if (this != &rh)
         {
+            _size = rh._size;
             v = rh.v;
-            size = rh.size;
         }
 
         return *this;
@@ -92,7 +84,7 @@ public:
     {
         if (this != &rh)
         {
-            size = rh.size;
+            _size = rh._size;
             v = move(rh.v);
         }
 
@@ -101,7 +93,7 @@ public:
 
     T &operator[](int i)
     {
-        if (i < size)
+        if (i < _size)
             return v[i];
 
         cout << "invalid access" << endl;
@@ -110,15 +102,15 @@ public:
 
     T operator*(const myVec &rh)
     {
-        if (size != rh.size)
+        if (_size != rh._size)
         {
-            cout << "invalid dimensions lh is " << size << " rh is " << rh.size << endl;
+            cout << "invalid dimensions lh is " << _size << " rh is " << rh._size << endl;
             return 0;
         }
 
         T sum = 0;
 
-        for (int i = 0; i < size; i++)
+        for (int i = 0; i < _size; i++)
             sum += v[i] * rh.v[i];
 
         return sum;
@@ -126,31 +118,42 @@ public:
 
     myVec operator^(const myVec &rh)
     {
-        if (size != rh.size)
+        if (_size != rh._size)
         {
-            cout << "invalid dimensions lh is " << size << " rh is " << rh.size << endl;
-            return 0;
+            cout << "invalid dimensions lh is " << _size << " rh is " << rh._size << endl;
+            return myVec(0);
         }
 
-        myVec<T> tmp(size);
+        myVec<T> tmp(_size);
 
-        for (int i = 0; i < size; i++)
+        for (int i = 0; i < _size; i++)
             tmp.v.emplace_back(v[i] * rh.v[i]);
 
         return tmp;
     }
 
+    myVec &operator^=(const myVec &rh)
+    {
+        if (_size != rh._size)
+            cout << "invalid dimensions lh is " << _size << " rh is " << rh._size << endl;
+        else
+            for (int i = 0; i < _size; i++)
+                v[i] *= rh.v[i];
+
+        return *this;
+    }
+
     myVec operator+(const myVec &rh)
     {
-        if (size != rh.size)
+        if (_size != rh._size)
         {
-            cout << "invalid dimensions lh is " << size << " rh is " << rh.size << endl;
-            return 0;
+            cout << "invalid dimensions lh is " << _size << " rh is " << rh._size << endl;
+            return myVec(0);
         }
 
-        myVec<T> tmp(size);
+        myVec<T> tmp(_size);
 
-        for (int i = 0; i < size; i++)
+        for (int i = 0; i < _size; i++)
             tmp.v.emplace_back(v[i] + rh.v[i]);
 
         return tmp;
@@ -158,10 +161,10 @@ public:
 
     myVec &operator+=(const myVec &rh)
     {
-        if (size != rh.size)
-            cout << "invalid dimensions lh is " << size << " rh is " << rh.size << endl;
+        if (_size != rh._size)
+            cout << "invalid dimensions lh is " << _size << " rh is " << rh._size << endl;
         else
-            for (int i = 0; i < size; i++)
+            for (int i = 0; i < _size; i++)
                 v[i] += rh.v[i];
 
         return *this;
@@ -169,18 +172,34 @@ public:
 
     myVec operator-(const myVec &rh)
     {
-        if (size != rh.size)
+        if (_size != rh._size)
         {
-            cout << "invalid dimensions lh is " << size << " rh is " << rh.size << endl;
-            return 0;
+            cout << "invalid dimensions lh is " << _size << " rh is " << rh._size << endl;
+            return myVec(0);
         }
 
-        myVec<T> tmp(size);
+        myVec<T> tmp(_size);
 
-        for (int i = 0; i < size; i++)
+        for (int i = 0; i < _size; i++)
             tmp.v.emplace_back(v[i] - rh.v[i]);
 
         return tmp;
+    }
+
+    myVec &operator-=(const myVec &rh)
+    {
+        if (_size != rh._size)
+            cout << "invalid dimensions lh is " << _size << " rh is " << rh._size << endl;
+        else
+            for (int i = 0; i < _size; i++)
+                v[i] -= rh.v[i];
+
+        return *this;
+    }
+
+    size_t size()
+    {
+        return _size;
     }
 
     void print()
@@ -188,7 +207,8 @@ public:
         for (auto &el : v)
             cout << el << " ";
 
-        cout << endl;
+        cout << endl
+             << endl;
     }
 };
 
@@ -196,26 +216,24 @@ template <class T>
 class myVec<myFun<T>>
 {
 private:
+    size_t _size;
     vector<myFun<T>> v;
     vector<myFun<T>> fx;
-
-public:
-    size_t size;
 
 private:
     myVec() = delete;
 
 public:
-    myVec(size_t size, bool derivate, vector<size_t> *funs) : size(size)
+    myVec(size_t _size, bool derivate, vector<size_t> *funs) : _size(_size)
     {
-        v.reserve(size);
+        v.reserve(_size);
 
         if (derivate == DERIVATE)
         {
-            fx.reserve(size);
+            fx.reserve(_size);
 
             if (funs)
-                for (int i = 0; i < size; i++)
+                for (int i = 0; i < _size; i++)
                 {
                     switch ((*funs)[i])
                     {
@@ -229,7 +247,7 @@ public:
                     }
                 }
             else
-                for (int i = 0; i < size; i++)
+                for (int i = 0; i < _size; i++)
                 {
                     v.emplace_back(myVec::relu);    //TODO: implementar bien
                     fx.emplace_back(myVec::fxrelu); //TODO: implementar bien
@@ -238,7 +256,7 @@ public:
         else
         {
             if (funs)
-                for (int i = 0; i < size; i++)
+                for (int i = 0; i < _size; i++)
                 {
                     switch ((*funs)[i])
                     {
@@ -251,28 +269,22 @@ public:
                     }
                 }
             else
-                for (int i = 0; i < size; i++)
+                for (int i = 0; i < _size; i++)
                     v.emplace_back(myVec::relu); //TODO: implementar bien
         }
     }
 
-    myVec(const myVec &rh)
-    {
-        *this = rh;
-    }
+    myVec(const myVec &rh) : _size(rh._size), v(rh.v), fx(rh.fx) {}
 
-    myVec(myVec &&rh)
-    {
-        *this = move(rh);
-    }
+    myVec(myVec &&rh) : _size(rh._size), v(move(rh.v)), fx(move(rh.fx)) {}
 
     myVec &operator=(const myVec &rh)
     {
         if (this != &rh)
         {
+            _size = rh._size;
             v = rh.v;
             fx = rh.fx;
-            size = rh.size;
         }
 
         return *this;
@@ -282,7 +294,7 @@ public:
     {
         if (this != &rh)
         {
-            size = rh.size;
+            _size = rh._size;
             v = move(rh.v);
             fx = move(rh.fx);
         }
@@ -310,15 +322,15 @@ public:
 
     myVec<T> calculate(myVec<T> &rh)
     {
-        if (size != rh.size)
+        if (_size != rh._size)
         {
-            cout << "invalid dimensions lh is " << size << " rh is " << rh.size << endl;
-            return myVec<T>(0, nullptr);
+            cout << "invalid dimensions lh is " << _size << " rh is " << rh._size << endl;
+            return myVec<T>(0);
         }
 
-        myVec<T> tmp(size);
+        myVec<T> tmp(_size);
 
-        for (int i = 0; i < size; i++)
+        for (int i = 0; i < _size; i++)
             tmp.v.emplace_back(v[i](rh[i]));
 
         return tmp;
@@ -326,100 +338,85 @@ public:
 
     myVec<T> derivate(myVec<T> &rh)
     {
-        if (size != rh.size)
+        if (_size != rh._size)
         {
-            cout << "invalid dimensions lh is " << size << " rh is " << rh.size << endl;
-            return myVec<T>(0, nullptr);
+            cout << "invalid dimensions lh is " << _size << " rh is " << rh._size << endl;
+            return myVec<T>(0);
         }
 
-        myVec<T> tmp(size);
+        myVec<T> tmp(_size);
 
-        for (int i = 0; i < size; i++)
+        for (int i = 0; i < _size; i++)
             tmp.v.emplace_back(fx[i](rh[i]));
 
         return tmp;
     }
 
-    void print()
+    size_t size()
     {
-        cout << "hola" << endl;
+        return _size;
     }
 };
 
 template <class T>
 class myMatrix
 {
-private:
-    vector<myVec<T>> m;
+    template <class U>
+    friend myVec<U> operator*(myVec<U> &vec, myMatrix<U> &matrix);
 
-public:
-    size_t rows;
-    size_t cols;
+    template <class U>
+    friend myVec<U> operator*(myMatrix<U> &matrix, myVec<U> &vec);
+
+    template <class U>
+    friend myMatrix<U> makeFrom(myVec<U> &lh, myVec<U> &rh);
+
+private:
+    size_t _rows;
+    size_t _cols;
+    vector<myVec<T>> m;
 
 private:
     myMatrix() = delete;
 
-    myMatrix(size_t rows, size_t cols) : rows(rows), cols(cols)
+    myMatrix(size_t _rows, size_t _cols) : _rows(_rows), _cols(_cols)
     {
-        m.reserve(rows);
+        m.reserve(_rows);
     }
 
 public:
-    myMatrix(size_t rows, size_t cols, vector<vector<T>> *vecs) : rows(rows), cols(cols)
+    myMatrix(size_t _rows, size_t _cols, vector<vector<T>> *vecs) : _rows(_rows), _cols(_cols)
     {
-        m.reserve(rows);
+        m.reserve(_rows);
 
         if (vecs)
         {
-            for (int i = 0; i < rows; i++)
-                m.emplace_back(cols, &(*vecs)[i]);
+            for (int i = 0; i < _rows; i++)
+                m.emplace_back(_cols, &(*vecs)[i]);
         }
         else
-            for (int i = 0; i < rows; i++)
-                m.emplace_back(cols, RANDOM);
+            for (int i = 0; i < _rows; i++)
+                m.emplace_back(_cols, RANDOM);
     }
 
-    myMatrix(initializer_list<initializer_list<T>> m)
+    myMatrix(initializer_list<initializer_list<T>> l) : _rows(l.size()), _cols(l.begin()->size())
     {
-        rows = m.size();
-        cols = m.begin()->size();
-        this->m.reserve(m.size());
+        m.reserve(l.size());
 
-        for (auto &list : m)
-        {
-            this->m.emplace_back(list);
-        }
+        for (auto &list : l)
+            m.emplace_back(list);
     }
 
-    myMatrix(vector<myVec<T> *> m)
-    {
-        rows = m.size();
-        cols = m.back()->size;
-        this->m.reserve(m.size());
+    myMatrix(const myMatrix &rh) : _rows(rh._rows), _cols(rh._cols), m(rh.m) {}
 
-        for (auto &vec : m)
-        {
-            this->m.emplace_back(*vec);
-        }
-    }
-
-    myMatrix(const myMatrix &rh)
-    {
-        *this = rh;
-    }
-
-    myMatrix(myMatrix &&rh)
-    {
-        *this = move(rh);
-    }
+    myMatrix(myMatrix &&rh) : _rows(rh._rows), _cols(rh._cols), m(move(rh.m)) {}
 
     myMatrix &operator=(const myMatrix &rh)
     {
         if (this != &rh)
         {
             m = rh.m;
-            rows = rh.rows;
-            cols = rh.cols;
+            _rows = rh._rows;
+            _cols = rh._cols;
         }
 
         return *this;
@@ -429,8 +426,8 @@ public:
     {
         if (this != &rh)
         {
-            rows = rh.rows;
-            cols = rh.cols;
+            _rows = rh._rows;
+            _cols = rh._cols;
             m = move(rh.m);
         }
 
@@ -439,7 +436,7 @@ public:
 
     myVec<T> &operator[](size_t row)
     {
-        if (row < rows)
+        if (row < _rows)
             return m[row];
 
         cout << "invalid access" << endl;
@@ -448,23 +445,23 @@ public:
 
     myMatrix operator*(myMatrix &rh)
     {
-        if (cols != rh.rows)
+        if (_cols != rh._rows)
         {
-            cout << "invalid dimensions lh is " << cols << " rh is " << rh.cols << endl;
+            cout << "invalid dimensions lh is " << _cols << " rh is " << rh._cols << endl;
             return myMatrix(0, 0);
         }
 
-        myMatrix tmp(rows, rh.cols);
+        myMatrix tmp(_rows, rh._cols);
 
-        for (int i = 0; i < rows; i++)
+        for (int i = 0; i < _rows; i++)
         {
-            myVec<T> row(rh.cols);
+            myVec<T> row(rh._cols);
 
-            for (int j = 0; j < rh.cols; j++)
+            for (int j = 0; j < rh._cols; j++)
             {
                 T sum = 0;
 
-                for (int k = 0; k < rh.rows; k++)
+                for (int k = 0; k < rh._rows; k++)
                     sum += (*this)[i][k] * rh[k][j];
 
                 row.v.emplace_back(sum);
@@ -478,15 +475,15 @@ public:
 
     myMatrix operator+(myMatrix &rh)
     {
-        if (rows != rh.rows || cols != rh.cols)
+        if (_rows != rh._rows || _cols != rh._cols)
         {
-            cout << "invalid dimensions lh is " << cols << " rh is " << rh.cols << endl;
+            cout << "invalid dimensions lh is " << _cols << " rh is " << rh._cols << endl;
             return myMatrix(0, 0);
         }
 
-        myMatrix tmp(rows, cols);
+        myMatrix tmp(_rows, _cols);
 
-        for (int i = 0; i < rows; i++)
+        for (int i = 0; i < _rows; i++)
             tmp.m.emplace_back((*this)[i] + rh[i]);
 
         return tmp;
@@ -494,96 +491,79 @@ public:
 
     myMatrix &operator+=(myMatrix &rh)
     {
-        if (rows != rh.rows || cols != rh.cols)
-            cout << "invalid dimensions lh is " << cols << " rh is " << rh.cols << endl;
+        if (_rows != rh._rows || _cols != rh._cols)
+            cout << "invalid dimensions lh is " << _cols << " rh is " << rh._cols << endl;
         else
-            for (int i = 0; i < rows; i++)
+            for (int i = 0; i < _rows; i++)
                 (*this)[i] += rh[i];
 
         return *this;
     }
 
-    template <class U>
-    friend myVec<U> operator*(myVec<U> &vec, myMatrix<U> &matrix)
+    myMatrix operator-(myMatrix &rh)
     {
-        if (vec.size != matrix.rows)
+        if (_rows != rh._rows || _cols != rh._cols)
         {
-            cout << "invalid dimensions lh is " << vec.size << " rh is " << matrix.rows << endl;
-            return 0;
+            cout << "invalid dimensions lh is " << _cols << " rh is " << rh._cols << endl;
+            return myMatrix(0, 0);
         }
 
-        myVec<U> tmp(matrix.cols);
+        myMatrix tmp(_rows, _cols);
 
-        for (int j = 0; j < matrix.cols; j++)
-        {
-            T sum = 0;
-
-            for (int k = 0; k < matrix.rows; k++)
-                sum += vec[k] * matrix[k][j];
-
-            tmp.v.emplace_back(sum);
-        }
+        for (int i = 0; i < _rows; i++)
+            tmp.m.emplace_back((*this)[i] - rh[i]);
 
         return tmp;
     }
 
-    template <class U>
-    friend myVec<U> operator*(myMatrix<U> &matrix, myVec<U> &vec)
+    myMatrix &operator-=(myMatrix &rh)
     {
-        if (matrix.cols != vec.size)
-        {
-            cout << "invalid dimensions lh is " << matrix.cols << " rh is " << vec.size << endl;
-            return 0;
-        }
+        if (_rows != rh._rows || _cols != rh._cols)
+            cout << "invalid dimensions lh is " << _cols << " rh is " << rh._cols << endl;
+        else
+            for (int i = 0; i < _rows; i++)
+                (*this)[i] -= rh[i];
 
-        myVec<U> tmp(matrix.rows);
-
-        for (int j = 0; j < matrix.rows; j++)
-        {
-            T sum = 0;
-
-            for (int k = 0; k < matrix.cols; k++)
-                sum += vec[k] * matrix[j][k];
-
-            tmp.v.emplace_back(sum);
-        }
-
-        return tmp;
+        return *this;
     }
 
-    template <class U>
-    friend myMatrix<U> makeFrom(myVec<U> &lh, myVec<U> &rh)
+    myMatrix operator^(myVec<T> &rh)
     {
-        myMatrix<U> tmp(lh.size, rh.size);
-
-        for (int i = 0; i < lh.size; i++)
+        if (rh._size != _rows)
         {
-            myVec<T> row(rh.size);
-
-            for (int j = 0; j < rh.size; j++)
-                row.v.emplace_back(lh[i] * rh[j]);
-
-            tmp.m.emplace_back(row);
-        }
-
-        return tmp;
-    }
-
-    myMatrix operator^(myVec<T> &vec)
-    {
-        if (vec.size != rows)
-        {
-            cout << "invalid dimensions lh is " << rows << " rh is " << vec.size << endl;
+            cout << "invalid dimensions lh is " << _rows << " rh is " << rh._size << endl;
             return myMatrix(0, 0);
         }
 
         myMatrix tmp = *this;
 
-        for (int i = 0; i < rows; i++)
-            for (int j = 0; j < cols; j++)
-                tmp[i][j] *= vec[i];
+        for (int i = 0; i < _rows; i++)
+            for (int j = 0; j < _cols; j++)
+                tmp[i][j] *= rh[i];
 
         return tmp;
+    }
+
+    myMatrix &operator^=(myVec<T> &rh)
+    {
+        if (rh._size != _rows)
+            cout << "invalid dimensions lh is " << _rows << " rh is " << rh._size << endl;
+        else
+            for (int i = 0; i < _rows; i++)
+                for (int j = 0; j < _cols; j++)
+                    (*this)[i][j] *= rh[i];
+
+        return *this;
+    }
+
+    size_t rows()
+    {
+        return _rows;
+    }
+
+    size_t cols()
+    {
+        return _cols;
     }
 
     void print()
@@ -594,5 +574,71 @@ public:
         cout << endl;
     }
 };
+
+template <class U>
+myVec<U> operator*(myVec<U> &vec, myMatrix<U> &matrix)
+{
+    if (vec._size != matrix._rows)
+    {
+        cout << "invalid dimensions lh is " << vec._size << " rh is " << matrix._rows << endl;
+        return myVec<U>(0);
+    }
+
+    myVec<U> tmp(matrix._cols);
+
+    for (int j = 0; j < matrix._cols; j++)
+    {
+        U sum = 0;
+
+        for (int k = 0; k < matrix._rows; k++)
+            sum += vec[k] * matrix[k][j];
+
+        tmp.v.emplace_back(sum);
+    }
+
+    return tmp;
+}
+
+template <class U>
+myVec<U> operator*(myMatrix<U> &matrix, myVec<U> &vec)
+{
+    if (matrix._cols != vec._size)
+    {
+        cout << "invalid dimensions lh is " << matrix._cols << " rh is " << vec._size << endl;
+        return myVec<U>(0);
+    }
+
+    myVec<U> tmp(matrix._rows);
+
+    for (int j = 0; j < matrix._rows; j++)
+    {
+        U sum = 0;
+
+        for (int k = 0; k < matrix._cols; k++)
+            sum += vec[k] * matrix[j][k];
+
+        tmp.v.emplace_back(sum);
+    }
+
+    return tmp;
+}
+
+template <class U>
+myMatrix<U> makeFrom(myVec<U> &lh, myVec<U> &rh)
+{
+    myMatrix<U> tmp(lh._size, rh._size);
+
+    for (int i = 0; i < lh._size; i++)
+    {
+        myVec<U> row(rh._size);
+
+        for (int j = 0; j < rh._size; j++)
+            row.v.emplace_back(lh[i] * rh[j]);
+
+        tmp.m.emplace_back(row);
+    }
+
+    return tmp;
+}
 
 #endif

@@ -69,6 +69,20 @@ public:
             return *this;
         }
 
+        fx_container &operator-=(fx_container &rh)
+        {
+            if (n_layers != rh.n_layers)
+                cout << "invalid dimensions lh is " << n_layers << " rh is " << rh.n_layers << endl;
+            else
+                for (int i = 0; i < n_layers; i++)
+                {
+                    fx_params[i] -= rh.fx_params[i];
+                    fx_bias[i] -= rh.fx_bias[i];
+                }
+
+            return *this;
+        }
+
         void normalize_0(T factor = 1)
         {
             T max = 0;
@@ -76,9 +90,9 @@ public:
 
             for (int i = 0; i < n_layers; i++)
             {
-                for (int j = 0; j < fx_params[i].rows; j++)
+                for (int j = 0; j < fx_params[i].rows(); j++)
                 {
-                    for (int k = 0; k < fx_params[i].cols; k++)
+                    for (int k = 0; k < fx_params[i].cols(); k++)
                     {
                         val = abs(fx_params[i][j][k]);
                         max = val > max ? val : max;
@@ -93,9 +107,9 @@ public:
 
             for (int i = 0; i < n_layers; i++)
             {
-                for (int j = 0; j < fx_params[i].rows; j++)
+                for (int j = 0; j < fx_params[i].rows(); j++)
                 {
-                    for (int k = 0; k < fx_params[i].cols; k++)
+                    for (int k = 0; k < fx_params[i].cols(); k++)
                         fx_params[i][j][k] /= max;
 
                     fx_bias[i][j] /= max;
@@ -109,9 +123,9 @@ public:
 
             for (int i = 0; i < n_layers; i++)
             {
-                for (int j = 0; j < fx_params[i].rows; j++)
+                for (int j = 0; j < fx_params[i].rows(); j++)
                 {
-                    for (int k = 0; k < fx_params[i].cols; k++)
+                    for (int k = 0; k < fx_params[i].cols(); k++)
                         max += abs(fx_params[i][j][k]);
 
                     max += abs(fx_bias[i][j]);
@@ -122,16 +136,14 @@ public:
 
             for (int i = 0; i < n_layers; i++)
             {
-                for (int j = 0; j < fx_params[i].rows; j++)
+                for (int j = 0; j < fx_params[i].rows(); j++)
                 {
-                    for (int k = 0; k < fx_params[i].cols; k++)
+                    for (int k = 0; k < fx_params[i].cols(); k++)
                         fx_params[i][j][k] /= max;
 
                     fx_bias[i][j] /= max;
                 }
             }
-
-            cout << "norma 1 " << max << endl;
         }
 
         void normalize_2(T factor = 1)
@@ -140,9 +152,9 @@ public:
 
             for (int i = 0; i < n_layers; i++)
             {
-                for (int j = 0; j < fx_params[i].rows; j++)
+                for (int j = 0; j < fx_params[i].rows(); j++)
                 {
-                    for (int k = 0; k < fx_params[i].cols; k++)
+                    for (int k = 0; k < fx_params[i].cols(); k++)
                         max += fx_params[i][j][k] * fx_params[i][j][k];
 
                     max += fx_bias[i][j] * fx_bias[i][j];
@@ -154,16 +166,14 @@ public:
 
             for (int i = 0; i < n_layers; i++)
             {
-                for (int j = 0; j < fx_params[i].rows; j++)
+                for (int j = 0; j < fx_params[i].rows(); j++)
                 {
-                    for (int k = 0; k < fx_params[i].cols; k++)
+                    for (int k = 0; k < fx_params[i].cols(); k++)
                         fx_params[i][j][k] /= max;
 
                     fx_bias[i][j] /= max;
                 }
             }
-
-            cout << "norma 2 " << max << endl;
         }
 
         void print_fx()
@@ -176,15 +186,14 @@ public:
                 cout << "Gradiente Bias " << endl
                      << endl;
                 fx_bias[i].print();
-                cout << endl;
             }
         }
     };
 
 public:
     network(size_t n_ins, myVec<size_t> &neurons_per_layer, bool derivate) : n_ins(n_ins),
-                                                                             n_layers(neurons_per_layer.size),
-                                                                             n_outs(neurons_per_layer[neurons_per_layer.size - 1]),
+                                                                             n_layers(neurons_per_layer.size()),
+                                                                             n_outs(neurons_per_layer[neurons_per_layer.size() - 1]),
                                                                              neurons_per_layer(neurons_per_layer)
     {
         params.reserve(n_layers);
@@ -207,8 +216,8 @@ public:
 
     network(size_t n_ins, myVec<size_t> &neurons_per_layer, bool derivate,
             vector<vector<vector<T>>> *p, vector<vector<T>> *b) : n_ins(n_ins),
-                                                                  n_layers(neurons_per_layer.size),
-                                                                  n_outs(neurons_per_layer[neurons_per_layer.size - 1]),
+                                                                  n_layers(neurons_per_layer.size()),
+                                                                  n_outs(neurons_per_layer[neurons_per_layer.size() - 1]),
                                                                   neurons_per_layer(neurons_per_layer)
     {
         params.reserve(n_layers);
@@ -299,12 +308,14 @@ public:
         {
             if (i == 0)
             {
-                myVec<T> x = params[i] * ins + bias[i];
+                myVec<T> x = params[i] * ins;
+                x += bias[i];
                 inner_vals[i] = activations[i].calculate(x);
             }
             else
             {
-                myVec<T> x = params[i] * inner_vals[i - 1] + bias[i];
+                myVec<T> x = params[i] * inner_vals[i - 1];
+                x += bias[i];
                 inner_vals[i] = activations[i].calculate(x);
             }
         }
@@ -316,13 +327,15 @@ public:
         {
             if (i == 0)
             {
-                myVec<T> x = params[i] * ins + bias[i];
+                myVec<T> x = params[i] * ins;
+                x += bias[i];
                 inner_vals[i] = activations[i].calculate(x);
                 fx_activations[i] = activations[i].derivate(x);
             }
             else
             {
-                myVec<T> x = params[i] * inner_vals[i - 1] + bias[i];
+                myVec<T> x = params[i] * inner_vals[i - 1];
+                x += bias[i];
                 inner_vals[i] = activations[i].calculate(x);
                 fx_activations[i] = activations[i].derivate(x);
             }
@@ -349,7 +362,8 @@ public:
 
         //* caso salidas
         tmp_gradient[n_layers - 1] = R;
-        fx.fx_params[n_layers - 1] = makeFrom(fx_activations[n_layers - 1], inner_vals[n_layers - 2]) ^ tmp_gradient[n_layers - 1];
+        fx.fx_params[n_layers - 1] = makeFrom(fx_activations[n_layers - 1], inner_vals[n_layers - 2]);
+        fx.fx_params[n_layers - 1] ^= tmp_gradient[n_layers - 1];
         fx.fx_bias[n_layers - 1] = tmp_gradient[n_layers - 1] ^ fx_activations[n_layers - 1];
 
         //* caso general
@@ -357,14 +371,16 @@ public:
         {
             myMatrix<T> fx_special_product_params = params[i + 1] ^ fx_activations[i + 1];
             tmp_gradient[i] = tmp_gradient[i + 1] * fx_special_product_params;
-            fx.fx_params[i] = makeFrom(fx_activations[i], inner_vals[i - 1]) ^ tmp_gradient[i];
+            fx.fx_params[i] = makeFrom(fx_activations[i], inner_vals[i - 1]);
+            fx.fx_params[i] ^= tmp_gradient[i];
             fx.fx_bias[i] = tmp_gradient[i] ^ fx_activations[i];
         }
 
         //* caso entradas
         myMatrix<T> fx_special_product_params = params[1] ^ fx_activations[1];
         tmp_gradient[0] = tmp_gradient[1] * fx_special_product_params;
-        fx.fx_params[0] = makeFrom(fx_activations[0], ins) ^ tmp_gradient[0];
+        fx.fx_params[0] = makeFrom(fx_activations[0], ins);
+        fx.fx_params[0] ^= tmp_gradient[0];
         fx.fx_bias[0] = tmp_gradient[0] ^ fx_activations[0];
     }
 
@@ -390,7 +406,6 @@ public:
             cout << "Bias " << endl
                  << endl;
             bias[i].print();
-            cout << endl;
         }
     }
 
@@ -400,7 +415,6 @@ public:
              << endl;
         for (auto &i : inner_vals)
             i.print();
-        cout << endl;
     }
 
     void print_fx_activations()
@@ -410,10 +424,10 @@ public:
              << endl;
         for (auto &i : fx_activations)
             i.print();
-        cout << endl;
     }
 
-    myVec<T> &get_output(){
+    myVec<T> &get_output()
+    {
         return inner_vals.back();
     }
 
