@@ -40,7 +40,7 @@ private:
         }
 
         fx_container(vector<size_t> &n_p_l, vector<T> &ins, vector<T> &outs)
-            : n_layers(n_p_l.size()), ins(ins.size(), CONTENT, &ins), outs(outs.size(), CONTENT, &outs)
+            : n_layers(n_p_l.size()), ins(ins), outs(outs)
         {
             fx_params.reserve(n_layers);
             fx_bias.reserve(n_layers);
@@ -348,13 +348,13 @@ public:
             n_p_l.emplace_back(b[i].size()); //* para guardar el tamaño de b[i], puesto que mueves su contenido y el vector se hace 0
 
             if (i == 0)
-                params.emplace_back(n_p_l[i], n_ins, CONTENT, &p[i]);
+                params.emplace_back(p[i]);
             else
-                params.emplace_back(n_p_l[i], n_p_l[i - 1], CONTENT, &p[i]);
+                params.emplace_back(p[i]);
 
             activations.emplace_back(n_p_l[i], derivate);
             inner_vals.emplace_back(n_p_l[i], CERO);
-            bias.emplace_back(n_p_l[i], CONTENT, &b[i]);
+            bias.emplace_back(b[i]);
         }
     }
 
@@ -425,7 +425,7 @@ public:
 
     void launch_forward(vector<T> &inputs)
     {
-        myVec<T> ins(inputs.size(), CONTENT, &inputs);
+        myVec<T> ins(inputs);
 
         for (int i = 0; i < n_layers; i++)
         {
