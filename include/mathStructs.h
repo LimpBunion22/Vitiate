@@ -5,15 +5,15 @@
 #include <vector>
 #include <iostream>
 
-constexpr long MAX_RANGE = 10;
-constexpr long MIN_RANGE = -10;
 constexpr long RANGE = 2 * MAX_RANGE;
 constexpr bool DERIVATE = true;
 constexpr bool NOT_DERIVATE = false;
 constexpr int RELU = 0;
 constexpr int RELU2 = 1;
 constexpr int SIGMOID = 2;
-#define RANDOM nullptr
+constexpr int CONTENT = 0;
+constexpr int RANDOM = 1;
+constexpr int CERO = 2;
 
 using namespace std;
 
@@ -51,16 +51,34 @@ private:
     }
 
 public:
-    myVec(size_t _size, vector<T> *vals) : _size(_size)
+    myVec(size_t _size, int mode, vector<T> *vals = nullptr) : _size(_size)
     {
-        if (vals)
-            v = move(*vals);
-        else
+        switch (mode)
         {
+        case CONTENT:
+            if (vals)
+                v = move(*vals);
+            else
+                cout << "No content available" << endl;
+
+            break;
+
+        case RANDOM:
             v.reserve(_size);
 
             for (int i = 0; i < _size; i++)
                 v.emplace_back(T((float)random() / RAND_MAX * RANGE + MIN_RANGE));
+
+            break;
+
+        case CERO:
+        default:
+            v.reserve(_size);
+
+            for (int i = 0; i < _size; i++)
+                v.emplace_back(0);
+
+            break;
         }
     }
 
@@ -243,7 +261,7 @@ private:
     myVec() = delete;
 
 public:
-    myVec(size_t _size, bool derivate, vector<size_t> *funs) : _size(_size)
+    myVec(size_t _size, bool derivate, vector<size_t> *funs = nullptr) : _size(_size)
     {
         v.reserve(_size);
 
@@ -407,18 +425,31 @@ private:
     }
 
 public:
-    myMatrix(size_t _rows, size_t _cols, vector<vector<T>> *vecs) : _rows(_rows), _cols(_cols)
+    myMatrix(size_t _rows, size_t _cols, int mode, vector<vector<T>> *vecs = nullptr) : _rows(_rows), _cols(_cols)
     {
         m.reserve(_rows);
 
-        if (vecs)
+        switch (mode)
         {
+        case CONTENT:
             for (int i = 0; i < _rows; i++)
-                m.emplace_back(_cols, &(*vecs)[i]);
-        }
-        else
+                m.emplace_back(_cols, CONTENT, &(*vecs)[i]);
+
+            break;
+
+        case RANDOM:
             for (int i = 0; i < _rows; i++)
                 m.emplace_back(_cols, RANDOM);
+
+            break;
+
+        case CERO:
+        default:
+            for (int i = 0; i < _rows; i++)
+                m.emplace_back(_cols, CERO);
+
+            break;
+        }
     }
 
     myMatrix(initializer_list<initializer_list<T>> l) : _rows(l.size()), _cols(l.begin()->size())
@@ -437,9 +468,9 @@ public:
     {
         if (this != &rh)
         {
-            m = rh.m;
             _rows = rh._rows;
             _cols = rh._cols;
+            m = rh.m;
         }
 
         return *this;
