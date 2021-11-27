@@ -37,11 +37,12 @@ PYBIND11_MODULE(vitiate, m)
     py::class_<network<float>>(m, "net_float")
         .def(py::init<size_t, vector<size_t> &, bool>(), py::arg("n_ins"), py::arg("n_p_l"), py::arg("derivate"))
         //.def(py::init<size_t, vector<vector<vector<float>>> &, vector<vector<float>> &, bool>())
-        //.def("launch_forward", &network<float>::launch_forward)
+        .def("launch_forward", &network<float>::launch_forward, py::arg("intpus"))
         .def("init_gradient", &network<float>::init_gradient, py::arg("set_ins"), py::arg("set_outs"))
         .def("launch_gradient", &network<float>::launch_gradient, py::arg("iterations"))
         .def("print_inner_vals", &network<float>::print_inner_vals)
-        .def("get_performance", &network<float>::get_performance);
+        .def("get_gradient_performance", &network<float>::get_gradient_performance)
+        .def("get_forward_performance", &network<float>::get_forward_performance);
 }
 // #include <stdio.h>
 // #include <network.h>

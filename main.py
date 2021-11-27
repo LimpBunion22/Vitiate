@@ -10,4 +10,9 @@ net = vitiate.net_float(n_ins=2, n_p_l=structure, derivate=True)
 net.init_gradient(set_ins, set_outs)
 net.launch_gradient(iterations=10)
 net.print_inner_vals()
-print("gradient took", net.get_performance(), "us")
+print("gradient took", net.get_gradient_performance(), "us")
+test_input1 = input1
+net.launch_forward(test_input1)
+print("forward took", net.get_forward_performance(), "us")
+net.print_inner_vals()
+

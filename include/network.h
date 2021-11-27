@@ -252,7 +252,8 @@ private:
     vector<fx_container> containers;
     size_t acum_pos;
     bool gradient_init;
-    int64_t performance_count;
+    int64_t gradient_performance;
+    int64_t forward_performance;
 
 private:
     void forward_gradient(myVec<T> &ins)
@@ -317,7 +318,7 @@ private:
 
 public:
     network(size_t n_ins, vector<size_t> &n_p_l, bool derivate)
-        : n_layers(n_p_l.size()), acum_pos(0), gradient_init(false), performance_count(0)
+        : n_layers(n_p_l.size()), acum_pos(0), gradient_init(false), gradient_performance(0), forward_performance(0)
 
     {
         params.reserve(n_layers);
@@ -339,7 +340,7 @@ public:
     }
 
     network(size_t n_ins, vector<vector<vector<T>>> &p, vector<vector<T>> &b, bool derivate)
-        : n_layers(b.size()), acum_pos(0), gradient_init(false), performance_count(0)
+        : n_layers(b.size()), acum_pos(0), gradient_init(false), gradient_performance(0), forward_performance(0)
     {
         vector<size_t> n_p_l;
         n_p_l.reserve(n_layers);
@@ -377,7 +378,8 @@ public:
             containers = rh.containers;
             acum_pos = rh.acum_pos;
             gradient_init = rh.gradient_init;
-            performance_count = rh.performance_count;
+            gradient_performance = rh.gradient_performance;
+            forward_performance = rh.forward_performance;
         }
 
         return *this;
@@ -397,7 +399,8 @@ public:
             containers = move(rh.containers);
             acum_pos = rh.acum_pos;
             gradient_init = rh.gradient_init;
-            performance_count = rh.performance_count;
+            gradient_performance = rh.gradient_performance;
+            forward_performance = rh.forward_performance;
         }
 
         return *this;
@@ -413,7 +416,8 @@ public:
                                  containers(rh.containers),
                                  acum_pos(rh.acum_pos),
                                  gradient_init(rh.gradient_init),
-                                 performance_count(rh.performance_count)
+                                 gradient_performance(rh.gradient_performance),
+                                 forward_performance(rh.forward_performance)
 
     {
     }
@@ -428,13 +432,17 @@ public:
                             containers(move(rh.containers)),
                             acum_pos(rh.acum_pos),
                             gradient_init(rh.gradient_init),
-                            performance_count(rh.performance_count)
+                            gradient_performance(rh.gradient_performance),
+                            forward_performance(rh.forward_performance)
 
     {
     }
 
     void launch_forward(vector<T> &inputs)
     {
+#ifdef PERFORMANCE
+        auto start = high_resolution_clock::now();
+#endif
         myVec<T> ins(inputs);
 
         for (int i = 0; i < n_layers; i++)
@@ -452,6 +460,11 @@ public:
                 inner_vals[i] = activations[i].calculate(x);
             }
         }
+#ifdef PERFORMANCE
+        auto end = high_resolution_clock::now();
+        auto duration = duration_cast<microseconds>(end - start);
+        forward_performance = duration.count();
+#endif
     }
 
     void init_gradient(vector<vector<T>> &set_ins, vector<vector<T>> &set_outs)
@@ -505,7 +518,7 @@ public:
 #ifdef PERFORMANCE
             auto end = high_resolution_clock::now();
             auto duration = duration_cast<microseconds>(end - start);
-            performance_count = duration.count();
+            gradient_performance = duration.count();
 #endif
         }
         else
@@ -583,10 +596,20 @@ public:
 #endif
     }
 
-    int64_t get_performance()
+    int64_t get_gradient_performance()
     {
 #ifdef PERFORMANCE
-        return performance_count;
+        return gradient_performance;
+#else
+        cout << "performance not enabled\n";
+        return 0;
+#endif
+    }
+
+    int64_t get_forward_performance()
+    {
+#ifdef PERFORMANCE
+        return forward_performance;
 #else
         cout << "performance not enabled\n";
         return 0;
