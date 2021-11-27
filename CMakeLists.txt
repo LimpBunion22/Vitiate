@@ -21,16 +21,15 @@ file (GLOB SRC_FILES "src/*.cpp")
 file (GLOB DEF_FILES "def/*.h")
 file (GLOB HEADER_FILES "include/*.h")
 
-# #pybind tasks
-# find_package(pybind11 REQUIRED)
-# pybind11_add_module(vitiate 
-#     ${DEF_FILES}
-#     ${HEADER_FILES}
-#     ${SRC_FILES})
-add_executable(vitiate ${DEF_FILES} ${HEADER_FILES} ${SRC_FILES})
+#pybind tasks
+find_package(pybind11 REQUIRED)
+pybind11_add_module(vitiate 
+    ${DEF_FILES}
+    ${HEADER_FILES}
+    ${SRC_FILES})
 
-# #install to conda python lib dir
-# install(TARGETS vitiate DESTINATION ${PYTHON_LIBRARY_DIR})
+#install to conda python lib dir
+install(TARGETS vitiate DESTINATION ${PYTHON_LIBRARY_DIR})
 
 set(CPACK_PROJECT_NAME ${PROJECT_NAME})
 set(CPACK_PROJECT_VERSION ${PROJECT_VERSION})

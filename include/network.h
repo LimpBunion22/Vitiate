@@ -3,8 +3,10 @@
 #include <mathStructs.h>
 #include <stdio.h>
 #include <math.h>
+#include <chrono>
 
 using namespace std;
+using namespace chrono;
 
 template <class T>
 class network
@@ -104,7 +106,7 @@ private:
         {
 #ifdef ASSERT
             if (n_layers != rh.n_layers)
-                cout << "invalid dimensions lh is " << n_layers << " rh is " << rh.n_layers << endl;
+                cout << "invalid dimensions lh is " << n_layers << " rh is " << rh.n_layers << "\n";
             else
 #endif
                 for (int i = 0; i < n_layers; i++)
@@ -120,7 +122,7 @@ private:
         {
 #ifdef ASSERT
             if (n_layers != rh.n_layers)
-                cout << "invalid dimensions lh is " << n_layers << " rh is " << rh.n_layers << endl;
+                cout << "invalid dimensions lh is " << n_layers << " rh is " << rh.n_layers << "\n";
             else
 #endif
                 for (int i = 0; i < n_layers; i++)
@@ -229,12 +231,12 @@ private:
         {
             for (int i = 0; i < n_layers; i++)
             {
-                cout << "Gradiente parámetros capa " << i << endl
-                     << endl;
+                cout << "Gradiente parámetros capa " << i << "\n\n";
                 fx_params[i].print();
-                cout << "Gradiente Bias " << endl
-                     << endl;
+                cout << "\n";
+                cout << "Gradiente Bias\n\n";
                 fx_bias[i].print();
+                cout << "\n";
             }
         }
     };
@@ -250,6 +252,7 @@ private:
     vector<fx_container> containers;
     size_t acum_pos;
     bool gradient_init;
+    int64_t performance_count;
 
 private:
     void forward_gradient(myVec<T> &ins)
@@ -313,7 +316,8 @@ private:
     }
 
 public:
-    network(size_t n_ins, vector<size_t> &n_p_l, bool derivate) : n_layers(n_p_l.size()), acum_pos(0), gradient_init(false)
+    network(size_t n_ins, vector<size_t> &n_p_l, bool derivate)
+        : n_layers(n_p_l.size()), acum_pos(0), gradient_init(false), performance_count(0)
 
     {
         params.reserve(n_layers);
@@ -334,7 +338,8 @@ public:
         }
     }
 
-    network(size_t n_ins, vector<vector<vector<T>>> &p, vector<vector<T>> &b, bool derivate) : n_layers(b.size()), acum_pos(0), gradient_init(false)
+    network(size_t n_ins, vector<vector<vector<T>>> &p, vector<vector<T>> &b, bool derivate)
+        : n_layers(b.size()), acum_pos(0), gradient_init(false), performance_count(0)
     {
         vector<size_t> n_p_l;
         n_p_l.reserve(n_layers);
@@ -372,6 +377,7 @@ public:
             containers = rh.containers;
             acum_pos = rh.acum_pos;
             gradient_init = rh.gradient_init;
+            performance_count = rh.performance_count;
         }
 
         return *this;
@@ -391,6 +397,7 @@ public:
             containers = move(rh.containers);
             acum_pos = rh.acum_pos;
             gradient_init = rh.gradient_init;
+            performance_count = rh.performance_count;
         }
 
         return *this;
@@ -405,7 +412,9 @@ public:
                                  tmp_gradient(rh.tmp_gradient),
                                  containers(rh.containers),
                                  acum_pos(rh.acum_pos),
-                                 gradient_init(rh.gradient_init)
+                                 gradient_init(rh.gradient_init),
+                                 performance_count(rh.performance_count)
+
     {
     }
 
@@ -418,7 +427,8 @@ public:
                             tmp_gradient(move(rh.tmp_gradient)),
                             containers(move(rh.containers)),
                             acum_pos(rh.acum_pos),
-                            gradient_init(rh.gradient_init)
+                            gradient_init(rh.gradient_init),
+                            performance_count(rh.performance_count)
 
     {
     }
@@ -470,13 +480,16 @@ public:
             gradient_init = true;
         }
         else
-            cout << "gradient already init!" << endl;
+            cout << "gradient already init!\n";
     }
 
     void launch_gradient(int iterations)
     {
         if (gradient_init)
         {
+#ifdef PERFORMANCE
+            auto start = high_resolution_clock::now();
+#endif
             for (int i = 0; i < iterations; i++)
             {
                 for (int j = 0; j < acum_pos; j++)
@@ -489,39 +502,49 @@ public:
                 gradient_update_params(containers[acum_pos]);
                 containers[acum_pos].reset();
             }
+#ifdef PERFORMANCE
+            auto end = high_resolution_clock::now();
+            auto duration = duration_cast<microseconds>(end - start);
+            performance_count = duration.count();
+#endif
         }
         else
-            cout << "initialize gradient!" << endl;
+            cout << "initialize gradient!\n";
     }
 
     void print_params()
     {
         for (int i = 0; i < n_layers; i++)
         {
-            cout << "Parámetros capa " << i << endl
-                 << endl;
+            cout << "Parámetros capa " << i << "\n\n";
             params[i].print();
-            cout << "Bias " << endl
-                 << endl;
+            cout << "\n";
+            cout << "Bias\n\n";
             bias[i].print();
+            cout << "\n";
         }
     }
 
     void print_inner_vals()
     {
-        cout << "Valores internos" << endl
-             << endl;
+        cout << "Valores internos\n\n";
+
         for (auto &i : inner_vals)
+        {
             i.print();
+            cout << "\n";
+        }
     }
 
     void print_fx_activations()
     {
+        cout << "fx activations\n\n";
 
-        cout << "fx activations" << endl
-             << endl;
         for (auto &i : fx_activations)
+        {
             i.print();
+            cout << "\n";
+        }
     }
 
     myVec<T> &get_output()
@@ -540,7 +563,7 @@ public:
         if (i < params.size())
             return params[i][j][k];
 
-        cout << "invalid access" << endl;
+        cout << "invalid access\n";
         exit(EXIT_FAILURE);
 #else
         return params[i][j][k];
@@ -553,10 +576,20 @@ public:
         if (i < bias.size())
             return bias[i][j];
 
-        cout << "invalid access" << endl;
+        cout << "invalid access\n";
         exit(EXIT_FAILURE);
 #else
         return bias[i][j];
+#endif
+    }
+
+    int64_t get_performance()
+    {
+#ifdef PERFORMANCE
+        return performance_count;
+#else
+        cout << "performance not enabled\n";
+        return 0;
 #endif
     }
 };
