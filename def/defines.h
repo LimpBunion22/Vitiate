@@ -4,4 +4,5 @@
 #define PERFORMANCE
 constexpr long MAX_RANGE = 1;
 constexpr long MIN_RANGE = -1;
+constexpr char SEPARATOR = ' ';
 #endif

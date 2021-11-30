@@ -4,6 +4,7 @@
 #include <defines.h>
 #include <vector>
 #include <iostream>
+#include <math.h>
 
 constexpr long RANGE = 2 * MAX_RANGE;
 constexpr bool DERIVATE = true;
@@ -69,6 +70,29 @@ public:
             _size = rh._size;
             v = move(rh.v);
         }
+
+        return *this;
+    }
+
+    vector<T> copy_inner_vec()
+    {
+        return v;
+    }
+
+    T reduce()
+    {
+        T sum = 0;
+
+        for (auto &i : v)
+            sum += i;
+
+        return sum;
+    }
+
+    myVec<T> &elems_abs()
+    {
+        for (auto &i : v)
+            i = abs(i);
 
         return *this;
     }

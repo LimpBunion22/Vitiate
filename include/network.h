@@ -1,9 +1,10 @@
 #ifndef NETWORK_H
 #define NETWORK_H
+
 #include <mathStructs.h>
-#include <stdio.h>
-#include <math.h>
 #include <chrono>
+#include <fstream>
+#include <cstdlib>
 
 using namespace std;
 using namespace chrono;
@@ -242,7 +243,9 @@ private:
     };
 
 private:
+    size_t n_ins;
     size_t n_layers;
+    vector<size_t> n_p_l;
     vector<myMatrix<T>> params;
     vector<myVec<myFun<T>>> activations;
     vector<myVec<T>> inner_vals;
@@ -254,6 +257,195 @@ private:
     bool gradient_init;
     int64_t gradient_performance;
     int64_t forward_performance;
+
+public:
+    class file_manager
+    {
+    private:
+        const string HOME = getenv("HOME") ? getenv("HOME") : ".";
+
+    public:
+        size_t n_ins = 0;
+        vector<size_t> n_p_l;
+        vector<myMatrix<T>> params;
+        vector<myVec<T>> bias;
+        vector<vector<T>> set_ins;
+        vector<vector<T>> set_outs;
+
+    public:
+        void load_net_structure(string name)
+        {
+            ifstream file_handler(HOME + "/" + name + ".csv", ios::in);
+
+            if (file_handler.is_open())
+            {
+                string val, line;
+                n_p_l.clear();
+                getline(file_handler, line);
+                stringstream s(line);
+                getline(s, val, SEPARATOR);
+                n_ins = (size_t)stoi(val);
+
+                while (getline(s, val, SEPARATOR))
+                    n_p_l.push_back((size_t)stoi(val));
+
+                file_handler.close();
+            }
+            else
+                cout << "unable to open file\n";
+        }
+
+        void load_net(string name)
+        {
+            load_net_structure(name);
+            ifstream file_handler(HOME + "/" + name + ".csv", ios::in);
+
+            if (file_handler.is_open())
+            {
+                string val, line;
+                params.clear();
+                bias.clear();
+                params.reserve(n_p_l.size());
+                bias.reserve(n_p_l.size());
+                auto skip_lines = [&](int n_lines)
+                {
+                    for (int i = 0; i < n_lines; i++)
+                        getline(file_handler, line);
+                };
+
+                skip_lines(2);
+
+                for (int i = 0; i < n_p_l.size(); i++)
+                {
+                    if (i == 0)
+                        params.emplace_back(n_p_l[i], n_ins, CERO);
+                    else
+                        params.emplace_back(n_p_l[i], n_p_l[i - 1], CERO);
+
+                    bias.emplace_back(n_p_l[i], CERO);
+
+                    for (int j = 0; j < params[i].rows(); j++)
+                    {
+                        getline(file_handler, line);
+                        stringstream s(line);
+                        size_t k = 0;
+
+                        while (getline(s, val, SEPARATOR))
+                            params[i][j][k++] = (T)stod(val);
+                    }
+
+                    skip_lines(1);
+                    getline(file_handler, line);
+                    stringstream s(line);
+                    size_t j = 0;
+
+                    while (getline(s, val, SEPARATOR))
+                        bias[i][j++] = (T)stod(val);
+
+                    skip_lines(1);
+                }
+
+                file_handler.close();
+            }
+            else
+                cout << "unable to open file\n";
+        }
+
+        void load_sets(string name)
+        {
+            ifstream file_handler(HOME + "/" + name + ".csv", ios::in);
+
+            if (file_handler.is_open())
+            {
+                string val, line;
+                set_ins.clear();
+                set_outs.clear();
+                auto skip_lines = [&](int n_lines)
+                {
+                    for (int i = 0; i < n_lines; i++)
+                        getline(file_handler, line);
+                };
+
+                getline(file_handler, line);
+                stringstream s(line);
+                getline(s, val, SEPARATOR);
+                size_t n_sets = (size_t)stoi(val);
+                skip_lines(1);
+                set_ins.reserve(n_sets);
+                set_outs.reserve(n_sets);
+
+                for (int i = 0; i < n_sets; i++)
+                {
+                    set_ins.emplace_back(n_ins, 0);
+                    set_outs.emplace_back(n_p_l[n_p_l.size() - 1], 0);
+
+                    getline(file_handler, line);
+
+                    {
+                        stringstream s(line);
+                        size_t j = 0;
+
+                        while (getline(s, val, SEPARATOR))
+                            set_ins[i][j++] = (T)stod(val);
+                    }
+
+                    getline(file_handler, line);
+
+                    {
+                        stringstream s(line);
+                        size_t j = 0;
+
+                        while (getline(s, val, SEPARATOR))
+                            set_outs[i][j++] = (T)stod(val);
+                    }
+
+                    skip_lines(1);
+                }
+
+                file_handler.close();
+            }
+            else
+                cout << "unable to open file\n";
+        }
+
+        //^ last row element also followed by separator char!!
+        void write_net_to_file(string name, network &net)
+        {
+            ofstream file_handler(HOME + "/" + name + ".csv", ios::out | ios::trunc);
+
+            if (file_handler.is_open())
+            {
+                file_handler << net.n_ins << " ";
+
+                for (auto &i : net.n_p_l)
+                    file_handler << i << " ";
+
+                file_handler << "\n\n";
+
+                for (int i = 0; i < net.n_layers; i++)
+                {
+                    for (int j = 0; j < net.params[i].rows(); j++)
+                    {
+                        for (int k = 0; k < net.params[i].cols(); k++)
+                            file_handler << net.params[i][j][k] << " ";
+
+                        file_handler << "\n";
+                    }
+
+                    file_handler << "\n";
+
+                    for (int j = 0; j < net.bias[i].size(); j++)
+                        file_handler << net.bias[i][j] << " ";
+
+                    file_handler << "\n\n";
+                }
+
+                file_handler.close();
+            }
+            else
+                cout << "unable to open file\n";
+        }
+    };
 
 private:
     void forward_gradient(myVec<T> &ins)
@@ -278,7 +470,7 @@ private:
     }
 
     //* R*(fx^P)*(fx^P)...^(fx matrix I)
-    void gradient(fx_container &fx)
+    myVec<T> gradient(fx_container &fx) //* returns R vec
     {
         forward_gradient(fx.ins);
         myVec<T> R = fx.outs - inner_vals[n_layers - 1];
@@ -305,6 +497,8 @@ private:
         fx.fx_params[0] = make_from(fx_activations[0], fx.ins);
         fx.fx_params[0] ^= tmp_gradient[0];
         fx.fx_bias[0] = tmp_gradient[0] ^ fx_activations[0];
+
+        return R;
     }
 
     void gradient_update_params(fx_container &fx)
@@ -317,8 +511,43 @@ private:
     }
 
 public:
+    network(file_manager &manager, bool derivate, bool random)
+        : n_layers(manager.n_p_l.size()), acum_pos(0), gradient_init(false), gradient_performance(0), forward_performance(0), n_p_l(manager.n_p_l), n_ins(manager.n_ins)
+
+    {
+        params.reserve(n_layers);
+        activations.reserve(n_layers);
+        inner_vals.reserve(n_layers);
+        bias.reserve(n_layers);
+
+        if (random)
+            for (int i = 0; i < n_layers; i++)
+            {
+                if (i == 0)
+                    params.emplace_back(n_p_l[i], n_ins, RANDOM);
+                else
+                    params.emplace_back(n_p_l[i], n_p_l[i - 1], RANDOM);
+
+                activations.emplace_back(n_p_l[i], derivate);
+                inner_vals.emplace_back(n_p_l[i], CERO);
+                bias.emplace_back(n_p_l[i], RANDOM);
+            }
+        else
+            for (int i = 0; i < n_layers; i++)
+            {
+                if (i == 0)
+                    params.emplace_back(manager.params[i]);
+                else
+                    params.emplace_back(manager.params[i]);
+
+                activations.emplace_back(n_p_l[i], derivate);
+                inner_vals.emplace_back(n_p_l[i], CERO);
+                bias.emplace_back(manager.bias[i]);
+            }
+    }
+
     network(size_t n_ins, vector<size_t> &n_p_l, bool derivate)
-        : n_layers(n_p_l.size()), acum_pos(0), gradient_init(false), gradient_performance(0), forward_performance(0)
+        : n_layers(n_p_l.size()), acum_pos(0), gradient_init(false), gradient_performance(0), forward_performance(0), n_p_l(n_p_l), n_ins(n_ins)
 
     {
         params.reserve(n_layers);
@@ -339,11 +568,9 @@ public:
         }
     }
 
-    network(size_t n_ins, vector<vector<vector<T>>> &p, vector<vector<T>> &b, bool derivate)
-        : n_layers(b.size()), acum_pos(0), gradient_init(false), gradient_performance(0), forward_performance(0)
+    network(size_t n_ins, vector<size_t> &n_p_l, vector<vector<vector<T>>> &p, vector<vector<T>> &b, bool derivate)
+        : n_layers(n_p_l.size()), acum_pos(0), gradient_init(false), gradient_performance(0), forward_performance(0), n_p_l(n_p_l), n_ins(n_ins)
     {
-        vector<size_t> n_p_l;
-        n_p_l.reserve(n_layers);
         params.reserve(n_layers);
         activations.reserve(n_layers);
         inner_vals.reserve(n_layers);
@@ -351,8 +578,6 @@ public:
 
         for (int i = 0; i < n_layers; i++)
         {
-            n_p_l.emplace_back(b[i].size()); //* para guardar el tamaño de b[i], puesto que mueves su contenido y el vector se hace 0
-
             if (i == 0)
                 params.emplace_back(p[i]);
             else
@@ -380,6 +605,8 @@ public:
             gradient_init = rh.gradient_init;
             gradient_performance = rh.gradient_performance;
             forward_performance = rh.forward_performance;
+            n_p_l = rh.n_p_l;
+            n_ins = rh.n_ins;
         }
 
         return *this;
@@ -401,6 +628,8 @@ public:
             gradient_init = rh.gradient_init;
             gradient_performance = rh.gradient_performance;
             forward_performance = rh.forward_performance;
+            n_p_l = move(rh.n_p_l);
+            n_ins = rh.n_ins;
         }
 
         return *this;
@@ -417,7 +646,9 @@ public:
                                  acum_pos(rh.acum_pos),
                                  gradient_init(rh.gradient_init),
                                  gradient_performance(rh.gradient_performance),
-                                 forward_performance(rh.forward_performance)
+                                 forward_performance(rh.forward_performance),
+                                 n_p_l(rh.n_p_l),
+                                 n_ins(rh.n_ins)
 
     {
     }
@@ -433,12 +664,14 @@ public:
                             acum_pos(rh.acum_pos),
                             gradient_init(rh.gradient_init),
                             gradient_performance(rh.gradient_performance),
-                            forward_performance(rh.forward_performance)
+                            forward_performance(rh.forward_performance),
+                            n_p_l(move(rh.n_p_l)),
+                            n_ins(rh.n_ins)
 
     {
     }
 
-    void launch_forward(vector<T> &inputs)
+    vector<T> launch_forward(vector<T> &inputs) //* returns result
     {
 #ifdef PERFORMANCE
         auto start = high_resolution_clock::now();
@@ -465,6 +698,8 @@ public:
         auto duration = duration_cast<microseconds>(end - start);
         forward_performance = duration.count();
 #endif
+
+        return inner_vals.back().copy_inner_vec();
     }
 
     void init_gradient(vector<vector<T>> &set_ins, vector<vector<T>> &set_outs)
@@ -472,16 +707,13 @@ public:
         if (!gradient_init)
         {
             size_t ins_num = set_ins[0].size(); //* para guardar el tamaño de entradas, ya que el vector se hace 0 al moverlo
-            vector<size_t> n_p_l;
-            n_p_l.reserve(n_layers);
-            acum_pos = set_ins.size();        //* acum_pos=n of sets
-            containers.reserve(acum_pos + 1); //* para incluir al contenedor de acumulación
+            acum_pos = set_ins.size();          //* acum_pos=n of sets
+            containers.reserve(acum_pos + 1);   //* para incluir al contenedor de acumulación
             fx_activations.reserve(n_layers);
             tmp_gradient.reserve(n_layers);
 
             for (int i = 0; i < n_layers; i++)
             {
-                n_p_l.emplace_back(bias[i].size());
                 fx_activations.emplace_back(n_p_l[i], CERO);
                 tmp_gradient.emplace_back(n_p_l[i], CERO);
             }
@@ -496,33 +728,46 @@ public:
             cout << "gradient already init!\n";
     }
 
-    void launch_gradient(int iterations)
+    void init_gradient(file_manager &manager)
+    {
+        init_gradient(manager.set_ins, manager.set_outs);
+    }
+
+    vector<T> launch_gradient(int iterations) //* returns it times errors
     {
         if (gradient_init)
         {
 #ifdef PERFORMANCE
             auto start = high_resolution_clock::now();
 #endif
+            vector<T> set_errors(iterations, 0);
+            myVec<T> set_single_errors(acum_pos, CERO);
+
             for (int i = 0; i < iterations; i++)
             {
                 for (int j = 0; j < acum_pos; j++)
                 {
-                    gradient(containers[j]);
+                    set_single_errors[j] = gradient(containers[j]).elems_abs().reduce();
                     containers[acum_pos] += containers[j];
                 }
 
                 containers[acum_pos].normalize_1();
                 gradient_update_params(containers[acum_pos]);
                 containers[acum_pos].reset();
+                set_errors[i] = set_single_errors.reduce();
             }
 #ifdef PERFORMANCE
             auto end = high_resolution_clock::now();
             auto duration = duration_cast<microseconds>(end - start);
             gradient_performance = duration.count();
 #endif
+            return set_errors;
         }
         else
+        {
             cout << "initialize gradient!\n";
+            return vector<T>(iterations, 0);
+        }
     }
 
     void print_params()
@@ -547,53 +792,6 @@ public:
             i.print();
             cout << "\n";
         }
-    }
-
-    void print_fx_activations()
-    {
-        cout << "fx activations\n\n";
-
-        for (auto &i : fx_activations)
-        {
-            i.print();
-            cout << "\n";
-        }
-    }
-
-    myVec<T> &get_output()
-    {
-        return inner_vals.back();
-    }
-
-    size_t get_n_layers() const
-    {
-        return n_layers;
-    }
-
-    T get_params(size_t i, size_t j, size_t k)
-    {
-#ifdef ASSERT
-        if (i < params.size())
-            return params[i][j][k];
-
-        cout << "invalid access\n";
-        exit(EXIT_FAILURE);
-#else
-        return params[i][j][k];
-#endif
-    }
-
-    T get_bias(size_t i, size_t j)
-    {
-#ifdef ASSERT
-        if (i < bias.size())
-            return bias[i][j];
-
-        cout << "invalid access\n";
-        exit(EXIT_FAILURE);
-#else
-        return bias[i][j];
-#endif
     }
 
     int64_t get_gradient_performance()

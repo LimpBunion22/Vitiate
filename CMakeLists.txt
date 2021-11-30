@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.22.0)
+cmake_minimum_required(VERSION 3.1.0)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -7,14 +7,14 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 project(vitiate VERSION 0.1.0)
 
 #dirs paths
-include_directories("${CMAKE_SOURCE_DIR}/include")
-include_directories("${CMAKE_SOURCE_DIR}/def")
-include_directories("${CMAKE_SOURCE_DIR}/src")
+include_directories("include")
+include_directories("def")
+include_directories("src")
 
 #pybind/python dirs
-set(pybind11_DIR "/home/gabi/anaconda3/envs/Vitiate/share/cmake/pybind11")
-set(PYTHON_LIBRARY_DIR "/home/gabi/anaconda3/envs/Vitiate/lib/python3.10/site-packages")
-set(PYTHON_EXECUTABLE "/home/gabi/anaconda3/envs/Vitiate/bin/python")
+set(pybind11_DIR "$ENV{HOME}/anaconda3/envs/Vitiate/share/cmake/pybind11")
+set(PYTHON_LIBRARY_DIR "$ENV{HOME}/anaconda3/envs/Vitiate/lib/python3.10/site-packages")
+set(PYTHON_EXECUTABLE "$ENV{HOME}/anaconda3/envs/Vitiate/bin/python")
 
 #files to include
 file (GLOB SRC_FILES "src/*.cpp")
