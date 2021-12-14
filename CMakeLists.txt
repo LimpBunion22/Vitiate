@@ -12,9 +12,9 @@ include_directories("${CMAKE_SOURCE_DIR}/def")
 include_directories("${CMAKE_SOURCE_DIR}/src")
 
 #pybind/python dirs
-set(pybind11_DIR "/home/gabi/anaconda3/envs/Vitiate/share/cmake/pybind11")
-set(PYTHON_LIBRARY_DIR "/home/gabi/anaconda3/envs/Vitiate/lib/python3.10/site-packages")
-set(PYTHON_EXECUTABLE "/home/gabi/anaconda3/envs/Vitiate/bin/python")
+set(pybind11_DIR "${HOME}/anaconda3/envs/Vitiate/share/cmake/pybind11")
+set(PYTHON_LIBRARY_DIR "${HOME}anaconda3/envs/Vitiate/lib/python3.10/site-packages")
+set(PYTHON_EXECUTABLE "${HOME}/anaconda3/envs/Vitiate/bin/python")
 
 #files to include
 file (GLOB SRC_FILES "src/*.cpp")
