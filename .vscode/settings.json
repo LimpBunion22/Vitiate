@@ -7,6 +7,13 @@
         "initializer_list": "cpp",
         "utility": "cpp",
         "valarray": "cpp",
-        "ostream": "cpp"
+        "ostream": "cpp",
+        "iostream": "cpp",
+        "chrono": "cpp",
+        "fstream": "cpp",
+        "cstdlib": "cpp",
+        "string": "cpp",
+        "istream": "cpp",
+        "iosfwd": "cpp"
     }
 }

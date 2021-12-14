@@ -4,6 +4,7 @@
 #include <defines.h>
 #include <vector>
 #include <iostream>
+#include <math.h>
 
 constexpr long RANGE = 2 * MAX_RANGE;
 constexpr bool DERIVATE = true;
@@ -73,13 +74,36 @@ public:
         return *this;
     }
 
+    vector<T> copy_inner_vec()
+    {
+        return v;
+    }
+
+    T reduce()
+    {
+        T sum = 0;
+
+        for (auto &i : v)
+            sum += i;
+
+        return sum;
+    }
+
+    myVec<T> &elems_abs()
+    {
+        for (auto &i : v)
+            i = abs(i);
+
+        return *this;
+    }
+
     T &operator[](int i)
     {
 #ifdef ASSERT
         if (i < _size)
             return v[i];
 
-        cout << "invalid access" << endl;
+        cout << "invalid access\n";
         exit(EXIT_FAILURE);
 #else
         return v[i];
@@ -91,7 +115,7 @@ public:
 #ifdef ASSERT
         if (_size != rh._size)
         {
-            cout << "invalid dimensions lh is " << _size << " rh is " << rh._size << endl;
+            cout << "invalid dimensions lh is " << _size << " rh is " << rh._size << "\n";
             return 0;
         }
 #endif
@@ -109,7 +133,7 @@ public:
 #ifdef ASSERT
         if (_size != rh._size)
         {
-            cout << "invalid dimensions lh is " << _size << " rh is " << rh._size << endl;
+            cout << "invalid dimensions lh is " << _size << " rh is " << rh._size << "\n";
             return myVec(0, CERO);
         }
 #endif
@@ -126,7 +150,7 @@ public:
     {
 #ifdef ASSERT
         if (_size != rh._size)
-            cout << "invalid dimensions lh is " << _size << " rh is " << rh._size << endl;
+            cout << "invalid dimensions lh is " << _size << " rh is " << rh._size << "\n";
         else
 #endif
             for (int i = 0; i < _size; i++)
@@ -140,7 +164,7 @@ public:
 #ifdef ASSERT
         if (_size != rh._size)
         {
-            cout << "invalid dimensions lh is " << _size << " rh is " << rh._size << endl;
+            cout << "invalid dimensions lh is " << _size << " rh is " << rh._size << "\n";
             return myVec(0);
         }
 #endif
@@ -157,7 +181,7 @@ public:
     {
 #ifdef ASSERT
         if (_size != rh._size)
-            cout << "invalid dimensions lh is " << _size << " rh is " << rh._size << endl;
+            cout << "invalid dimensions lh is " << _size << " rh is " << rh._size << "\n";
         else
 #endif
             for (int i = 0; i < _size; i++)
@@ -171,7 +195,7 @@ public:
 #ifdef ASSERT
         if (_size != rh._size)
         {
-            cout << "invalid dimensions lh is " << _size << " rh is " << rh._size << endl;
+            cout << "invalid dimensions lh is " << _size << " rh is " << rh._size << "\n";
             return myVec(0, CERO);
         }
 #endif
@@ -188,7 +212,7 @@ public:
     {
 #ifdef ASSERT
         if (_size != rh._size)
-            cout << "invalid dimensions lh is " << _size << " rh is " << rh._size << endl;
+            cout << "invalid dimensions lh is " << _size << " rh is " << rh._size << "\n";
         else
 #endif
             for (int i = 0; i < _size; i++)
@@ -207,8 +231,7 @@ public:
         for (auto &el : v)
             cout << el << " ";
 
-        cout << endl
-             << endl;
+        cout << "\n";
     }
 };
 
@@ -333,7 +356,7 @@ public:
 #ifdef ASSERT
         if (_size != rh.size())
         {
-            cout << "invalid dimensions lh is " << _size << " rh is " << rh.size() << endl;
+            cout << "invalid dimensions lh is " << _size << " rh is " << rh.size() << "\n";
             return myVec<T>(0, CERO);
         }
 #endif
@@ -351,7 +374,7 @@ public:
 #ifdef ASSERT
         if (_size != rh.size())
         {
-            cout << "invalid dimensions lh is " << _size << " rh is " << rh.size() << endl;
+            cout << "invalid dimensions lh is " << _size << " rh is " << rh.size() << "\n";
             return myVec<T>(0, CERO);
         }
 #endif
@@ -461,7 +484,7 @@ public:
         if (row < _rows)
             return m[row];
 
-        cout << "invalid access" << endl;
+        cout << "invalid access\n";
         exit(EXIT_FAILURE);
 #else
         return m[row];
@@ -473,7 +496,7 @@ public:
 #ifdef ASSERT
         if (_cols != rh._rows)
         {
-            cout << "invalid dimensions lh is " << _cols << " rh is " << rh._cols << endl;
+            cout << "invalid dimensions lh is " << _cols << " rh is " << rh._cols << "\n";
             return myMatrix(0, 0);
         }
 #endif
@@ -505,7 +528,7 @@ public:
 #ifdef ASSERT
         if (_rows != rh._rows || _cols != rh._cols)
         {
-            cout << "invalid dimensions lh is " << _cols << " rh is " << rh._cols << endl;
+            cout << "invalid dimensions lh is " << _cols << " rh is " << rh._cols << "\n";
             return myMatrix(0, 0);
         }
 #endif
@@ -522,7 +545,7 @@ public:
     {
 #ifdef ASSERT
         if (_rows != rh._rows || _cols != rh._cols)
-            cout << "invalid dimensions lh is " << _cols << " rh is " << rh._cols << endl;
+            cout << "invalid dimensions lh is " << _cols << " rh is " << rh._cols << "\n";
         else
 #endif
             for (int i = 0; i < _rows; i++)
@@ -536,7 +559,7 @@ public:
 #ifdef ASSERT
         if (_rows != rh._rows || _cols != rh._cols)
         {
-            cout << "invalid dimensions lh is " << _cols << " rh is " << rh._cols << endl;
+            cout << "invalid dimensions lh is " << _cols << " rh is " << rh._cols << "\n";
             return myMatrix(0, 0);
         }
 #endif
@@ -553,7 +576,7 @@ public:
     {
 #ifdef ASSERT
         if (_rows != rh._rows || _cols != rh._cols)
-            cout << "invalid dimensions lh is " << _cols << " rh is " << rh._cols << endl;
+            cout << "invalid dimensions lh is " << _cols << " rh is " << rh._cols << "\n";
         else
 #endif
             for (int i = 0; i < _rows; i++)
@@ -567,7 +590,7 @@ public:
 #ifdef ASSERT
         if (rh.size() != _rows)
         {
-            cout << "invalid dimensions lh is " << _rows << " rh is " << rh.size() << endl;
+            cout << "invalid dimensions lh is " << _rows << " rh is " << rh.size() << "\n";
             return myMatrix(0, 0);
         }
 #endif
@@ -585,7 +608,7 @@ public:
     {
 #ifdef ASSERT
         if (rh.size() != _rows)
-            cout << "invalid dimensions lh is " << _rows << " rh is " << rh.size() << endl;
+            cout << "invalid dimensions lh is " << _rows << " rh is " << rh.size() << "\n";
         else
 #endif
             for (int i = 0; i < _rows; i++)
@@ -609,8 +632,6 @@ public:
     {
         for (auto &row : m)
             row.print();
-
-        cout << endl;
     }
 };
 
@@ -620,7 +641,7 @@ myVec<U> operator*(myVec<U> &vec, myMatrix<U> &matrix)
 #ifdef ASSERT
     if (vec.size() != matrix.rows())
     {
-        cout << "invalid dimensions lh is " << vec.size() << " rh is " << matrix.rows() << endl;
+        cout << "invalid dimensions lh is " << vec.size() << " rh is " << matrix.rows() << "\n";
         return myVec<U>(0, CERO);
     }
 #endif
@@ -646,7 +667,7 @@ myVec<U> operator*(myMatrix<U> &matrix, myVec<U> &vec)
 #ifdef ASSERT
     if (matrix.cols() != vec.size())
     {
-        cout << "invalid dimensions lh is " << matrix.cols() << " rh is " << vec.size() << endl;
+        cout << "invalid dimensions lh is " << matrix.cols() << " rh is " << vec.size() << "\n";
         return myVec<U>(0, CERO);
     }
 #endif
