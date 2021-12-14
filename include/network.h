@@ -13,7 +13,7 @@ template <class T>
 class network
 {
 private:
-    class fx_container
+    class fx_container //* IMPLEMENTACIÓN
     {
     private:
         size_t n_layers;
@@ -243,23 +243,23 @@ private:
     };
 
 private:
-    size_t n_ins;
-    size_t n_layers;
-    vector<size_t> n_p_l;
-    vector<myMatrix<T>> params;
-    vector<myVec<myFun<T>>> activations;
-    vector<myVec<T>> inner_vals;
-    vector<myVec<T>> bias;
-    vector<myVec<T>> fx_activations;
-    vector<myVec<T>> tmp_gradient;
-    vector<fx_container> containers;
-    size_t acum_pos;
-    bool gradient_init;
-    int64_t gradient_performance;
-    int64_t forward_performance;
+    size_t n_ins;                        //^ HANDLER + IMPLEMENTACIÓN
+    size_t n_layers;                     //^ HANDLER + IMPLEMENTACIÓN
+    vector<size_t> n_p_l;                //^ HANDLER + IMPLEMENTACIÓN
+    vector<myMatrix<T>> params;          //^ HANDLER + IMPLEMENTACIÓN
+    vector<myVec<myFun<T>>> activations; //^ HANDLER + IMPLEMENTACIÓN (guardarlas como valores numéricos)
+    vector<myVec<T>> inner_vals;         //* IMPLEMENTACIÓN
+    vector<myVec<T>> bias;               //^ HANDLER + IMPLEMENTACIÓN
+    vector<myVec<T>> fx_activations;     //* IMPLEMENTACIÓN
+    vector<myVec<T>> tmp_gradient;       //* IMPLEMENTACIÓN
+    vector<fx_container> containers;     //* IMPLEMENTACIÓN
+    size_t acum_pos;                     //* IMPLEMENTACIÓN
+    bool gradient_init;                  //* IMPLEMENTACIÓN
+    int64_t gradient_performance;        //* IMPLEMENTACIÓN
+    int64_t forward_performance;         //* IMPLEMENTACIÓN
 
 public:
-    class file_manager
+    class file_manager //^ HANDLER
     {
     private:
         const string HOME = getenv("HOME") ? getenv("HOME") : ".";
@@ -415,10 +415,10 @@ public:
 
             if (file_handler.is_open())
             {
-                file_handler << net.n_ins << " ";
+                file_handler << net.n_ins << SEPARATOR;
 
                 for (auto &i : net.n_p_l)
-                    file_handler << i << " ";
+                    file_handler << i << SEPARATOR;
 
                 file_handler << "\n\n";
 
@@ -427,7 +427,7 @@ public:
                     for (int j = 0; j < net.params[i].rows(); j++)
                     {
                         for (int k = 0; k < net.params[i].cols(); k++)
-                            file_handler << net.params[i][j][k] << " ";
+                            file_handler << net.params[i][j][k] << SEPARATOR;
 
                         file_handler << "\n";
                     }
@@ -435,7 +435,7 @@ public:
                     file_handler << "\n";
 
                     for (int j = 0; j < net.bias[i].size(); j++)
-                        file_handler << net.bias[i][j] << " ";
+                        file_handler << net.bias[i][j] << SEPARATOR;
 
                     file_handler << "\n\n";
                 }
@@ -448,7 +448,7 @@ public:
     };
 
 private:
-    void forward_gradient(myVec<T> &ins)
+    void forward_gradient(myVec<T> &ins) //* IMPLEMENTACIÓN
     {
         for (int i = 0; i < n_layers; i++)
         {
@@ -471,6 +471,7 @@ private:
 
     //* R*(fx^P)*(fx^P)...^(fx matrix I)
     myVec<T> gradient(fx_container &fx) //* returns R vec
+    //* IMPLEMENTACIÓN
     {
         forward_gradient(fx.ins);
         myVec<T> R = fx.outs - inner_vals[n_layers - 1];
@@ -501,7 +502,7 @@ private:
         return R;
     }
 
-    void gradient_update_params(fx_container &fx)
+    void gradient_update_params(fx_container &fx) //* IMPLEMENTACIÓN
     {
         for (int i = 0; i < n_layers; i++)
         {
@@ -511,7 +512,7 @@ private:
     }
 
 public:
-    network(file_manager &manager, bool derivate, bool random)
+    network(file_manager &manager, bool derivate, bool random) // TODO: REESTRUCTURAR
         : n_layers(manager.n_p_l.size()), acum_pos(0), gradient_init(false), gradient_performance(0), forward_performance(0), n_p_l(manager.n_p_l), n_ins(manager.n_ins)
 
     {
@@ -546,7 +547,7 @@ public:
             }
     }
 
-    network(size_t n_ins, vector<size_t> &n_p_l, bool derivate)
+    network(size_t n_ins, vector<size_t> &n_p_l, bool derivate) //* IMPLEMENTACIÓN
         : n_layers(n_p_l.size()), acum_pos(0), gradient_init(false), gradient_performance(0), forward_performance(0), n_p_l(n_p_l), n_ins(n_ins)
 
     {
@@ -568,6 +569,7 @@ public:
         }
     }
 
+    //* IMPLEMENTACIÓN
     network(size_t n_ins, vector<size_t> &n_p_l, vector<vector<vector<T>>> &p, vector<vector<T>> &b, bool derivate)
         : n_layers(n_p_l.size()), acum_pos(0), gradient_init(false), gradient_performance(0), forward_performance(0), n_p_l(n_p_l), n_ins(n_ins)
     {
@@ -589,6 +591,7 @@ public:
         }
     }
 
+    //* IMPLEMENTACIÓN
     network &operator=(const network &rh)
     {
         if (this != &rh)
@@ -612,6 +615,7 @@ public:
         return *this;
     }
 
+    //* IMPLEMENTACIÓN
     network &operator=(network &&rh)
     {
         if (this != &rh)
@@ -635,6 +639,7 @@ public:
         return *this;
     }
 
+    //* IMPLEMENTACIÓN
     network(const network &rh) : n_layers(rh.n_layers),
                                  params(rh.params),
                                  activations(rh.activations),
@@ -653,6 +658,7 @@ public:
     {
     }
 
+    //* IMPLEMENTACIÓN
     network(network &&rh) : n_layers(rh.n_layers),
                             params(move(rh.params)),
                             activations(move(rh.activations)),
@@ -671,6 +677,7 @@ public:
     {
     }
 
+    //^ HANDLER + IMPLEMENTACIÓN (REVISAR MOVE OP)
     vector<T> launch_forward(vector<T> &inputs) //* returns result
     {
 #ifdef PERFORMANCE
@@ -702,6 +709,7 @@ public:
         return inner_vals.back().copy_inner_vec();
     }
 
+    //^ HANDLER + IMPLEMENTACIÓN (REVISAR MOVE OP)
     void init_gradient(vector<vector<T>> &set_ins, vector<vector<T>> &set_outs)
     {
         if (!gradient_init)
@@ -728,11 +736,12 @@ public:
             cout << "gradient already init!\n";
     }
 
-    void init_gradient(file_manager &manager)
+    void init_gradient(file_manager &manager) // TODO: REESTRUCTURAR
     {
         init_gradient(manager.set_ins, manager.set_outs);
     }
 
+    //^ HANDLER + IMPLEMENTACIÓN (REVISAR MOVE OP)
     vector<T> launch_gradient(int iterations) //* returns it times errors
     {
         if (gradient_init)
@@ -770,7 +779,7 @@ public:
         }
     }
 
-    void print_params()
+    void print_params() //^ HANDLER
     {
         for (int i = 0; i < n_layers; i++)
         {
@@ -783,7 +792,7 @@ public:
         }
     }
 
-    void print_inner_vals()
+    void print_inner_vals() //^ HANDLER + IMPLEMENTACIÓN
     {
         cout << "Valores internos\n\n";
 
@@ -794,7 +803,7 @@ public:
         }
     }
 
-    int64_t get_gradient_performance()
+    int64_t get_gradient_performance() //^ HANDLER + IMPLEMENTACIÓN
     {
 #ifdef PERFORMANCE
         return gradient_performance;
@@ -804,7 +813,7 @@ public:
 #endif
     }
 
-    int64_t get_forward_performance()
+    int64_t get_forward_performance() //^ HANDLER + IMPLEMENTACIÓN
     {
 #ifdef PERFORMANCE
         return forward_performance;
