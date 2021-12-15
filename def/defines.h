@@ -1,8 +1,29 @@
 #ifndef DEFINES_H
 #define DEFINES_H
+
+#include <vector>
+
 #define ASSERT
 #define PERFORMANCE
+#define DATA_TYPE float
 constexpr long MAX_RANGE = 1;
 constexpr long MIN_RANGE = -1;
-constexpr char SEPARATOR = ' ';
+
+typedef struct
+{
+    size_t n_ins = 0;
+    size_t n_layers = 0;
+    std::vector<size_t> n_p_l;
+    std::vector<std::vector<std::vector<DATA_TYPE>>> params;
+    std::vector<std::vector<DATA_TYPE>> bias;
+    std::vector<std::vector<DATA_TYPE>> activations; //* valor numérico que indica qué función usar
+                                                     // TODO: IMPLEMENTAR ACTIVATIONS
+} net_data;
+
+typedef struct
+{
+    std::vector<std::vector<DATA_TYPE>> set_ins;
+    std::vector<std::vector<DATA_TYPE>> set_outs;
+} net_sets;
+
 #endif

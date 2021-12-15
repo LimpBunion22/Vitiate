@@ -1,58 +1,31 @@
-#ifndef MATHSTRUCTS_H
-#define MATHSTRUCTS_H
-
-#include <defines.h>
-#include <vector>
+#include <mathStructs.h>
 #include <iostream>
 #include <math.h>
 
-constexpr long RANGE = 2 * MAX_RANGE;
-constexpr bool DERIVATE = true;
-constexpr bool NOT_DERIVATE = false;
-constexpr int RELU = 0;
-constexpr int RELU2 = 1;
-constexpr int SIGMOID = 2;
-constexpr int RANDOM = 1;
-constexpr int CERO = 2;
-
-using namespace std;
-
-template <class U>
-using myFun = U (*)(U &in);
-
-template <class T>
-class myMatrix;
-
-template <class T>
-class myVec
+//* MY_VEC
+namespace cpu
 {
-private:
-    size_t _size;
-    vector<T> v;
+    using namespace std;
 
-private:
-    myVec() = delete;
-
-public:
-    myVec(vector<T> &vals) : _size(vals.size())
+    my_vec::my_vec(vector<DATA_TYPE> &vals) : _size(vals.size())
     {
         v = move(vals);
     }
 
-    myVec(size_t _size, int mode) : _size(_size), v(_size, 0)
+    my_vec::my_vec(size_t _size, int mode) : _size(_size), v(_size, 0)
     {
         if (mode == RANDOM)
             for (int i = 0; i < _size; i++)
-                v[i] = T((float)random() / RAND_MAX * RANGE + MIN_RANGE);
+                v[i] = DATA_TYPE((float)random() / RAND_MAX * RANGE + MIN_RANGE);
     }
 
-    myVec(initializer_list<T> l) : v(l), _size(l.size()) {}
+    my_vec::my_vec(initializer_list<DATA_TYPE> l) : v(l), _size(l.size()) {}
 
-    myVec(const myVec &rh) : _size(rh._size), v(rh.v) {}
+    my_vec::my_vec(const my_vec &rh) : _size(rh._size), v(rh.v) {}
 
-    myVec(myVec &&rh) : _size(rh._size), v(move(rh.v)) {}
+    my_vec::my_vec(my_vec &&rh) : _size(rh._size), v(move(rh.v)) {}
 
-    myVec &operator=(const myVec &rh)
+    my_vec &my_vec::operator=(const my_vec &rh)
     {
         if (this != &rh)
         {
@@ -63,7 +36,7 @@ public:
         return *this;
     }
 
-    myVec &operator=(myVec &&rh)
+    my_vec &my_vec::operator=(my_vec &&rh)
     {
         if (this != &rh)
         {
@@ -74,14 +47,14 @@ public:
         return *this;
     }
 
-    vector<T> copy_inner_vec()
+    vector<DATA_TYPE> my_vec::copy_inner_vec()
     {
         return v;
     }
 
-    T reduce()
+    DATA_TYPE my_vec::reduce()
     {
-        T sum = 0;
+        DATA_TYPE sum = 0;
 
         for (auto &i : v)
             sum += i;
@@ -89,7 +62,7 @@ public:
         return sum;
     }
 
-    myVec<T> &elems_abs()
+    my_vec &my_vec::elems_abs()
     {
         for (auto &i : v)
             i = abs(i);
@@ -97,7 +70,7 @@ public:
         return *this;
     }
 
-    T &operator[](int i)
+    DATA_TYPE &my_vec::operator[](int i)
     {
 #ifdef ASSERT
         if (i < _size)
@@ -110,7 +83,7 @@ public:
 #endif
     }
 
-    T operator*(const myVec &rh)
+    DATA_TYPE my_vec::operator*(const my_vec &rh)
     {
 #ifdef ASSERT
         if (_size != rh._size)
@@ -120,7 +93,7 @@ public:
         }
 #endif
 
-        T sum = 0;
+        DATA_TYPE sum = 0;
 
         for (int i = 0; i < _size; i++)
             sum += v[i] * rh.v[i];
@@ -128,17 +101,17 @@ public:
         return sum;
     }
 
-    myVec operator^(const myVec &rh)
+    my_vec my_vec::operator^(const my_vec &rh)
     {
 #ifdef ASSERT
         if (_size != rh._size)
         {
             cout << "invalid dimensions lh is " << _size << " rh is " << rh._size << "\n";
-            return myVec(0, CERO);
+            return my_vec(0, CERO);
         }
 #endif
 
-        myVec<T> tmp(_size, CERO);
+        my_vec tmp(_size, CERO);
 
         for (int i = 0; i < _size; i++)
             tmp.v[i] = v[i] * rh.v[i];
@@ -146,7 +119,7 @@ public:
         return tmp;
     }
 
-    myVec &operator^=(const myVec &rh)
+    my_vec &my_vec::operator^=(const my_vec &rh)
     {
 #ifdef ASSERT
         if (_size != rh._size)
@@ -159,17 +132,17 @@ public:
         return *this;
     }
 
-    myVec operator+(const myVec &rh)
+    my_vec my_vec::operator+(const my_vec &rh)
     {
 #ifdef ASSERT
         if (_size != rh._size)
         {
             cout << "invalid dimensions lh is " << _size << " rh is " << rh._size << "\n";
-            return myVec(0);
+            return my_vec(0, CERO);
         }
 #endif
 
-        myVec<T> tmp(_size, CERO);
+        my_vec tmp(_size, CERO);
 
         for (int i = 0; i < _size; i++)
             tmp.v[i] = v[i] + rh.v[i];
@@ -177,7 +150,7 @@ public:
         return tmp;
     }
 
-    myVec &operator+=(const myVec &rh)
+    my_vec &my_vec::operator+=(const my_vec &rh)
     {
 #ifdef ASSERT
         if (_size != rh._size)
@@ -190,17 +163,17 @@ public:
         return *this;
     }
 
-    myVec operator-(const myVec &rh)
+    my_vec my_vec::operator-(const my_vec &rh)
     {
 #ifdef ASSERT
         if (_size != rh._size)
         {
             cout << "invalid dimensions lh is " << _size << " rh is " << rh._size << "\n";
-            return myVec(0, CERO);
+            return my_vec(0, CERO);
         }
 #endif
 
-        myVec<T> tmp(_size, CERO);
+        my_vec tmp(_size, CERO);
 
         for (int i = 0; i < _size; i++)
             tmp.v[i] = v[i] - rh.v[i];
@@ -208,7 +181,7 @@ public:
         return tmp;
     }
 
-    myVec &operator-=(const myVec &rh)
+    my_vec &my_vec::operator-=(const my_vec &rh)
     {
 #ifdef ASSERT
         if (_size != rh._size)
@@ -221,33 +194,26 @@ public:
         return *this;
     }
 
-    size_t size()
+    size_t my_vec::size()
     {
         return _size;
     }
 
-    void print()
+    void my_vec::print()
     {
         for (auto &el : v)
             cout << el << " ";
 
         cout << "\n";
     }
-};
+}
 
-template <class T>
-class myVec<myFun<T>>
+//* MY_VEC_FUN
+namespace cpu
 {
-private:
-    size_t _size;
-    vector<myFun<T>> v;
-    vector<myFun<T>> fx;
+    using namespace std;
 
-private:
-    myVec() = delete;
-
-public:
-    myVec(size_t _size, bool derivate) : _size(_size)
+    my_vec_fun::my_vec_fun(size_t _size, bool derivate) : _size(_size)
     {
         v.reserve(_size);
 
@@ -255,18 +221,18 @@ public:
         {
             for (int i = 0; i < _size; i++)
             {
-                v.emplace_back(myVec::relu);    //TODO: implementar bien
-                fx.emplace_back(myVec::fxrelu); //TODO: implementar bien
+                v.emplace_back(my_vec_fun::relu);    // TODO: implementar bien
+                fx.emplace_back(my_vec_fun::fxrelu); // TODO: implementar bien
             }
         }
         else
         {
             for (int i = 0; i < _size; i++)
-                v.emplace_back(myVec::relu); //TODO: implementar bien
+                v.emplace_back(my_vec_fun::relu); // TODO: implementar bien
         }
     }
 
-    myVec(vector<size_t> &funs, bool derivate) : _size(_size)
+    my_vec_fun::my_vec_fun(vector<size_t> &funs, bool derivate) : _size(_size)
     {
         v.reserve(_size);
 
@@ -282,8 +248,8 @@ public:
                 case RELU2:
                 case SIGMOID:
                 default:
-                    v.emplace_back(myVec::relu);
-                    fx.emplace_back(myVec::fxrelu);
+                    v.emplace_back(my_vec_fun::relu);
+                    fx.emplace_back(my_vec_fun::fxrelu);
                     break;
                 }
             }
@@ -298,18 +264,18 @@ public:
                 case RELU2:
                 case SIGMOID:
                 default:
-                    v.emplace_back(myVec::relu);
+                    v.emplace_back(my_vec_fun::relu);
                     break;
                 }
             }
         }
     }
 
-    myVec(const myVec &rh) : _size(rh._size), v(rh.v), fx(rh.fx) {}
+    my_vec_fun::my_vec_fun(const my_vec_fun &rh) : _size(rh._size), v(rh.v), fx(rh.fx) {}
 
-    myVec(myVec &&rh) : _size(rh._size), v(move(rh.v)), fx(move(rh.fx)) {}
+    my_vec_fun::my_vec_fun(my_vec_fun &&rh) : _size(rh._size), v(move(rh.v)), fx(move(rh.fx)) {}
 
-    myVec &operator=(const myVec &rh)
+    my_vec_fun &my_vec_fun::operator=(const my_vec_fun &rh)
     {
         if (this != &rh)
         {
@@ -321,7 +287,7 @@ public:
         return *this;
     }
 
-    myVec &operator=(myVec &&rh)
+    my_vec_fun &my_vec_fun::operator=(my_vec_fun &&rh)
     {
         if (this != &rh)
         {
@@ -333,7 +299,7 @@ public:
         return *this;
     }
 
-    static T relu(T &in)
+    DATA_TYPE my_vec_fun::relu(DATA_TYPE &in)
     {
 
         if (in >= 0)
@@ -342,26 +308,26 @@ public:
             return in / 8;
     }
 
-    static T fxrelu(T &in)
+    DATA_TYPE my_vec_fun::fxrelu(DATA_TYPE &in)
     {
 
         if (in >= 0)
             return 1;
         else
-            return (T)1 / 8;
+            return (DATA_TYPE)1 / 8;
     }
 
-    myVec<T> calculate(myVec<T> &rh)
+    my_vec my_vec_fun::calculate(my_vec &rh)
     {
 #ifdef ASSERT
         if (_size != rh.size())
         {
             cout << "invalid dimensions lh is " << _size << " rh is " << rh.size() << "\n";
-            return myVec<T>(0, CERO);
+            return my_vec(0, CERO);
         }
 #endif
 
-        myVec<T> tmp(_size, CERO);
+        my_vec tmp(_size, CERO);
 
         for (int i = 0; i < _size; i++)
             tmp[i] = v[i](rh[i]);
@@ -369,17 +335,17 @@ public:
         return tmp;
     }
 
-    myVec<T> derivate(myVec<T> &rh)
+    my_vec my_vec_fun::derivate(my_vec &rh)
     {
 #ifdef ASSERT
         if (_size != rh.size())
         {
             cout << "invalid dimensions lh is " << _size << " rh is " << rh.size() << "\n";
-            return myVec<T>(0, CERO);
+            return my_vec(0, CERO);
         }
 #endif
 
-        myVec<T> tmp(_size, CERO);
+        my_vec tmp(_size, CERO);
 
         for (int i = 0; i < _size; i++)
             tmp[i] = fx[i](rh[i]);
@@ -387,54 +353,32 @@ public:
         return tmp;
     }
 
-    size_t size()
+    size_t my_vec_fun::size()
     {
         return _size;
     }
-};
+}
 
-template <class T>
-class myMatrix
+//* MY_MATRIX
+namespace cpu
 {
-    template <class U>
-    friend myMatrix<U> make_from(myVec<U> &lh, myVec<U> &rh);
+    using namespace std;
 
-private:
-    size_t _rows;
-    size_t _cols;
-    vector<myVec<T>> m;
-
-private:
-    myMatrix() = delete;
-
-    myMatrix(size_t _rows, size_t _cols) : _rows(_rows), _cols(_cols)
+    my_matrix::my_matrix(size_t _rows, size_t _cols) : _rows(_rows), _cols(_cols)
     {
         m.reserve(_rows);
     }
 
-public:
-    myMatrix(size_t _rows, size_t _cols, int mode) : _rows(_rows), _cols(_cols)
+    my_matrix::my_matrix(size_t _rows, size_t _cols, int mode) : _rows(_rows), _cols(_cols), m(_rows, my_vec(_cols, CERO))
     {
-        m.reserve(_rows);
 
-        switch (mode)
-        {
-        case RANDOM:
+        if (mode == RANDOM)
             for (int i = 0; i < _rows; i++)
-                m.emplace_back(_cols, RANDOM);
-
-            break;
-
-        case CERO:
-        default:
-            for (int i = 0; i < _rows; i++)
-                m.emplace_back(_cols, CERO);
-
-            break;
-        }
+                for (int j = 0; j < _cols; j++)
+                    m[i][j] = DATA_TYPE((float)random() / RAND_MAX * RANGE + MIN_RANGE);
     }
 
-    myMatrix(vector<vector<T>> &vecs) : _rows(vecs.size()), _cols(vecs[0].size())
+    my_matrix::my_matrix(vector<vector<DATA_TYPE>> &vecs) : _rows(vecs.size()), _cols(vecs[0].size())
     {
         m.reserve(_rows);
 
@@ -442,7 +386,7 @@ public:
             m.emplace_back(vecs[i]);
     }
 
-    myMatrix(initializer_list<initializer_list<T>> l) : _rows(l.size()), _cols(l.begin()->size())
+    my_matrix::my_matrix(initializer_list<initializer_list<DATA_TYPE>> l) : _rows(l.size()), _cols(l.begin()->size())
     {
         m.reserve(l.size());
 
@@ -450,11 +394,11 @@ public:
             m.emplace_back(list);
     }
 
-    myMatrix(const myMatrix &rh) : _rows(rh._rows), _cols(rh._cols), m(rh.m) {}
+    my_matrix::my_matrix(const my_matrix &rh) : _rows(rh._rows), _cols(rh._cols), m(rh.m) {}
 
-    myMatrix(myMatrix &&rh) : _rows(rh._rows), _cols(rh._cols), m(move(rh.m)) {}
+    my_matrix::my_matrix(my_matrix &&rh) : _rows(rh._rows), _cols(rh._cols), m(move(rh.m)) {}
 
-    myMatrix &operator=(const myMatrix &rh)
+    my_matrix &my_matrix::operator=(const my_matrix &rh)
     {
         if (this != &rh)
         {
@@ -466,7 +410,7 @@ public:
         return *this;
     }
 
-    myMatrix &operator=(myMatrix &&rh)
+    my_matrix &my_matrix::operator=(my_matrix &&rh)
     {
         if (this != &rh)
         {
@@ -478,7 +422,7 @@ public:
         return *this;
     }
 
-    myVec<T> &operator[](size_t row)
+    my_vec &my_matrix::operator[](size_t row)
     {
 #ifdef ASSERT
         if (row < _rows)
@@ -491,25 +435,25 @@ public:
 #endif
     }
 
-    myMatrix operator*(myMatrix &rh)
+    my_matrix my_matrix::operator*(my_matrix &rh)
     {
 #ifdef ASSERT
         if (_cols != rh._rows)
         {
             cout << "invalid dimensions lh is " << _cols << " rh is " << rh._cols << "\n";
-            return myMatrix(0, 0);
+            return my_matrix(0, 0);
         }
 #endif
 
-        myMatrix tmp(_rows, rh._cols);
+        my_matrix tmp(_rows, rh._cols);
 
         for (int i = 0; i < _rows; i++)
         {
-            myVec<T> row(rh._cols, CERO);
+            my_vec row(rh._cols, CERO);
 
             for (int j = 0; j < rh._cols; j++)
             {
-                T sum = 0;
+                DATA_TYPE sum = 0;
 
                 for (int k = 0; k < rh._rows; k++)
                     sum += (*this)[i][k] * rh[k][j];
@@ -523,17 +467,17 @@ public:
         return tmp;
     }
 
-    myMatrix operator+(myMatrix &rh)
+    my_matrix my_matrix::operator+(my_matrix &rh)
     {
 #ifdef ASSERT
         if (_rows != rh._rows || _cols != rh._cols)
         {
             cout << "invalid dimensions lh is " << _cols << " rh is " << rh._cols << "\n";
-            return myMatrix(0, 0);
+            return my_matrix(0, 0);
         }
 #endif
 
-        myMatrix tmp(_rows, _cols);
+        my_matrix tmp(_rows, _cols);
 
         for (int i = 0; i < _rows; i++)
             tmp.m.emplace_back((*this)[i] + rh[i]);
@@ -541,7 +485,7 @@ public:
         return tmp;
     }
 
-    myMatrix &operator+=(myMatrix &rh)
+    my_matrix &my_matrix::operator+=(my_matrix &rh)
     {
 #ifdef ASSERT
         if (_rows != rh._rows || _cols != rh._cols)
@@ -554,17 +498,17 @@ public:
         return *this;
     }
 
-    myMatrix operator-(myMatrix &rh)
+    my_matrix my_matrix::operator-(my_matrix &rh)
     {
 #ifdef ASSERT
         if (_rows != rh._rows || _cols != rh._cols)
         {
             cout << "invalid dimensions lh is " << _cols << " rh is " << rh._cols << "\n";
-            return myMatrix(0, 0);
+            return my_matrix(0, 0);
         }
 #endif
 
-        myMatrix tmp(_rows, _cols);
+        my_matrix tmp(_rows, _cols);
 
         for (int i = 0; i < _rows; i++)
             tmp.m.emplace_back((*this)[i] - rh[i]);
@@ -572,7 +516,7 @@ public:
         return tmp;
     }
 
-    myMatrix &operator-=(myMatrix &rh)
+    my_matrix &my_matrix::operator-=(my_matrix &rh)
     {
 #ifdef ASSERT
         if (_rows != rh._rows || _cols != rh._cols)
@@ -585,17 +529,17 @@ public:
         return *this;
     }
 
-    myMatrix operator^(myVec<T> &rh)
+    my_matrix my_matrix::operator^(my_vec &rh)
     {
 #ifdef ASSERT
         if (rh.size() != _rows)
         {
             cout << "invalid dimensions lh is " << _rows << " rh is " << rh.size() << "\n";
-            return myMatrix(0, 0);
+            return my_matrix(0, 0);
         }
 #endif
 
-        myMatrix tmp = *this;
+        my_matrix tmp = *this;
 
         for (int i = 0; i < _rows; i++)
             for (int j = 0; j < _cols; j++)
@@ -604,7 +548,7 @@ public:
         return tmp;
     }
 
-    myMatrix &operator^=(myVec<T> &rh)
+    my_matrix &my_matrix::operator^=(my_vec &rh)
     {
 #ifdef ASSERT
         if (rh.size() != _rows)
@@ -618,91 +562,92 @@ public:
         return *this;
     }
 
-    size_t rows()
+    size_t my_matrix::rows()
     {
         return _rows;
     }
 
-    size_t cols()
+    size_t my_matrix::cols()
     {
         return _cols;
     }
 
-    void print()
+    void my_matrix::print()
     {
         for (auto &row : m)
             row.print();
     }
-};
+}
 
-template <class U>
-myVec<U> operator*(myVec<U> &vec, myMatrix<U> &matrix)
+//*friend functions
+namespace cpu
 {
+    using namespace std;
+
+    my_vec operator*(my_vec &vec, my_matrix &matrix)
+    {
 #ifdef ASSERT
-    if (vec.size() != matrix.rows())
-    {
-        cout << "invalid dimensions lh is " << vec.size() << " rh is " << matrix.rows() << "\n";
-        return myVec<U>(0, CERO);
-    }
+        if (vec.size() != matrix.rows())
+        {
+            cout << "invalid dimensions lh is " << vec.size() << " rh is " << matrix.rows() << "\n";
+            return my_vec(0, CERO);
+        }
 #endif
 
-    myVec<U> tmp(matrix.cols(), CERO);
+        my_vec tmp(matrix.cols(), CERO);
 
-    for (int j = 0; j < matrix.cols(); j++)
-    {
-        U sum = 0;
+        for (int j = 0; j < matrix.cols(); j++)
+        {
+            DATA_TYPE sum = 0;
 
-        for (int k = 0; k < matrix.rows(); k++)
-            sum += vec[k] * matrix[k][j];
+            for (int k = 0; k < matrix.rows(); k++)
+                sum += vec[k] * matrix[k][j];
 
-        tmp[j] = sum;
+            tmp[j] = sum;
+        }
+
+        return tmp;
     }
 
-    return tmp;
-}
-
-template <class U>
-myVec<U> operator*(myMatrix<U> &matrix, myVec<U> &vec)
-{
+    my_vec operator*(my_matrix &matrix, my_vec &vec)
+    {
 #ifdef ASSERT
-    if (matrix.cols() != vec.size())
-    {
-        cout << "invalid dimensions lh is " << matrix.cols() << " rh is " << vec.size() << "\n";
-        return myVec<U>(0, CERO);
-    }
+        if (matrix.cols() != vec.size())
+        {
+            cout << "invalid dimensions lh is " << matrix.cols() << " rh is " << vec.size() << "\n";
+            return my_vec(0, CERO);
+        }
 #endif
 
-    myVec<U> tmp(matrix.rows(), CERO);
+        my_vec tmp(matrix.rows(), CERO);
 
-    for (int j = 0; j < matrix.rows(); j++)
-    {
-        U sum = 0;
+        for (int j = 0; j < matrix.rows(); j++)
+        {
+            DATA_TYPE sum = 0;
 
-        for (int k = 0; k < matrix.cols(); k++)
-            sum += vec[k] * matrix[j][k];
+            for (int k = 0; k < matrix.cols(); k++)
+                sum += vec[k] * matrix[j][k];
 
-        tmp[j] = sum;
+            tmp[j] = sum;
+        }
+
+        return tmp;
     }
 
-    return tmp;
-}
-
-template <class U>
-myMatrix<U> make_from(myVec<U> &lh, myVec<U> &rh)
-{
-    myMatrix<U> tmp(lh.size(), rh.size());
-
-    for (int i = 0; i < lh.size(); i++)
+    my_matrix make_from(my_vec &lh, my_vec &rh)
     {
-        myVec<U> row(rh.size(), CERO);
+        my_matrix tmp(lh.size(), rh.size());
 
-        for (int j = 0; j < rh.size(); j++)
-            row[j] = lh[i] * rh[j];
+        for (int i = 0; i < lh.size(); i++)
+        {
+            my_vec row(rh.size(), CERO);
 
-        tmp.m.emplace_back(row);
+            for (int j = 0; j < rh.size(); j++)
+                row[j] = lh[i] * rh[j];
+
+            tmp.m.emplace_back(row);
+        }
+
+        return tmp;
     }
-
-    return tmp;
 }
-
-#endif
