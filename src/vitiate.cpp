@@ -70,15 +70,15 @@ int main()
     cout << "gradient errors\n";
     for (auto &i : errors)
         cout << i << " ";
-    cout << "\n\n";
-    cout << "gradient performance was " << handler.get_gradient_performance("cpu_float") << " us\n\n";
+    cout << "\n";
+    cout << "gradient performance was " << handler.get_gradient_performance("cpu_float") << " us\n";
 
     vector<DATA_TYPE> ins = {1, 2};
     vector<DATA_TYPE> outs = handler.launch_forward("cpu_float", ins);
     cout << "forward outs\n";
     for (auto &i : outs)
         cout << i << " ";
-    cout << "\n\n";
+    cout << "\n";
     cout << "foward performance was " << handler.get_forward_performance("cpu_float") << " us\n";
     
     handler.write_net_to_file("cpu_float", "cpu_float_values");

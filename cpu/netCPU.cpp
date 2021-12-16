@@ -230,7 +230,7 @@ namespace cpu
     using namespace std;
     using namespace chrono;
 
-    net_cpu::net_cpu(net::net_data data, bool derivate, bool random)
+    net_cpu::net_cpu(const net::net_data &data, bool derivate, bool random)
         : n_layers(data.n_p_l.size()), acum_pos(0), gradient_init(false), gradient_performance(0), forward_performance(0), n_p_l(data.n_p_l), n_ins(data.n_ins)
 
     {
@@ -252,17 +252,21 @@ namespace cpu
                 bias.emplace_back(n_p_l[i], RANDOM);
             }
         else
+        {
+            net::net_data data_copy = data;
+            
             for (int i = 0; i < n_layers; i++)
             {
                 if (i == 0)
-                    params.emplace_back(data.params[i]);
+                    params.emplace_back(data_copy.params[i]);
                 else
-                    params.emplace_back(data.params[i]);
+                    params.emplace_back(data_copy.params[i]);
 
                 activations.emplace_back(n_p_l[i], derivate);
                 inner_vals.emplace_back(n_p_l[i], CERO);
-                bias.emplace_back(data.bias[i]);
+                bias.emplace_back(data_copy.bias[i]);
             }
+        }
     }
 
     net_cpu::net_cpu(const net_cpu &rh) : n_layers(rh.n_layers),
@@ -416,7 +420,7 @@ namespace cpu
         data.n_ins = n_ins;
         data.n_layers = n_layers;
         data.n_p_l = n_p_l;
-        
+
         for (int i = 0; i < n_layers; i++)
         {
             data.params.emplace_back(params[i].rows(), vector<DATA_TYPE>(params[i].cols(), 0));
@@ -434,12 +438,13 @@ namespace cpu
         return data;
     }
 
-    vector<DATA_TYPE> net_cpu::launch_forward(vector<DATA_TYPE> inputs) //* returns result
+    vector<DATA_TYPE> net_cpu::launch_forward(const vector<DATA_TYPE> &inputs) //* returns result
     {
 #ifdef PERFORMANCE
         auto start = high_resolution_clock::now();
 #endif
-        my_vec ins(inputs);
+        vector<DATA_TYPE> inputs_copy = inputs;
+        my_vec ins(inputs_copy);
 
         for (int i = 0; i < n_layers; i++)
         {
@@ -466,13 +471,14 @@ namespace cpu
     }
 
     //^ HANDLER + IMPLEMENDATA_TYPEACIÓN (REVISAR MOVE OP)
-    void net_cpu::init_gradient(net::net_sets sets)
+    void net_cpu::init_gradient(const net::net_sets &sets)
     {
         if (!gradient_init)
         {
-            size_t ins_num = sets.set_ins[0].size(); //* para guardar el tamaño de entradas, ya que el vector se hace 0 al moverlo
-            acum_pos = sets.set_ins.size();          //* acum_pos=n of sets
-            containers.reserve(acum_pos + 1);        //* para incluir al contenedor de acumulación
+            net::net_sets sets_copy = sets;
+            size_t ins_num = sets_copy.set_ins[0].size(); //* para guardar el tamaño de entradas, ya que el vector se hace 0 al moverlo
+            acum_pos = sets_copy.set_ins.size();          //* acum_pos=n of sets
+            containers.reserve(acum_pos + 1);             //* para incluir al contenedor de acumulación
             fx_activations.reserve(n_layers);
             tmp_gradient.reserve(n_layers);
 
@@ -483,7 +489,7 @@ namespace cpu
             }
 
             for (int i = 0; i < acum_pos; i++)
-                containers.emplace_back(n_p_l, sets.set_ins[i], sets.set_outs[i]);
+                containers.emplace_back(n_p_l, sets_copy.set_ins[i], sets_copy.set_outs[i]);
 
             containers.emplace_back(n_p_l, ins_num); //* contenedor de acumulación
             gradient_init = true;
