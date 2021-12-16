@@ -54,57 +54,32 @@
 //         .def("get_gradient_performance", &network<float>::get_gradient_performance)
 //         .def("get_forward_performance", &network<float>::get_forward_performance);
 // }
-// #include <stdio.h>
-// #include <network.h>
-// #include <vector>
 
-// using namespace std;
+#include <netHandler.h>
+#include <iostream>
 
-// int main()
-// {
-//     srand(time(NULL));
-
-//     size_t n_ins = 2;
-//     vector<vector<float>> set_ins = {{2.0f, 1.0f}};
-//     vector<vector<float>> set_outs = {{0, 0, 0, 0, 0}};
-//     vector<size_t> neurons_per_layer = {3, 4, 5};
-
-//     // vector<vector<vector<float>>> params =
-//     //     {{{1, 2},
-//     //       {-0.1, 0.1},
-//     //       {0, 0.1}},
-//     //      {{1, 2, -0.1},
-//     //       {1, -0.1, -0.1},
-//     //       {1, 2, -0.1},
-//     //       {1, 0.1, 0.1}},
-//     //      {{1, 2, -0.1, 0.1},
-//     //       {1, 2, -0.1, 0.1},
-//     //       {0.1, 2, -1, 0.1},
-//     //       {-0.1, 2, -1, 0.1},
-//     //       {2, 2, 0.7, 0.1}}};
-
-//     // vector<vector<float>> bias =
-//     //     {{-0.1, 0, -0.1},
-//     //      {0.1, 0.1, 0.1, 0.1},
-//     //      {0, 0, 0, 0, 0}};
-
-//     network<float> my_network(n_ins, neurons_per_layer, DERIVATE);
-//     my_network.init_gradient(set_ins, set_outs);
-//     my_network.launch_gradient(10);
-//     my_network.print_inner_vals();
-//     vector<float> test_ins = {2.0f, 1.0f};
-//     cout << "launch forward with 2, 1" << endl;
-//     my_network.launch_forward(test_ins);
-//     my_network.print_inner_vals();
-
-//     return 0;
-// }
-
-#include <mathStructs.h>
-#include <netFileManager.h>
-
-using namespace std;
 int main()
 {
+    using namespace std;
 
+    net::net_handler handler("/home/gabi");
+    handler.net_create("cpu_float", net::CPU, net::DERIVATE, net::RANDOM, "net");
+    handler.init_gradient("cpu_float", "sets");
+
+    vector<DATA_TYPE> errors = handler.launch_gradient("cpu_float", 45);
+    cout << "gradient errors\n";
+    for (auto &i : errors)
+        cout << i << " ";
+    cout << "\n\n";
+    cout << "gradient performance was " << handler.get_gradient_performance("cpu_float") << " us\n\n";
+
+    vector<DATA_TYPE> ins = {1, 2};
+    vector<DATA_TYPE> outs = handler.launch_forward("cpu_float", ins);
+    cout << "forward outs\n";
+    for (auto &i : outs)
+        cout << i << " ";
+    cout << "\n\n";
+    cout << "foward performance was " << handler.get_forward_performance("cpu_float") << " us\n";
+    
+    handler.write_net_to_file("cpu_float", "cpu_float_values");
 }

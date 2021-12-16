@@ -230,7 +230,7 @@ namespace cpu
     using namespace std;
     using namespace chrono;
 
-    net_cpu::net_cpu(net_data data, bool derivate, bool random) // DATA_TYPEODO: REESDATA_TYPERUCDATA_TYPEURAR
+    net_cpu::net_cpu(net::net_data data, bool derivate, bool random)
         : n_layers(data.n_p_l.size()), acum_pos(0), gradient_init(false), gradient_performance(0), forward_performance(0), n_p_l(data.n_p_l), n_ins(data.n_ins)
 
     {
@@ -401,7 +401,7 @@ namespace cpu
         return R;
     }
 
-    void net_cpu::gradient_update_params(net_cpu::fx_container &fx) //* IMPLEMENDATA_TYPEACIÓN
+    void net_cpu::gradient_update_params(net_cpu::fx_container &fx)
     {
         for (int i = 0; i < n_layers; i++)
         {
@@ -410,13 +410,31 @@ namespace cpu
         }
     }
 
-    net_data net_cpu::get_net_data() // TODO:implementar
+    net::net_data net_cpu::get_net_data() // TODO:implementar
     {
-        net_data data;
+        net::net_data data;
+        data.n_ins = n_ins;
+        data.n_layers = n_layers;
+        data.n_p_l = n_p_l;
+        
+        for (int i = 0; i < n_layers; i++)
+        {
+            data.params.emplace_back(params[i].rows(), vector<DATA_TYPE>(params[i].cols(), 0));
+
+            for (int j = 0; j < params[i].rows(); j++)
+                for (int k = 0; k < params[i].cols(); k++)
+                    data.params[i][j][k] = params[i][j][k];
+
+            data.bias.emplace_back(bias[i].size(), 0);
+
+            for (int j = 0; j < bias[i].size(); j++)
+                data.bias[i][j] = bias[i][j];
+        }
+
         return data;
     }
 
-    vector<DATA_TYPE> net_cpu::launch_forward(vector<DATA_TYPE> &inputs) //* returns result
+    vector<DATA_TYPE> net_cpu::launch_forward(vector<DATA_TYPE> inputs) //* returns result
     {
 #ifdef PERFORMANCE
         auto start = high_resolution_clock::now();
@@ -448,7 +466,7 @@ namespace cpu
     }
 
     //^ HANDLER + IMPLEMENDATA_TYPEACIÓN (REVISAR MOVE OP)
-    void net_cpu::init_gradient(net_sets sets)
+    void net_cpu::init_gradient(net::net_sets sets)
     {
         if (!gradient_init)
         {

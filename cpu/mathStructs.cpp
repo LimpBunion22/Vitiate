@@ -16,7 +16,7 @@ namespace cpu
     {
         if (mode == RANDOM)
             for (int i = 0; i < _size; i++)
-                v[i] = DATA_TYPE((float)random() / RAND_MAX * RANGE + MIN_RANGE);
+                v[i] = DATA_TYPE((float)random() / RAND_MAX * RANGE + net::MIN_RANGE);
     }
 
     my_vec::my_vec(initializer_list<DATA_TYPE> l) : v(l), _size(l.size()) {}
@@ -375,7 +375,7 @@ namespace cpu
         if (mode == RANDOM)
             for (int i = 0; i < _rows; i++)
                 for (int j = 0; j < _cols; j++)
-                    m[i][j] = DATA_TYPE((float)random() / RAND_MAX * RANGE + MIN_RANGE);
+                    m[i][j] = DATA_TYPE((float)random() / RAND_MAX * RANGE + net::MIN_RANGE);
     }
 
     my_matrix::my_matrix(vector<vector<DATA_TYPE>> &vecs) : _rows(vecs.size()), _cols(vecs[0].size())

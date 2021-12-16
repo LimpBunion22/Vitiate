@@ -25,7 +25,7 @@ file (GLOB CPU_HEADERS "cpu/*.h")
 file (GLOB CPU_SOURCES "cpu/*.cpp")
 
 # #pybind tasks
-# find_package(pybind11 REQUIRED)
+find_package(pybind11 REQUIRED)
 # pybind11_add_module(vitiate 
 #     ${DEF_FILES}
 #     ${HEADER_FILES}

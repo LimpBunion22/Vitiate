@@ -2,11 +2,10 @@
 #define MATHSTRUCTS_H
 
 #include <defines.h>
-#include <vector>
 
 namespace cpu
 {
-    constexpr long RANGE = 2 * MAX_RANGE;
+    constexpr long RANGE = 2 * net::MAX_RANGE;
     constexpr bool DERIVATE = true;
     constexpr bool NOT_DERIVATE = false;
     constexpr int RELU = 0;

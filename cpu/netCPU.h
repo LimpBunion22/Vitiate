@@ -7,7 +7,7 @@
 
 namespace cpu
 {
-    class net_cpu : public net_abstract
+    class net_cpu : public net::net_abstract
     {
     private:
         class fx_container
@@ -62,15 +62,15 @@ namespace cpu
         void gradient_update_params(fx_container &fx);
 
     public:
-        net_cpu(net_data data, bool derivate, bool random); //* net_data como copia para mantener operaciones move
+        net_cpu(net::net_data data, bool derivate, bool random); //* net::net_data como copia para mantener operaciones move
         net_cpu(const net_cpu &rh);
         net_cpu(net_cpu &&rh);
         net_cpu &operator=(const net_cpu &rh);
         net_cpu &operator=(net_cpu &&rh);
 
-        net_data get_net_data() override; // TODO::implementar
-        std::vector<DATA_TYPE> launch_forward(std::vector<DATA_TYPE> &inputs) override;
-        void init_gradient(net_sets sets) override;
+        net::net_data get_net_data() override; // TODO::implementar
+        std::vector<DATA_TYPE> launch_forward(std::vector<DATA_TYPE> inputs) override;
+        void init_gradient(net::net_sets sets) override;
         std::vector<DATA_TYPE> launch_gradient(int iterations) override;
         void print_inner_vals() override;
         signed long get_gradient_performance() override;
