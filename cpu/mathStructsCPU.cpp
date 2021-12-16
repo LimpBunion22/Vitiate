@@ -1,4 +1,4 @@
-#include <mathStructs.h>
+#include <mathStructsCPU.h>
 #include <iostream>
 #include <math.h>
 
@@ -7,21 +7,24 @@ namespace cpu
 {
     using namespace std;
 
-    my_vec::my_vec(vector<DATA_TYPE> &vals) : _size(vals.size())
+    my_vec::my_vec(const vector<DATA_TYPE> &vals) : _size(vals.size()), v(new DATA_TYPE[_size]{0})
     {
-        v = move(vals);
+        for (int i = 0; i < _size; i++)
+            v[i] = vals[i];
     }
 
-    my_vec::my_vec(size_t _size, int mode) : _size(_size), v(_size, 0)
+    my_vec::my_vec(size_t _size, int mode) : _size(_size), v(new DATA_TYPE[_size]{0})
     {
         if (mode == RANDOM)
             for (int i = 0; i < _size; i++)
                 v[i] = DATA_TYPE((float)random() / RAND_MAX * RANGE + net::MIN_RANGE);
     }
 
-    my_vec::my_vec(initializer_list<DATA_TYPE> l) : v(l), _size(l.size()) {}
-
-    my_vec::my_vec(const my_vec &rh) : _size(rh._size), v(rh.v) {}
+    my_vec::my_vec(const my_vec &rh) : _size(rh._size), v(new DATA_TYPE[_size]{0})
+    {
+        for (int i = 0; i < _size; i++)
+            v[i] = rh.v[i];
+    }
 
     my_vec::my_vec(my_vec &&rh) : _size(rh._size), v(move(rh.v)) {}
 
@@ -30,7 +33,10 @@ namespace cpu
         if (this != &rh)
         {
             _size = rh._size;
-            v = rh.v;
+            v.reset(new DATA_TYPE[_size]{0});
+
+            for (int i = 0; i < _size; i++)
+                v[i] = rh.v[i];
         }
 
         return *this;
@@ -49,23 +55,28 @@ namespace cpu
 
     vector<DATA_TYPE> my_vec::copy_inner_vec()
     {
-        return v;
+        vector<DATA_TYPE> copy(_size, 0);
+
+        for (int i = 0; i < _size; i++)
+            copy[i] = v[i];
+
+        return copy;
     }
 
     DATA_TYPE my_vec::reduce()
     {
         DATA_TYPE sum = 0;
 
-        for (auto &i : v)
-            sum += i;
+        for (int i = 0; i < _size; i++)
+            sum += v[i];
 
         return sum;
     }
 
     my_vec &my_vec::elems_abs()
     {
-        for (auto &i : v)
-            i = abs(i);
+        for (int i = 0; i < _size; i++)
+            v[i] = abs(v[i]);
 
         return *this;
     }
@@ -107,7 +118,7 @@ namespace cpu
         if (_size != rh._size)
         {
             cout << "invalid dimensions lh is " << _size << " rh is " << rh._size << "\n";
-            return my_vec(0, CERO);
+            return my_vec(1, CERO);
         }
 #endif
 
@@ -138,7 +149,7 @@ namespace cpu
         if (_size != rh._size)
         {
             cout << "invalid dimensions lh is " << _size << " rh is " << rh._size << "\n";
-            return my_vec(0, CERO);
+            return my_vec(1, CERO);
         }
 #endif
 
@@ -169,7 +180,7 @@ namespace cpu
         if (_size != rh._size)
         {
             cout << "invalid dimensions lh is " << _size << " rh is " << rh._size << "\n";
-            return my_vec(0, CERO);
+            return my_vec(1, CERO);
         }
 #endif
 
@@ -201,8 +212,8 @@ namespace cpu
 
     void my_vec::print()
     {
-        for (auto &el : v)
-            cout << el << " ";
+        for (int i = 0; i < _size; i++)
+            cout << v[i] << " ";
 
         cout << "\n";
     }
@@ -232,7 +243,7 @@ namespace cpu
         }
     }
 
-    my_vec_fun::my_vec_fun(vector<size_t> &funs, bool derivate) : _size(_size)
+    my_vec_fun::my_vec_fun(const vector<size_t> &funs, bool derivate) : _size(_size)
     {
         v.reserve(_size);
 
@@ -323,7 +334,7 @@ namespace cpu
         if (_size != rh.size())
         {
             cout << "invalid dimensions lh is " << _size << " rh is " << rh.size() << "\n";
-            return my_vec(0, CERO);
+            return my_vec(1, CERO);
         }
 #endif
 
@@ -341,7 +352,7 @@ namespace cpu
         if (_size != rh.size())
         {
             cout << "invalid dimensions lh is " << _size << " rh is " << rh.size() << "\n";
-            return my_vec(0, CERO);
+            return my_vec(1, CERO);
         }
 #endif
 
@@ -364,37 +375,27 @@ namespace cpu
 {
     using namespace std;
 
-    my_matrix::my_matrix(size_t _rows, size_t _cols) : _rows(_rows), _cols(_cols)
+    my_matrix::my_matrix(size_t _rows, size_t _cols, int mode) : _rows(_rows), _cols(_cols), m(new DATA_TYPE[_rows * _cols]{0})
     {
-        m.reserve(_rows);
-    }
-
-    my_matrix::my_matrix(size_t _rows, size_t _cols, int mode) : _rows(_rows), _cols(_cols), m(_rows, my_vec(_cols, CERO))
-    {
-
         if (mode == RANDOM)
             for (int i = 0; i < _rows; i++)
                 for (int j = 0; j < _cols; j++)
-                    m[i][j] = DATA_TYPE((float)random() / RAND_MAX * RANGE + net::MIN_RANGE);
+                    m[i * _cols + j] = DATA_TYPE((float)random() / RAND_MAX * RANGE + net::MIN_RANGE);
     }
 
-    my_matrix::my_matrix(vector<vector<DATA_TYPE>> &vecs) : _rows(vecs.size()), _cols(vecs[0].size())
+    my_matrix::my_matrix(const vector<vector<DATA_TYPE>> &vecs) : _rows(vecs.size()), _cols(vecs[0].size()), m(new DATA_TYPE[_rows * _cols]{0})
     {
-        m.reserve(_rows);
-
         for (int i = 0; i < _rows; i++)
-            m.emplace_back(vecs[i]);
+            for (int j = 0; j < _cols; j++)
+                m[i * _cols + j] = vecs[i][j];
     }
 
-    my_matrix::my_matrix(initializer_list<initializer_list<DATA_TYPE>> l) : _rows(l.size()), _cols(l.begin()->size())
+    my_matrix::my_matrix(const my_matrix &rh) : _rows(rh._rows), _cols(rh._cols), m(new DATA_TYPE[_rows * _cols]{0})
     {
-        m.reserve(l.size());
-
-        for (auto &list : l)
-            m.emplace_back(list);
+        for (int i = 0; i < _rows; i++)
+            for (int j = 0; j < _cols; j++)
+                m[i * _cols + j] = rh.m[i * _cols + j];
     }
-
-    my_matrix::my_matrix(const my_matrix &rh) : _rows(rh._rows), _cols(rh._cols), m(rh.m) {}
 
     my_matrix::my_matrix(my_matrix &&rh) : _rows(rh._rows), _cols(rh._cols), m(move(rh.m)) {}
 
@@ -404,7 +405,11 @@ namespace cpu
         {
             _rows = rh._rows;
             _cols = rh._cols;
-            m = rh.m;
+            m.reset(new DATA_TYPE[_rows * _cols]{0});
+
+            for (int i = 0; i < _rows; i++)
+                for (int j = 0; j < _cols; j++)
+                    m[i * _cols + j] = rh.m[i * _cols + j];
         }
 
         return *this;
@@ -422,16 +427,16 @@ namespace cpu
         return *this;
     }
 
-    my_vec &my_matrix::operator[](size_t row)
+    DATA_TYPE &my_matrix::operator()(size_t row, size_t col)
     {
 #ifdef ASSERT
-        if (row < _rows)
-            return m[row];
+        if (row < _rows && col < _cols)
+            return m[row * _cols + col];
 
         cout << "invalid access\n";
         exit(EXIT_FAILURE);
 #else
-        return m[row];
+        return m[row * _cols + col];
 #endif
     }
 
@@ -441,27 +446,23 @@ namespace cpu
         if (_cols != rh._rows)
         {
             cout << "invalid dimensions lh is " << _cols << " rh is " << rh._cols << "\n";
-            return my_matrix(0, 0);
+            return my_matrix(1, 1, CERO);
         }
 #endif
 
-        my_matrix tmp(_rows, rh._cols);
+        my_matrix tmp(_rows, rh._cols, CERO);
 
         for (int i = 0; i < _rows; i++)
         {
-            my_vec row(rh._cols, CERO);
-
             for (int j = 0; j < rh._cols; j++)
             {
                 DATA_TYPE sum = 0;
 
                 for (int k = 0; k < rh._rows; k++)
-                    sum += (*this)[i][k] * rh[k][j];
+                    sum += (*this)(i, k) * rh(k, j);
 
-                row[i] = sum;
+                m[i * _cols + j] = sum;
             }
-
-            tmp.m.emplace_back(row);
         }
 
         return tmp;
@@ -473,14 +474,15 @@ namespace cpu
         if (_rows != rh._rows || _cols != rh._cols)
         {
             cout << "invalid dimensions lh is " << _cols << " rh is " << rh._cols << "\n";
-            return my_matrix(0, 0);
+            return my_matrix(1, 1, CERO);
         }
 #endif
 
-        my_matrix tmp(_rows, _cols);
+        my_matrix tmp(_rows, _cols, CERO);
 
         for (int i = 0; i < _rows; i++)
-            tmp.m.emplace_back((*this)[i] + rh[i]);
+            for (int j = 0; j < _cols; j++)
+                tmp(i, j) = (*this)(i, j) + rh(i, j);
 
         return tmp;
     }
@@ -493,7 +495,8 @@ namespace cpu
         else
 #endif
             for (int i = 0; i < _rows; i++)
-                (*this)[i] += rh[i];
+                for (int j = 0; j < _cols; j++)
+                    (*this)(i, j) += rh(i, j);
 
         return *this;
     }
@@ -504,14 +507,15 @@ namespace cpu
         if (_rows != rh._rows || _cols != rh._cols)
         {
             cout << "invalid dimensions lh is " << _cols << " rh is " << rh._cols << "\n";
-            return my_matrix(0, 0);
+            return my_matrix(1, 1, CERO);
         }
 #endif
 
-        my_matrix tmp(_rows, _cols);
+        my_matrix tmp(_rows, _cols, CERO);
 
         for (int i = 0; i < _rows; i++)
-            tmp.m.emplace_back((*this)[i] - rh[i]);
+            for (int j = 0; j < _cols; j++)
+                tmp(i, j) = (*this)(i, j) - rh(i, j);
 
         return tmp;
     }
@@ -524,7 +528,8 @@ namespace cpu
         else
 #endif
             for (int i = 0; i < _rows; i++)
-                (*this)[i] -= rh[i];
+                for (int j = 0; j < _cols; j++)
+                    (*this)(i, j) -= rh(i, j);
 
         return *this;
     }
@@ -535,15 +540,15 @@ namespace cpu
         if (rh.size() != _rows)
         {
             cout << "invalid dimensions lh is " << _rows << " rh is " << rh.size() << "\n";
-            return my_matrix(0, 0);
+            return my_matrix(1, 1, CERO);
         }
 #endif
 
-        my_matrix tmp = *this;
+        my_matrix tmp(_rows, _cols, CERO);
 
         for (int i = 0; i < _rows; i++)
             for (int j = 0; j < _cols; j++)
-                tmp[i][j] *= rh[i];
+                tmp(i, j) = (*this)(i, j) * rh[i];
 
         return tmp;
     }
@@ -557,7 +562,7 @@ namespace cpu
 #endif
             for (int i = 0; i < _rows; i++)
                 for (int j = 0; j < _cols; j++)
-                    (*this)[i][j] *= rh[i];
+                    (*this)(i, j) *= rh[i];
 
         return *this;
     }
@@ -574,8 +579,15 @@ namespace cpu
 
     void my_matrix::print()
     {
-        for (auto &row : m)
-            row.print();
+        for (int i = 0; i < _rows; i++)
+        {
+            for (int j = 0; j < _cols; j++)
+                cout << m[i * _cols + j] << " ";
+
+            cout << "\n";
+        }
+
+        cout << "\n";
     }
 }
 
@@ -590,7 +602,7 @@ namespace cpu
         if (vec.size() != matrix.rows())
         {
             cout << "invalid dimensions lh is " << vec.size() << " rh is " << matrix.rows() << "\n";
-            return my_vec(0, CERO);
+            return my_vec(1, CERO);
         }
 #endif
 
@@ -601,7 +613,7 @@ namespace cpu
             DATA_TYPE sum = 0;
 
             for (int k = 0; k < matrix.rows(); k++)
-                sum += vec[k] * matrix[k][j];
+                sum += vec[k] * matrix(k, j);
 
             tmp[j] = sum;
         }
@@ -615,7 +627,7 @@ namespace cpu
         if (matrix.cols() != vec.size())
         {
             cout << "invalid dimensions lh is " << matrix.cols() << " rh is " << vec.size() << "\n";
-            return my_vec(0, CERO);
+            return my_vec(1, CERO);
         }
 #endif
 
@@ -626,7 +638,7 @@ namespace cpu
             DATA_TYPE sum = 0;
 
             for (int k = 0; k < matrix.cols(); k++)
-                sum += vec[k] * matrix[j][k];
+                sum += vec[k] * matrix(j, k);
 
             tmp[j] = sum;
         }
@@ -636,17 +648,11 @@ namespace cpu
 
     my_matrix make_from(my_vec &lh, my_vec &rh)
     {
-        my_matrix tmp(lh.size(), rh.size());
+        my_matrix tmp(lh.size(), rh.size(), CERO);
 
         for (int i = 0; i < lh.size(); i++)
-        {
-            my_vec row(rh.size(), CERO);
-
             for (int j = 0; j < rh.size(); j++)
-                row[j] = lh[i] * rh[j];
-
-            tmp.m.emplace_back(row);
-        }
+                tmp(i, j) = lh[i] * rh[j];
 
         return tmp;
     }

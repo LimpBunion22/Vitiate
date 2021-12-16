@@ -2,13 +2,13 @@
 #include <math.h>
 #include <iostream>
 
-//* NET_CPU::FX_CONTAINER
+//* net_cpu::FX_CONTAINER
 namespace cpu
 {
     using namespace std;
 
-    net_cpu::fx_container::fx_container(vector<size_t> &n_p_l, size_t ins_num)
-        : n_layers(n_p_l.size()), ins(0, CERO), outs(0, CERO)
+    net_cpu::fx_container::fx_container(const vector<size_t> &n_p_l, size_t ins_num)
+        : n_layers(n_p_l.size()), ins(1, CERO), outs(1, CERO)
     {
         fx_params.reserve(n_layers);
         fx_bias.reserve(n_layers);
@@ -24,7 +24,7 @@ namespace cpu
         }
     }
 
-    net_cpu::fx_container::fx_container(vector<size_t> &n_p_l, vector<DATA_TYPE> &ins, vector<DATA_TYPE> &outs)
+    net_cpu::fx_container::fx_container(const vector<size_t> &n_p_l, const vector<DATA_TYPE> &ins, const vector<DATA_TYPE> &outs)
         : n_layers(n_p_l.size()), ins(ins), outs(outs)
     {
         fx_params.reserve(n_layers);
@@ -41,19 +41,11 @@ namespace cpu
         }
     }
 
-    net_cpu::fx_container::fx_container(const fx_container &rh) : n_layers(rh.n_layers),
-                                                                  fx_params(rh.fx_params),
-                                                                  fx_bias(rh.fx_bias),
-                                                                  ins(rh.ins),
-                                                                  outs(rh.outs)
-    {
-    }
-
     net_cpu::fx_container::fx_container(fx_container &&rh) : n_layers(rh.n_layers),
-                                                             fx_params(move(rh.fx_params)),
-                                                             fx_bias(move(rh.fx_bias)),
-                                                             ins(move(rh.ins)),
-                                                             outs(move(rh.outs))
+                                                                 fx_params(move(rh.fx_params)),
+                                                                 fx_bias(move(rh.fx_bias)),
+                                                                 ins(move(rh.ins)),
+                                                                 outs(move(rh.outs))
     {
     }
 
@@ -64,25 +56,11 @@ namespace cpu
             for (int j = 0; j < fx_params[i].rows(); j++)
             {
                 for (int k = 0; k < fx_params[i].cols(); k++)
-                    fx_params[i][j][k] = 0;
+                    fx_params[i](j, k) = 0;
 
                 fx_bias[i][j] = 0;
             }
         }
-    }
-
-    net_cpu::fx_container &net_cpu::fx_container::operator=(const net_cpu::fx_container &rh)
-    {
-        if (this != &rh)
-        {
-            n_layers = rh.n_layers;
-            fx_params = rh.fx_params;
-            fx_bias = rh.fx_bias;
-            ins = rh.ins;
-            outs = rh.outs;
-        }
-
-        return *this;
     }
 
     net_cpu::fx_container &net_cpu::fx_container::operator+=(net_cpu::fx_container &rh)
@@ -128,7 +106,7 @@ namespace cpu
             {
                 for (int k = 0; k < fx_params[i].cols(); k++)
                 {
-                    val = abs(fx_params[i][j][k]);
+                    val = abs(fx_params[i](j, k));
                     max = val > max ? val : max;
                 }
 
@@ -144,7 +122,7 @@ namespace cpu
             for (int j = 0; j < fx_params[i].rows(); j++)
             {
                 for (int k = 0; k < fx_params[i].cols(); k++)
-                    fx_params[i][j][k] /= max;
+                    fx_params[i](j, k) /= max;
 
                 fx_bias[i][j] /= max;
             }
@@ -160,7 +138,7 @@ namespace cpu
             for (int j = 0; j < fx_params[i].rows(); j++)
             {
                 for (int k = 0; k < fx_params[i].cols(); k++)
-                    max += abs(fx_params[i][j][k]);
+                    max += abs(fx_params[i](j, k));
 
                 max += abs(fx_bias[i][j]);
             }
@@ -173,7 +151,7 @@ namespace cpu
             for (int j = 0; j < fx_params[i].rows(); j++)
             {
                 for (int k = 0; k < fx_params[i].cols(); k++)
-                    fx_params[i][j][k] /= max;
+                    fx_params[i](j, k) /= max;
 
                 fx_bias[i][j] /= max;
             }
@@ -189,7 +167,7 @@ namespace cpu
             for (int j = 0; j < fx_params[i].rows(); j++)
             {
                 for (int k = 0; k < fx_params[i].cols(); k++)
-                    max += fx_params[i][j][k] * fx_params[i][j][k];
+                    max += fx_params[i](j, k) * fx_params[i](j, k);
 
                 max += fx_bias[i][j] * fx_bias[i][j];
             }
@@ -203,7 +181,7 @@ namespace cpu
             for (int j = 0; j < fx_params[i].rows(); j++)
             {
                 for (int k = 0; k < fx_params[i].cols(); k++)
-                    fx_params[i][j][k] /= max;
+                    fx_params[i](j, k) /= max;
 
                 fx_bias[i][j] /= max;
             }
@@ -224,7 +202,7 @@ namespace cpu
     }
 }
 
-//* NET_CPU
+//* net_cpu
 namespace cpu
 {
     using namespace std;
@@ -253,79 +231,36 @@ namespace cpu
             }
         else
         {
-            net::net_data data_copy = data;
-            
             for (int i = 0; i < n_layers; i++)
             {
                 if (i == 0)
-                    params.emplace_back(data_copy.params[i]);
+                    params.emplace_back(data.params[i]);
                 else
-                    params.emplace_back(data_copy.params[i]);
+                    params.emplace_back(data.params[i]);
 
                 activations.emplace_back(n_p_l[i], derivate);
                 inner_vals.emplace_back(n_p_l[i], CERO);
-                bias.emplace_back(data_copy.bias[i]);
+                bias.emplace_back(data.bias[i]);
             }
         }
     }
 
-    net_cpu::net_cpu(const net_cpu &rh) : n_layers(rh.n_layers),
-                                          params(rh.params),
-                                          activations(rh.activations),
-                                          inner_vals(rh.inner_vals),
-                                          bias(rh.bias),
-                                          fx_activations(rh.fx_activations),
-                                          tmp_gradient(rh.tmp_gradient),
-                                          containers(rh.containers),
-                                          acum_pos(rh.acum_pos),
-                                          gradient_init(rh.gradient_init),
-                                          gradient_performance(rh.gradient_performance),
-                                          forward_performance(rh.forward_performance),
-                                          n_p_l(rh.n_p_l),
-                                          n_ins(rh.n_ins)
-
-    {
-    }
-
     net_cpu::net_cpu(net_cpu &&rh) : n_layers(rh.n_layers),
-                                     params(move(rh.params)),
-                                     activations(move(rh.activations)),
-                                     inner_vals(move(rh.inner_vals)),
-                                     bias(move(rh.bias)),
-                                     fx_activations(move(rh.fx_activations)),
-                                     tmp_gradient(move(rh.tmp_gradient)),
-                                     containers(move(rh.containers)),
-                                     acum_pos(rh.acum_pos),
-                                     gradient_init(rh.gradient_init),
-                                     gradient_performance(rh.gradient_performance),
-                                     forward_performance(rh.forward_performance),
-                                     n_p_l(move(rh.n_p_l)),
-                                     n_ins(rh.n_ins)
+                                                 params(move(rh.params)),
+                                                 activations(move(rh.activations)),
+                                                 inner_vals(move(rh.inner_vals)),
+                                                 bias(move(rh.bias)),
+                                                 fx_activations(move(rh.fx_activations)),
+                                                 tmp_gradient(move(rh.tmp_gradient)),
+                                                 containers(move(rh.containers)),
+                                                 acum_pos(rh.acum_pos),
+                                                 gradient_init(rh.gradient_init),
+                                                 gradient_performance(rh.gradient_performance),
+                                                 forward_performance(rh.forward_performance),
+                                                 n_p_l(move(rh.n_p_l)),
+                                                 n_ins(rh.n_ins)
 
     {
-    }
-
-    net_cpu &net_cpu::operator=(const net_cpu &rh)
-    {
-        if (this != &rh)
-        {
-            n_layers = rh.n_layers;
-            params = rh.params;
-            activations = rh.activations;
-            inner_vals = rh.inner_vals;
-            bias = rh.bias;
-            fx_activations = rh.fx_activations;
-            tmp_gradient = rh.tmp_gradient;
-            containers = rh.containers;
-            acum_pos = rh.acum_pos;
-            gradient_init = rh.gradient_init;
-            gradient_performance = rh.gradient_performance;
-            forward_performance = rh.forward_performance;
-            n_p_l = rh.n_p_l;
-            n_ins = rh.n_ins;
-        }
-
-        return *this;
     }
 
     net_cpu &net_cpu::operator=(net_cpu &&rh)
@@ -427,7 +362,7 @@ namespace cpu
 
             for (int j = 0; j < params[i].rows(); j++)
                 for (int k = 0; k < params[i].cols(); k++)
-                    data.params[i][j][k] = params[i][j][k];
+                    data.params[i][j][k] = params[i](j, k);
 
             data.bias.emplace_back(bias[i].size(), 0);
 
@@ -475,10 +410,9 @@ namespace cpu
     {
         if (!gradient_init)
         {
-            net::net_sets sets_copy = sets;
-            size_t ins_num = sets_copy.set_ins[0].size(); //* para guardar el tamaño de entradas, ya que el vector se hace 0 al moverlo
-            acum_pos = sets_copy.set_ins.size();          //* acum_pos=n of sets
-            containers.reserve(acum_pos + 1);             //* para incluir al contenedor de acumulación
+            size_t ins_num = sets.set_ins[0].size(); //* para guardar el tamaño de entradas, ya que el vector se hace 0 al moverlo
+            acum_pos = sets.set_ins.size();          //* acum_pos=n of sets
+            containers.reserve(acum_pos + 1);        //* para incluir al contenedor de acumulación
             fx_activations.reserve(n_layers);
             tmp_gradient.reserve(n_layers);
 
@@ -489,7 +423,7 @@ namespace cpu
             }
 
             for (int i = 0; i < acum_pos; i++)
-                containers.emplace_back(n_p_l, sets_copy.set_ins[i], sets_copy.set_outs[i]);
+                containers.emplace_back(n_p_l, sets.set_ins[i], sets.set_outs[i]);
 
             containers.emplace_back(n_p_l, ins_num); //* contenedor de acumulación
             gradient_init = true;

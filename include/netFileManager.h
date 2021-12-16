@@ -9,7 +9,7 @@ namespace net
 {
     constexpr char SEPARATOR = ' ';
     constexpr bool RELOAD_FILE = true;
-    constexpr bool RUSE_FILE = false;
+    constexpr bool REUSE_FILE = false;
 
     class file_manager
     {

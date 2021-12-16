@@ -2,7 +2,7 @@
 #define NETCPU_H
 
 #include <netAbstract.h>
-#include <mathStructs.h>
+#include <mathStructsCPU.h>
 #include <chrono>
 
 namespace cpu
@@ -22,11 +22,9 @@ namespace cpu
             my_vec outs;
 
         public:
-            fx_container(std::vector<size_t> &n_p_l, size_t ins_num);
-            fx_container(std::vector<size_t> &n_p_l, std::vector<DATA_TYPE> &ins, std::vector<DATA_TYPE> &outs);
-            fx_container(const fx_container &rh);
+            fx_container(const std::vector<size_t> &n_p_l, size_t ins_num);
+            fx_container(const std::vector<size_t> &n_p_l, const std::vector<DATA_TYPE> &ins, const std::vector<DATA_TYPE> &outs);
             fx_container(fx_container &&rh);
-            fx_container &operator=(const fx_container &rh);
 
             fx_container &operator+=(fx_container &rh);
             fx_container &operator-=(fx_container &rh);
@@ -63,9 +61,7 @@ namespace cpu
 
     public:
         net_cpu(const net::net_data &data, bool derivate, bool random); //* net::net_data como copia para mantener operaciones move
-        net_cpu(const net_cpu &rh);
         net_cpu(net_cpu &&rh);
-        net_cpu &operator=(const net_cpu &rh);
         net_cpu &operator=(net_cpu &&rh);
 
         net::net_data get_net_data() override;

@@ -1,7 +1,8 @@
-#ifndef MATHSTRUCTS_H
-#define MATHSTRUCTS_H
+#ifndef MATHSTRUCTSCPU_H
+#define MATHSTRUCTSCPU_H
 
 #include <defines.h>
+#include <memory>
 
 namespace cpu
 {
@@ -20,15 +21,14 @@ namespace cpu
     {
     private:
         size_t _size;
-        std::vector<DATA_TYPE> v;
+        std::unique_ptr<DATA_TYPE[]> v;
 
     private:
         my_vec() = delete;
 
     public:
-        my_vec(std::vector<DATA_TYPE> &vals);
+        my_vec(const std::vector<DATA_TYPE> &vals);
         my_vec(size_t _size, int mode);
-        my_vec(std::initializer_list<DATA_TYPE> l);
         my_vec(const my_vec &rh);
         my_vec(my_vec &&rh);
         my_vec &operator=(const my_vec &rh);
@@ -63,7 +63,7 @@ namespace cpu
 
     public:
         my_vec_fun(size_t _size, bool derivate);
-        my_vec_fun(std::vector<size_t> &funs, bool derivate);
+        my_vec_fun(const std::vector<size_t> &funs, bool derivate);
         my_vec_fun(const my_vec_fun &rh);
         my_vec_fun(my_vec_fun &&rh);
         my_vec_fun &operator=(const my_vec_fun &rh);
@@ -79,27 +79,25 @@ namespace cpu
 
     class my_matrix
     {
-        friend my_matrix make_from(my_vec &lh, my_vec &rh);
+        friend my_matrix make_from(const my_vec &lh, const my_vec &rh);
 
     private:
         size_t _rows;
         size_t _cols;
-        std::vector<my_vec> m;
+        std::unique_ptr<DATA_TYPE[]> m;
 
     private:
         my_matrix() = delete;
-        my_matrix(size_t _rows, size_t _cols);
 
     public:
         my_matrix(size_t _rows, size_t _cols, int mode);
-        my_matrix(std::vector<std::vector<DATA_TYPE>> &vecs);
-        my_matrix(std::initializer_list<std::initializer_list<DATA_TYPE>> l);
+        my_matrix(const std::vector<std::vector<DATA_TYPE>> &vecs);
         my_matrix(const my_matrix &rh);
         my_matrix(my_matrix &&rh);
         my_matrix &operator=(const my_matrix &rh);
         my_matrix &operator=(my_matrix &&rh);
 
-        my_vec &operator[](size_t row);
+        DATA_TYPE &operator()(size_t row, size_t col);
         my_matrix operator*(my_matrix &rh);
         my_matrix operator+(my_matrix &rh);
         my_matrix &operator+=(my_matrix &rh);

@@ -24,22 +24,34 @@ file (GLOB HEADER_FILES "include/*.h")
 file (GLOB CPU_HEADERS "cpu/*.h")
 file (GLOB CPU_SOURCES "cpu/*.cpp")
 
-# #pybind tasks
+#pybind tasks
 find_package(pybind11 REQUIRED)
-# pybind11_add_module(vitiate 
+pybind11_add_module(vitiate 
+    ${DEF_FILES}
+    ${HEADER_FILES}
+    ${SRC_FILES}
+    ${CPU_HEADERS}
+    ${CPU_SOURCES})
+# add_library(vitiate MODULE
 #     ${DEF_FILES}
 #     ${HEADER_FILES}
 #     ${SRC_FILES}
 #     ${CPU_HEADERS}
 #     ${CPU_SOURCES})
 
-#execute 
-add_executable(vitiate 
-    ${DEF_FILES}
-    ${HEADER_FILES}
-    ${SRC_FILES}
-    ${CPU_HEADERS}
-    ${CPU_SOURCES})
+# target_link_libraries(vitiate PRIVATE pybind11::module pybind11::lto)
+
+# pybind11_extension(vitiate)
+# pybind11_strip(vitiate)
+
+
+# #execute 
+# add_executable(vitiate 
+#     ${DEF_FILES}
+#     ${HEADER_FILES}
+#     ${SRC_FILES}
+#     ${CPU_HEADERS}
+#     ${CPU_SOURCES})
 
 #install to conda python lib dir
 install(TARGETS vitiate DESTINATION ${PYTHON_LIBRARY_DIR})

@@ -1,5 +1,5 @@
-#ifndef NETWORK_H
-#define NETWORK_H
+#ifndef NETHANDLER_H
+#define NETHANDLER_H
 
 #include <defines.h>
 #include <map>
