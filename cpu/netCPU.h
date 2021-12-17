@@ -67,7 +67,7 @@ namespace cpu
         net::net_data get_net_data() override;
         std::vector<DATA_TYPE> launch_forward(const std::vector<DATA_TYPE> &inputs) override;
         void init_gradient(const net::net_sets &sets) override;
-        std::vector<DATA_TYPE> launch_gradient(int iterations) override;
+        std::vector<DATA_TYPE> launch_gradient(size_t iterations) override;
         void print_inner_vals() override;
         signed long get_gradient_performance() override;
         signed long get_forward_performance() override;

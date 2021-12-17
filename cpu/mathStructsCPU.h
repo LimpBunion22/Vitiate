@@ -15,7 +15,7 @@ namespace cpu
     constexpr int RANDOM = 1;
     constexpr int CERO = 2;
 
-    using my_fun = DATA_TYPE (*)(DATA_TYPE &in);
+    using my_fun = DATA_TYPE (*)(const DATA_TYPE &in);
 
     class my_vec
     {
@@ -38,8 +38,10 @@ namespace cpu
         std::vector<DATA_TYPE> copy_inner_vec();
         DATA_TYPE reduce();
         my_vec &elems_abs();
+        void reset();
+        void divide_elems_by(const DATA_TYPE &val);
 
-        DATA_TYPE &operator[](int i);
+        DATA_TYPE &operator[](const size_t &i);
         DATA_TYPE operator*(const my_vec &rh);
         my_vec operator^(const my_vec &rh);
         my_vec &operator^=(const my_vec &rh);
@@ -71,8 +73,8 @@ namespace cpu
         my_vec_fun &operator=(my_vec_fun &&rh);
         ~my_vec_fun();
 
-        static DATA_TYPE relu(DATA_TYPE &in);
-        static DATA_TYPE fxrelu(DATA_TYPE &in);
+        static DATA_TYPE relu(const DATA_TYPE &in);
+        static DATA_TYPE fxrelu(const DATA_TYPE &in);
         my_vec calculate(my_vec &rh);
         my_vec derivate(my_vec &rh);
 
@@ -100,14 +102,16 @@ namespace cpu
         my_matrix &operator=(my_matrix &&rh);
         ~my_matrix();
 
-        DATA_TYPE &operator()(size_t row, size_t col);
+        DATA_TYPE &operator()(const size_t &row, const size_t &col);
         my_matrix operator*(my_matrix &rh);
-        my_matrix operator+(my_matrix &rh);
-        my_matrix &operator+=(my_matrix &rh);
-        my_matrix operator-(my_matrix &rh);
-        my_matrix &operator-=(my_matrix &rh);
+        my_matrix operator+(const my_matrix &rh);
+        my_matrix &operator+=(const my_matrix &rh);
+        my_matrix operator-(const my_matrix &rh);
+        my_matrix &operator-=(const my_matrix &rh);
         my_matrix operator^(my_vec &rh);
         my_matrix &operator^=(my_vec &rh);
+        void reset();
+        void divide_elems_by(const DATA_TYPE &val);
 
         size_t rows();
         size_t cols();

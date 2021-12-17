@@ -15,6 +15,7 @@ namespace net
     constexpr size_t CPU = 0;
     constexpr size_t CUDA = 1;
     constexpr size_t FPGA = 2;
+    constexpr size_t MULTI = 3;
     constexpr bool DERIVATE = true;
     constexpr bool NOT_DERIVATE = false;
     constexpr bool RANDOM = true;
@@ -24,19 +25,26 @@ namespace net
     {
     private:
         std::map<std::string, std::unique_ptr<net_abstract>> nets;
+        std::map<std::string, size_t> implementations;
         file_manager manager;
+        net_abstract *active_net;
+        std::string active_net_name;
 
     public:
-        net_handler(const std::string &path) : manager(path) { srand(time(NULL)); }
+        net_handler(const std::string &path) : manager(path), active_net(nullptr) { srand(time(NULL)); }
+        ~net_handler()
+        { // TODO implement multi::free_pool();
+        }
 
+        void set_active_net(const std::string &net_key);
         void net_create(const std::string &net_key, size_t implementation, bool derivate, bool random, const std::string &file, bool file_reload = false);
-        std::vector<DATA_TYPE> launch_forward(const std::string &net_key, const std::vector<DATA_TYPE> &inputs); //* returns result
-        void init_gradient(const std::string &net_key, const std::string &file, bool file_reload = false);
-        std::vector<DATA_TYPE> launch_gradient(const std::string &net_key, int iterations); //* returns it times error
-        void print_inner_vals(const std::string &net_key);
-        signed long get_gradient_performance(const std::string &net_key);
-        signed long get_forward_performance(const std::string &net_key);
-        void write_net_to_file(const std::string &net_key, const std::string &file);
+        std::vector<DATA_TYPE> active_net_launch_forward(const std::vector<DATA_TYPE> &inputs); //* returns result
+        void active_net_init_gradient(const std::string &file, bool file_reload = false);
+        std::vector<DATA_TYPE> active_net_launch_gradient(int iterations); //* returns it times error
+        void active_net_print_inner_vals();
+        signed long active_net_get_gradient_performance();
+        signed long active_net_get_forward_performance();
+        void active_net_write_net_to_file(const std::string &file);
     };
 }
 #endif
