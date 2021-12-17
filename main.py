@@ -16,4 +16,4 @@ print(handler.launch_forward("cpu_float", ins))
 print(" forward performance was ",
       handler.get_forward_performance("cpu_float"), "us")
 
-handler.write_net_to_file("cpu_float", "new_net")
+# handler.write_net_to_file("cpu_float", "new_net")

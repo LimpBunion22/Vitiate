@@ -7,7 +7,7 @@ namespace cpu
 {
     using namespace std;
 
-    my_vec::my_vec(const vector<DATA_TYPE> &vals) : _size(vals.size()), v(new DATA_TYPE[_size]{0})
+    my_vec::my_vec(const vector<DATA_TYPE> &vals) : _size(vals.size()), v(new DATA_TYPE[_size])
     {
         for (int i = 0; i < _size; i++)
             v[i] = vals[i];
@@ -20,20 +20,28 @@ namespace cpu
                 v[i] = DATA_TYPE((float)random() / RAND_MAX * RANGE + net::MIN_RANGE);
     }
 
-    my_vec::my_vec(const my_vec &rh) : _size(rh._size), v(new DATA_TYPE[_size]{0})
+    my_vec::my_vec(const my_vec &rh) : _size(rh._size), v(new DATA_TYPE[_size])
     {
         for (int i = 0; i < _size; i++)
             v[i] = rh.v[i];
     }
 
-    my_vec::my_vec(my_vec &&rh) : _size(rh._size), v(move(rh.v)) {}
+    my_vec::my_vec(my_vec &&rh) : _size(rh._size)
+    {
+        v = rh.v;
+        rh.v = nullptr;
+    }
 
     my_vec &my_vec::operator=(const my_vec &rh)
     {
         if (this != &rh)
         {
-            _size = rh._size;
-            v.reset(new DATA_TYPE[_size]{0});
+            if (_size != rh._size)
+            {
+                _size = rh._size;
+                delete[] v;
+                v = new DATA_TYPE[_size];
+            }
 
             for (int i = 0; i < _size; i++)
                 v[i] = rh.v[i];
@@ -47,10 +55,17 @@ namespace cpu
         if (this != &rh)
         {
             _size = rh._size;
-            v = move(rh.v);
+            delete[] v;
+            v = rh.v;
+            rh.v = nullptr;
         }
 
         return *this;
+    }
+
+    my_vec::~my_vec()
+    {
+        delete[] v;
     }
 
     vector<DATA_TYPE> my_vec::copy_inner_vec()
@@ -224,32 +239,32 @@ namespace cpu
 {
     using namespace std;
 
-    my_vec_fun::my_vec_fun(size_t _size, bool derivate) : _size(_size)
+    my_vec_fun::my_vec_fun(size_t _size, bool derivate) : _size(_size), f(new my_fun[_size])
     {
-        v.reserve(_size);
-
         if (derivate == DERIVATE)
         {
+            fx = new my_fun[_size];
+
             for (int i = 0; i < _size; i++)
             {
-                v.emplace_back(my_vec_fun::relu);    // TODO: implementar bien
-                fx.emplace_back(my_vec_fun::fxrelu); // TODO: implementar bien
+                f[i] = my_vec_fun::relu;    // TODO: implementar bien
+                fx[i] = my_vec_fun::fxrelu; // TODO: implementar bien
             }
         }
         else
         {
+            fx = nullptr;
+
             for (int i = 0; i < _size; i++)
-                v.emplace_back(my_vec_fun::relu); // TODO: implementar bien
+                f[i] = my_vec_fun::relu; // TODO: implementar bien
         }
     }
 
-    my_vec_fun::my_vec_fun(const vector<size_t> &funs, bool derivate) : _size(_size)
+    my_vec_fun::my_vec_fun(const vector<size_t> &funs, bool derivate) : _size(_size), f(new my_fun[_size])
     {
-        v.reserve(_size);
-
         if (derivate == DERIVATE)
         {
-            fx.reserve(_size);
+            fx = new my_fun[_size];
 
             for (int i = 0; i < _size; i++)
             {
@@ -259,14 +274,16 @@ namespace cpu
                 case RELU2:
                 case SIGMOID:
                 default:
-                    v.emplace_back(my_vec_fun::relu);
-                    fx.emplace_back(my_vec_fun::fxrelu);
+                    f[i] = my_vec_fun::relu;    // TODO: implementar bien
+                    fx[i] = my_vec_fun::fxrelu; // TODO: implementar bien
                     break;
                 }
             }
         }
         else
         {
+            fx = nullptr;
+
             for (int i = 0; i < _size; i++)
             {
                 switch (funs[i])
@@ -275,24 +292,78 @@ namespace cpu
                 case RELU2:
                 case SIGMOID:
                 default:
-                    v.emplace_back(my_vec_fun::relu);
+                    f[i] = my_vec_fun::relu; // TODO: implementar bien
                     break;
                 }
             }
         }
     }
 
-    my_vec_fun::my_vec_fun(const my_vec_fun &rh) : _size(rh._size), v(rh.v), fx(rh.fx) {}
+    my_vec_fun::my_vec_fun(const my_vec_fun &rh) : _size(rh._size), f(new my_fun[_size])
+    {
+        if (rh.fx)
+        {
+            fx = new my_fun[_size];
 
-    my_vec_fun::my_vec_fun(my_vec_fun &&rh) : _size(rh._size), v(move(rh.v)), fx(move(rh.fx)) {}
+            for (int i = 0; i < _size; i++)
+            {
+                f[i] = my_vec_fun::relu;
+                fx[i] = my_vec_fun::fxrelu;
+            }
+        }
+        else
+        {
+            fx = nullptr;
+
+            for (int i = 0; i < _size; i++)
+                f[i] = my_vec_fun::relu;
+        }
+    }
+
+    my_vec_fun::my_vec_fun(my_vec_fun &&rh) : _size(rh._size)
+    {
+        fx = rh.fx;
+        rh.fx = nullptr;
+        f = rh.f;
+        rh.f = nullptr;
+    }
 
     my_vec_fun &my_vec_fun::operator=(const my_vec_fun &rh)
     {
         if (this != &rh)
         {
-            _size = rh._size;
-            v = rh.v;
-            fx = rh.fx;
+            if (fx && rh.fx)
+            {
+                if (_size != rh._size)
+                {
+                    delete[] fx;
+                    fx = new my_fun[rh._size];
+                }
+            }
+            else if (fx && !rh.fx)
+            {
+                delete[] fx;
+                fx = nullptr;
+            }
+            else if (!fx && rh.fx)
+                fx = new my_fun[rh._size];
+
+            if (_size != rh._size)
+            {
+                _size = rh._size;
+                delete[] f;
+                f = new my_fun[_size];
+            }
+
+            if (fx)
+                for (int i = 0; i < _size; i++)
+                {
+                    f[i] = my_vec_fun::relu;
+                    fx[i] = my_vec_fun::fxrelu;
+                }
+            else
+                for (int i = 0; i < _size; i++)
+                    f[i] = my_vec_fun::relu;
         }
 
         return *this;
@@ -303,11 +374,21 @@ namespace cpu
         if (this != &rh)
         {
             _size = rh._size;
-            v = move(rh.v);
-            fx = move(rh.fx);
+            delete[] f;
+            f = rh.f;
+            rh.f = nullptr;
+            delete[] fx;
+            fx = rh.fx;
+            rh.fx = nullptr;
         }
 
         return *this;
+    }
+
+    my_vec_fun::~my_vec_fun()
+    {
+        delete[] f;
+        delete[] fx;
     }
 
     DATA_TYPE my_vec_fun::relu(DATA_TYPE &in)
@@ -341,7 +422,7 @@ namespace cpu
         my_vec tmp(_size, CERO);
 
         for (int i = 0; i < _size; i++)
-            tmp[i] = v[i](rh[i]);
+            tmp[i] = f[i](rh[i]);
 
         return tmp;
     }
@@ -383,29 +464,37 @@ namespace cpu
                     m[i * _cols + j] = DATA_TYPE((float)random() / RAND_MAX * RANGE + net::MIN_RANGE);
     }
 
-    my_matrix::my_matrix(const vector<vector<DATA_TYPE>> &vecs) : _rows(vecs.size()), _cols(vecs[0].size()), m(new DATA_TYPE[_rows * _cols]{0})
+    my_matrix::my_matrix(const vector<vector<DATA_TYPE>> &vecs) : _rows(vecs.size()), _cols(vecs[0].size()), m(new DATA_TYPE[_rows * _cols])
     {
         for (int i = 0; i < _rows; i++)
             for (int j = 0; j < _cols; j++)
                 m[i * _cols + j] = vecs[i][j];
     }
 
-    my_matrix::my_matrix(const my_matrix &rh) : _rows(rh._rows), _cols(rh._cols), m(new DATA_TYPE[_rows * _cols]{0})
+    my_matrix::my_matrix(const my_matrix &rh) : _rows(rh._rows), _cols(rh._cols), m(new DATA_TYPE[_rows * _cols])
     {
         for (int i = 0; i < _rows; i++)
             for (int j = 0; j < _cols; j++)
                 m[i * _cols + j] = rh.m[i * _cols + j];
     }
 
-    my_matrix::my_matrix(my_matrix &&rh) : _rows(rh._rows), _cols(rh._cols), m(move(rh.m)) {}
+    my_matrix::my_matrix(my_matrix &&rh) : _rows(rh._rows), _cols(rh._cols)
+    {
+        m = rh.m;
+        rh.m = nullptr;
+    }
 
     my_matrix &my_matrix::operator=(const my_matrix &rh)
     {
         if (this != &rh)
         {
-            _rows = rh._rows;
-            _cols = rh._cols;
-            m.reset(new DATA_TYPE[_rows * _cols]{0});
+            if (_rows != rh._rows || _cols != rh._cols)
+            {
+                _rows = rh._rows;
+                _cols = rh._cols;
+                delete[] m;
+                m = new DATA_TYPE[_rows * _cols];
+            }
 
             for (int i = 0; i < _rows; i++)
                 for (int j = 0; j < _cols; j++)
@@ -417,14 +506,22 @@ namespace cpu
 
     my_matrix &my_matrix::operator=(my_matrix &&rh)
     {
+
         if (this != &rh)
         {
             _rows = rh._rows;
             _cols = rh._cols;
-            m = move(rh.m);
+            delete[] m;
+            m = rh.m;
+            rh.m = nullptr;
         }
 
         return *this;
+    }
+
+    my_matrix::~my_matrix()
+    {
+        delete[] m;
     }
 
     DATA_TYPE &my_matrix::operator()(size_t row, size_t col)

@@ -21,7 +21,7 @@ namespace cpu
     {
     private:
         size_t _size;
-        std::unique_ptr<DATA_TYPE[]> v;
+        DATA_TYPE *v;
 
     private:
         my_vec() = delete;
@@ -31,6 +31,7 @@ namespace cpu
         my_vec(size_t _size, int mode);
         my_vec(const my_vec &rh);
         my_vec(my_vec &&rh);
+        ~my_vec();
         my_vec &operator=(const my_vec &rh);
         my_vec &operator=(my_vec &&rh);
 
@@ -55,8 +56,8 @@ namespace cpu
     {
     private:
         size_t _size;
-        std::vector<my_fun> v;
-        std::vector<my_fun> fx;
+        my_fun *f;
+        my_fun *fx;
 
     private:
         my_vec_fun() = delete;
@@ -68,6 +69,7 @@ namespace cpu
         my_vec_fun(my_vec_fun &&rh);
         my_vec_fun &operator=(const my_vec_fun &rh);
         my_vec_fun &operator=(my_vec_fun &&rh);
+        ~my_vec_fun();
 
         static DATA_TYPE relu(DATA_TYPE &in);
         static DATA_TYPE fxrelu(DATA_TYPE &in);
@@ -84,7 +86,7 @@ namespace cpu
     private:
         size_t _rows;
         size_t _cols;
-        std::unique_ptr<DATA_TYPE[]> m;
+        DATA_TYPE *m;
 
     private:
         my_matrix() = delete;
@@ -96,6 +98,7 @@ namespace cpu
         my_matrix(my_matrix &&rh);
         my_matrix &operator=(const my_matrix &rh);
         my_matrix &operator=(my_matrix &&rh);
+        ~my_matrix();
 
         DATA_TYPE &operator()(size_t row, size_t col);
         my_matrix operator*(my_matrix &rh);
