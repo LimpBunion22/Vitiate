@@ -564,7 +564,7 @@ namespace cpu
                 DATA_TYPE sum = 0;
 
                 for (size_t k = 0; k < rh._rows; k++)
-                    sum += (*this)(i, k) * rh(k, j);
+                    sum += m[i * _cols + k] * rh(k, j);
 
                 m[i * _cols + j] = sum;
             }
@@ -649,7 +649,7 @@ namespace cpu
 
         for (size_t i = 0; i < _rows; i++)
             for (size_t j = 0; j < _cols; j++)
-                tmp(i, j) = (*this)(i, j) * rh[i];
+                tmp(i, j) = m[i * _cols + j] * rh[i];
 
         return tmp;
     }
@@ -663,7 +663,7 @@ namespace cpu
 #endif
             for (size_t i = 0; i < _rows; i++)
                 for (size_t j = 0; j < _cols; j++)
-                    (*this)(i, j) *= rh[i];
+                    m[i * _cols + j] *= rh[i];
 
         return *this;
     }

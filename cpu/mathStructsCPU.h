@@ -83,8 +83,6 @@ namespace cpu
 
     class my_matrix
     {
-        friend my_matrix make_from(const my_vec &lh, const my_vec &rh);
-
     private:
         size_t _rows;
         size_t _cols;
@@ -118,7 +116,7 @@ namespace cpu
         void print();
     };
 
-    //* friend functions
+    //*functions
     my_vec operator*(my_vec &vec, my_matrix &matrix);
     my_vec operator*(my_matrix &matrix, my_vec &vec);
     my_matrix make_from(my_vec &lh, my_vec &rh);
