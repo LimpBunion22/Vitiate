@@ -17,7 +17,7 @@ namespace cpu
     {
         if (mode == RANDOM)
             for (size_t i = 0; i < _size; i++)
-                v[i] = DATA_TYPE((float)random() / RAND_MAX * RANGE + net::MIN_RANGE);
+                v[i] = DATA_TYPE((DATA_TYPE)random() / (DATA_TYPE)RAND_MAX * RANGE + net::MIN_RANGE);
     }
 
     my_vec::my_vec(const my_vec &rh) : _size(rh._size), v(new DATA_TYPE[_size])
@@ -272,7 +272,7 @@ namespace cpu
         }
     }
 
-    my_vec_fun::my_vec_fun(const vector<size_t> &funs, bool derivate) : _size(_size), f(new my_fun[_size])
+    my_vec_fun::my_vec_fun(const vector<size_t> &funs, bool derivate) : _size(funs.size()), f(new my_fun[_size])
     {
         if (derivate == DERIVATE)
         {
@@ -472,7 +472,7 @@ namespace cpu
     {
         if (mode == RANDOM)
             for (size_t i = 0; i < _rows * _cols; i++)
-                m[i] = DATA_TYPE((float)random() / RAND_MAX * RANGE + net::MIN_RANGE);
+                m[i] = DATA_TYPE((DATA_TYPE)random() / (DATA_TYPE)RAND_MAX * RANGE + net::MIN_RANGE);
     }
 
     my_matrix::my_matrix(const vector<vector<DATA_TYPE>> &vecs) : _rows(vecs.size()), _cols(vecs[0].size()), m(new DATA_TYPE[_rows * _cols])

@@ -8,8 +8,8 @@ namespace net
 #define ASSERT
 #define PERFORMANCE
 #define DATA_TYPE float
-    constexpr long MAX_RANGE = 1;
-    constexpr long MIN_RANGE = -1;
+    constexpr DATA_TYPE MAX_RANGE = 1;
+    constexpr DATA_TYPE MIN_RANGE = -1;
 
     typedef struct
     {

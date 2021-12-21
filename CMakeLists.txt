@@ -4,6 +4,11 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
+#choose compiler
+set(CMAKE_C_COMPILER "$ENV{HOME}/intel/oneapi/compiler/latest/linux/bin/icx")
+set(CMAKE_CXX_COMPILER "$ENV{HOME}/intel/oneapi/compiler/latest/linux/bin/icpx")
+# set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -mavx -mavx2 -ftree-vectorize")
+
 project(vitiate VERSION 0.1.0)
 
 #dirs paths
@@ -32,6 +37,7 @@ pybind11_add_module(vitiate
     ${SRC_FILES}
     ${CPU_HEADERS}
     ${CPU_SOURCES})
+
 # add_library(vitiate MODULE
 #     ${DEF_FILES}
 #     ${HEADER_FILES}
@@ -44,7 +50,6 @@ pybind11_add_module(vitiate
 # pybind11_extension(vitiate)
 # pybind11_strip(vitiate)
 
-
 # #execute 
 # add_executable(vitiate 
 #     ${DEF_FILES}
@@ -52,6 +57,12 @@ pybind11_add_module(vitiate
 #     ${SRC_FILES}
 #     ${CPU_HEADERS}
 #     ${CPU_SOURCES})
+
+# set_target_properties(vitiate PROPERTIES SKIP_BUILD_RPATH FALSE)
+set_target_properties(vitiate PROPERTIES BUILD_WITH_INSTALL_RPATH TRUE)
+target_link_libraries(vitiate PRIVATE $ENV{HOME}/intel/oneapi/compiler/2022.0.1/linux/compiler/lib/intel64_lin/libsvml.so)
+set_target_properties(vitiate PROPERTIES INSTALL_RPATH $ENV{HOME}/intel/oneapi/compiler/2022.0.1/linux/compiler/lib/intel64_lin)
+set_target_properties(vitiate PROPERTIES INSTALL_RPATH_USE_LINK_PATH TRUE)
 
 #install to conda python lib dir
 install(TARGETS vitiate DESTINATION ${PYTHON_LIBRARY_DIR})

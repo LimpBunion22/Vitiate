@@ -44,24 +44,24 @@ PYBIND11_MODULE(vitiate, m)
 // {
 //     using namespace std;
 
-//     net::net_handler handler("/home/gabi");
-//     handler.net_create("cpu_float", net::CPU, net::DERIVATE, net::RANDOM, "net");
-//     handler.init_gradient("cpu_float", "sets");
+//     net::net_handler handler("/home/gabi/workspace_development");
+//     vector<DATA_TYPE> ins = {1, 2};
 
-//     vector<DATA_TYPE> errors = handler.launch_gradient("cpu_float", 45);
+//     handler.net_create("cpu_float", net::CPU, net::DERIVATE, net::RANDOM, "net");
+//     handler.set_active_net("cpu_float");
+//     handler.active_net_init_gradient("sets");
+
+//     vector<DATA_TYPE> errors = handler.active_net_launch_gradient(45);
 //     cout << "gradient errors\n";
 //     for (auto &i : errors)
 //         cout << i << " ";
 //     cout << "\n";
-//     cout << "gradient performance was " << handler.get_gradient_performance("cpu_float") << " us\n";
+//     cout << "gradient performance was " << handler.active_net_get_gradient_performance() << " us\n";
 
-//     vector<DATA_TYPE> ins = {1, 2};
-//     vector<DATA_TYPE> outs = handler.launch_forward("cpu_float", ins);
+//     vector<DATA_TYPE> outs = handler.active_net_launch_forward(ins);
 //     cout << "forward outs\n";
 //     for (auto &i : outs)
 //         cout << i << " ";
 //     cout << "\n";
-//     cout << "foward performance was " << handler.get_forward_performance("cpu_float") << " us\n";
-
-//     handler.write_net_to_file("cpu_float", "cpu_float_values");
+//     cout << "foward performance was " << handler.active_net_get_forward_performance() << " us\n";
 // }
