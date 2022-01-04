@@ -29,7 +29,7 @@ namespace net
             data.n_layers = data.n_p_l.size();
 
             file_handler.close();
-            cout << "file read!\n";
+            // cout << "file read!\n";
             return true;
         }
         else
@@ -104,7 +104,7 @@ namespace net
             }
 
             file_handler.close();
-            cout << "file read!\n";
+            // cout << "file read!\n";
             return true;
         }
         else
@@ -186,7 +186,7 @@ namespace net
             }
 
             file_handler.close();
-            cout << "file read!\n";
+            // cout << "file read!\n";
             return true;
         }
         else
@@ -243,7 +243,7 @@ namespace net
             }
 
             file_handler.close();
-            cout << "file written!\n";
+            // cout << "file written!\n";
             return true;
         }
         else
