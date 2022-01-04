@@ -28,29 +28,33 @@ namespace net
 
     void net_handler::net_create(const string &net_key, size_t implementation, bool derivate, bool random, const string &file, bool file_reload)
     {
-        if (nets.find(net_key) == nets.end())
-            switch (implementation)
+        switch (implementation)
+        {
+            bool succeeded;
+
+        case CPU:
+        default:
+            if (random)
+                succeeded = manager.load_net_structure(file, file_reload);
+            else
+                succeeded = manager.load_net(file, file_reload);
+
+            if (succeeded)
             {
-                bool succeeded;
-
-            case CPU:
-            default:
-                if (random)
-                    succeeded = manager.load_net_structure(file, file_reload);
-                else
-                    succeeded = manager.load_net(file, file_reload);
-
-                if (succeeded)
+                if (nets.find(net_key) != nets.end())
                 {
-                    nets[net_key] = unique_ptr<net_abstract>(new cpu::net_cpu(manager.data, derivate, random));
-                    implementations[net_key] = implementation;
+                    cout << "net " << net_key << " already exists, overwriting!\n";
+                    nets.erase(net_key);
+                    implementations.erase(net_key);
                 }
-                else
-                    cout << "failed to create new net " << net_key << " from file \"" << file << "\"\n";
-                break;
+
+                nets[net_key] = unique_ptr<net_abstract>(new cpu::net_cpu(manager.data, derivate, random));
+                implementations[net_key] = implementation;
             }
-        else
-            cout << "net " << net_key << " already exists!\n";
+            else
+                cout << "failed to create new net " << net_key << " from file \"" << file << "\"\n";
+            break;
+        }
     }
 
     vector<DATA_TYPE> net_handler::active_net_launch_forward(const vector<DATA_TYPE> &inputs)
