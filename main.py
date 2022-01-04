@@ -1,7 +1,7 @@
 import vitiate
 import tensorflow as tf
 
-handler = vitiate.net_handler("/home/gabi/workspace_development")
+handler = vitiate.net_handler("/home/hai/workspace_development")
 handler.net_create("cpu_float", vitiate.CPU,
                    vitiate.DERIVATE, vitiate.NOT_RANDOM, "net")
 handler.set_active_net("cpu_float")

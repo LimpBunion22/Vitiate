@@ -1,9 +1,0 @@
-{
-    "intelOneAPI.analysis.binary-path": "/home/gabi/Vitiate/build/vitiate",
-    "intelOneAPI.analysis.advisor.install-root": "/home/gabi/intel/oneapi/advisor/latest",
-    "intelOneAPI.analysis.advisor.project-folder": "/home/gabi/Vitiate/advisor",
-    "files.associations": {
-        "chrono": "cpp",
-        "iostream": "cpp"
-    }
-}
