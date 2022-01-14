@@ -61,7 +61,7 @@ namespace net
             {
                 if (nets.find(net_key) != nets.end())
                 {
-                    cout << "net " << net_key << " already exists, overwriting!\n";
+                    // cout << "net " << net_key << " already exists, overwriting!\n";
                     nets.erase(net_key);
                     implementations.erase(net_key);
                 }
@@ -84,7 +84,7 @@ namespace net
             {
                 if (nets.find(net_key) != nets.end())
                 {
-                    cout << "net " << net_key << " already exists, overwriting!\n";
+                    // cout << "net " << net_key << " already exists, overwriting!\n";
                     nets.erase(net_key);
                     implementations.erase(net_key);
                 }
