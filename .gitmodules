@@ -1,3 +1,6 @@
-[submodule "utils/pybind11"]
-	path = utils/pybind11
-	url = https://github.com/pybind/pybind11.git
+[submodule "utils/VIT-CPU"]
+	path = utils/VIT-CPU
+	url = https://github.com/gepet/VIT-CPU.git
+[submodule "utils/VIT-FPGA"]
+	path = utils/VIT-FPGA
+	url = https://github.com/LimpBunion22/VIT-FPGA.git

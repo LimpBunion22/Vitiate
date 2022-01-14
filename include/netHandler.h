@@ -32,9 +32,7 @@ namespace net
 
     public:
         net_handler(const std::string &path) : manager(path), active_net(nullptr) { srand(time(NULL)); }
-        ~net_handler()
-        { // TODO implement multi::free_pool();
-        }
+        ~net_handler();
 
         void set_active_net(const std::string &net_key);
         void net_create(const std::string &net_key, size_t implementation, bool derivate, bool random, const std::string &file, bool file_reload = false);

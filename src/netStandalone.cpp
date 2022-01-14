@@ -8,7 +8,7 @@ namespace py = pybind11;
 using namespace std;
 PYBIND11_MAKE_OPAQUE(vector<DATA_TYPE>);
 
-PYBIND11_MODULE(vitiate, m)
+PYBIND11_MODULE(netStandalone, m)
 {
     m.doc() = "Vitiate AI library for floats";
 
@@ -37,31 +37,36 @@ PYBIND11_MODULE(vitiate, m)
         .def("active_net_write_net_to_file", &net::net_handler::active_net_write_net_to_file, py::arg("file"));
 }
 
+// #include <defines.h>
 // #include <netHandler.h>
-// #include <iostream>
 
 // int main()
 // {
 //     using namespace std;
 
-//     net::net_handler handler("/home/gabi/workspace_development");
-//     vector<DATA_TYPE> ins = {1, 2};
+//     net::net_handler handler("/home/hai/Desktop"); //"/home/hai/workspace_development"
+//     vector<DATA_TYPE> ins = {0, 0};
 
-//     handler.net_create("cpu_float", net::CPU, net::DERIVATE, net::RANDOM, "net");
-//     handler.set_active_net("cpu_float");
-//     handler.active_net_init_gradient("sets");
+//     handler.net_create("cpu_ooooooooooo", net::CPU,
+//                        net::DERIVATE, net::NOT_RANDOM, "newnet");
+//     handler.set_active_net("cpu_ooooooooooo");
 
-//     vector<DATA_TYPE> errors = handler.active_net_launch_gradient(45);
-//     cout << "gradient errors\n";
-//     for (auto &i : errors)
+//     auto out = handler.active_net_launch_forward(ins);
+//     for (auto &i : out)
+//     {
 //         cout << i << " ";
+//     }
 //     cout << "\n";
-//     cout << "gradient performance was " << handler.active_net_get_gradient_performance() << " us\n";
+//     cout << handler.active_net_get_forward_performance() << "\n";
 
-//     vector<DATA_TYPE> outs = handler.active_net_launch_forward(ins);
-//     cout << "forward outs\n";
-//     for (auto &i : outs)
+//     handler.net_create("fpga_aaaaaaaaaaa", net::FPGA,
+//                        net::DERIVATE, net::NOT_RANDOM, "newnet");
+//     handler.set_active_net("fpga_aaaaaaaaaaa");
+//     out = handler.active_net_launch_forward(ins);
+//     for (auto &i : out)
+//     {
 //         cout << i << " ";
+//     }
 //     cout << "\n";
-//     cout << "foward performance was " << handler.active_net_get_forward_performance() << " us\n";
+//     cout << handler.active_net_get_forward_performance() << "\n";
 // }
