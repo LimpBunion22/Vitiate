@@ -119,7 +119,7 @@ namespace net
         if (net_file != file || file_reload) //* load new file
         {
             bool succeeded = load_net_structure(file, file_reload);
-            
+
             if (succeeded)
                 succeeded = load_net(file);
             else
@@ -156,11 +156,42 @@ namespace net
             skip_lines(1);
             sets.set_ins.reserve(n_sets);
             sets.set_outs.reserve(n_sets);
+            //* load first set to get n_ins and n_layers, so we can reuse them later
+            sets.set_ins.emplace_back(0, 0);
+            sets.set_outs.emplace_back(0, 0);
+            size_t n_ins = 0;
+            size_t n_outs = 0;
 
-            for (int i = 0; i < n_sets; i++)
+            getline(file_handler, line);
+
             {
-                sets.set_ins.emplace_back(data.n_ins, 0);
-                sets.set_outs.emplace_back(data.n_p_l[data.n_layers - 1], 0);
+                stringstream s(line);
+
+                while (getline(s, val, SEPARATOR))
+                {
+                    n_ins++;
+                    sets.set_ins[0].emplace_back((DATA_TYPE)stod(val));
+                }
+            }
+
+            getline(file_handler, line);
+
+            {
+                stringstream s(line);
+
+                while (getline(s, val, SEPARATOR))
+                {
+                    n_outs++;
+                    sets.set_outs[0].emplace_back((DATA_TYPE)stod(val));
+                }
+            }
+
+            skip_lines(1);
+            //* remaining sets
+            for (int i = 1; i < n_sets; i++)
+            {
+                sets.set_ins.emplace_back(n_ins, 0);
+                sets.set_outs.emplace_back(n_outs, 0);
 
                 getline(file_handler, line);
 

@@ -32,17 +32,19 @@ namespace net
 
     public:
         net_handler(const std::string &path) : manager(path), active_net(nullptr) { srand(time(NULL)); }
-        ~net_handler();
 
         void set_active_net(const std::string &net_key);
+        void net_create_random_from_vector(const std::string &net_key, size_t implementation, size_t n_ins, const std::vector<size_t> &n_p_l);
         void net_create(const std::string &net_key, size_t implementation, bool derivate, bool random, const std::string &file, bool file_reload = false);
         std::vector<DATA_TYPE> active_net_launch_forward(const std::vector<DATA_TYPE> &inputs); //* returns result
         void active_net_init_gradient(const std::string &file, bool file_reload = false);
-        std::vector<DATA_TYPE> active_net_launch_gradient(int iterations); //* returns it times error
+        std::vector<DATA_TYPE> active_net_launch_gradient(int iterations, DATA_TYPE error_threshold, DATA_TYPE multiplier); //* returns it times error
         void active_net_print_inner_vals();
         signed long active_net_get_gradient_performance();
         signed long active_net_get_forward_performance();
         void active_net_write_net_to_file(const std::string &file);
+        void filter_image(const image_set &set);
+        image_set get_filtered_image();
     };
 }
 #endif
