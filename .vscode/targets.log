@@ -6,7 +6,7 @@ make all --print-data-base --no-builtin-variables --no-builtin-rules --question
 # This is free software: you are free to change and redistribute it.
 # There is NO WARRANTY, to the extent permitted by law.
 
-# Make data base, printed on Tue Jan 18 13:34:21 2022
+# Make data base, printed on Wed Jan 19 11:50:54 2022
 
 # Variables
 
@@ -49,7 +49,7 @@ VSCODE_NLS_CONFIG = {"locale":"en-us","availableLanguages":{},"_languagePackSupp
 # environment
 _ = /usr/share/code/code
 # environment
-JOURNAL_STREAM = 8:51329
+JOURNAL_STREAM = 8:52503
 # environment
 XDG_CONFIG_DIRS = /etc/xdg/xdg-ubuntu:/etc/xdg
 # makefile
@@ -71,7 +71,7 @@ DBUS_SESSION_BUS_ADDRESS = unix:path=/run/user/1000/bus
 # environment
 VSCODE_VERBOSE_LOGGING = true
 # environment
-MANAGERPID = 1739
+MANAGERPID = 1726
 # environment
 LESSOPEN = | /usr/bin/lesspipe %s
 # environment
@@ -87,7 +87,7 @@ GPG_AGENT_INFO = /run/user/1000/gnupg/S.gpg-agent:0:1
 # environment
 GJS_DEBUG_OUTPUT = stderr
 # environment
-SESSION_MANAGER = local/gabipc:@/tmp/.ICE-unix/1994,unix/gabipc:/tmp/.ICE-unix/1994
+SESSION_MANAGER = local/gabipc:@/tmp/.ICE-unix/1986,unix/gabipc:/tmp/.ICE-unix/1986
 # environment
 XDG_RUNTIME_DIR = /run/user/1000
 # environment
@@ -99,7 +99,7 @@ VSCODE_LOG_STACK = false
 # environment
 VSCODE_CRASH_REPORTER_START_OPTIONS = {"companyName":"Microsoft","productName":"VSCode","submitURL":"appcenter://code?aid=fba07a4d-84bd-4fc8-a125-9640fc8ce171&uid=27ebe938-0f7f-4e4e-97b8-f5e1c3c3a3df&iid=27ebe938-0f7f-4e4e-97b8-f5e1c3c3a3df&sid=27ebe938-0f7f-4e4e-97b8-f5e1c3c3a3df","uploadToServer":true}
 # environment
-INVOCATION_ID = 93c3f132313a42b7a8450be15b3418e9
+INVOCATION_ID = c3cbcc3386194596a705836049b00b16
 # default
 .FEATURES := target-specific order-only second-expansion else-if shortest-stem undefine oneshell archives jobserver output-sync check-symlink load
 # environment
@@ -109,7 +109,7 @@ XDG_SESSION_DESKTOP = ubuntu
 # environment
 SSH_AUTH_SOCK = /run/user/1000/keyring/ssh
 # environment
-GIO_LAUNCHED_DESKTOP_FILE_PID = 25357
+GIO_LAUNCHED_DESKTOP_FILE_PID = 41562
 # automatic
 %F = $(notdir $%)
 # environment
@@ -123,7 +123,7 @@ PWD = /home/gabi/Vitiate
 # default
 .LOADED := 
 # environment
-SSH_AGENT_PID = 1959
+SSH_AGENT_PID = 1951
 # environment
 ORIGINAL_XDG_CURRENT_DESKTOP = ubuntu:GNOME
 # environment
@@ -167,7 +167,7 @@ SHLVL = 0
 # environment
 GNOME_SHELL_SESSION_MODE = ubuntu
 # environment
-VSCODE_IPC_HOOK_EXTHOST = /run/user/1000/vscode-ipc-aea22d17-715c-4b05-a799-addf7c0dc16c.sock
+VSCODE_IPC_HOOK_EXTHOST = /run/user/1000/vscode-ipc-f8e71b38-e1e6-44cd-be4b-24cb443a57f0.sock
 # default
 MAKE_VERSION := 4.2.1
 # environment
@@ -247,7 +247,7 @@ LC_ADDRESS = es_ES.UTF-8
 # environment
 LANG = C
 # environment
-VSCODE_PID = 25357
+VSCODE_PID = 41562
 # environment
 _CE_CONDA = 
 # variable set hash-table stats:
@@ -259,9 +259,9 @@ _CE_CONDA =
 
 # Directories
 
-# . (device 66312, inode 11796530): 15 files, no impossibilities.
+# . (device 66312, inode 11796530): 16 files, no impossibilities.
 
-# 15 files, no impossibilities in 1 directories.
+# 16 files, no impossibilities in 1 directories.
 
 # Implicit Rules
 
@@ -277,9 +277,6 @@ all:
 #  File has not been updated.
 
 # Not a target:
- 
-make: *** No rule to make target 'all'.  Stop.
- 
 Makefile:
 #  Implicit rule search has been done.
 #  File does not exist.
@@ -293,6 +290,9 @@ makefile:
 #  File has been updated.
 #  Failed to be updated.
 
+ 
+make: *** No rule to make target 'all'.  Stop.
+ 
 # Not a target:
 .DEFAULT:
 #  Implicit rule search has not been done.
@@ -314,12 +314,12 @@ GNUmakefile:
 
 # No general ('VPATH' variable) search path.
 
-# strcache buffers: 1 (0) / strings = 23 / storage = 205 B / avg = 8 B
-# current buf: size = 8162 B / used = 205 B / count = 23 / avg = 8 B
+# strcache buffers: 1 (0) / strings = 24 / storage = 211 B / avg = 8 B
+# current buf: size = 8162 B / used = 211 B / count = 24 / avg = 8 B
 
-# strcache performance: lookups = 26 / hit rate = 11%
+# strcache performance: lookups = 27 / hit rate = 11%
 # hash-table stats:
-# Load=23/8192=0%, Rehash=0, Collisions=1/26=4%
-# Finished Make data base on Tue Jan 18 13:34:21 2022
+# Load=24/8192=0%, Rehash=0, Collisions=1/27=4%
+# Finished Make data base on Wed Jan 19 11:50:54 2022
 
  

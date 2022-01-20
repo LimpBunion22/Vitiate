@@ -1,16 +1,11 @@
 #include <netHandler.h>
 #include <netCPU.h>
 #include <iostream>
-#include <netFPGA.h>
+// #include <netFPGA.h>
 
 namespace net
 {
     using namespace std;
-
-    net_handler::~net_handler()
-    {
-        // TODO multi::free_pool();
-    }
 
     void net_handler::set_active_net(const string &net_key)
     {
@@ -20,12 +15,25 @@ namespace net
         {
             active_net = nets[net_key].get();
             active_net_name = net_key;
+        }
+    }
 
-            // TODO
-            //  if (implementations[net_key] == MULTI)
-            //      multi::create_pool();
-            //  else
-            //      multi::free_pool();
+    void net_handler::net_create_random_from_vector(const string &net_key, size_t implementation, size_t n_ins, const vector<size_t> &n_p_l)
+    {
+        switch (implementation)
+        {
+        case CPU:
+        default:
+            if (nets.find(net_key) != nets.end())
+            {
+                // cout << "net " << net_key << " already exists, overwriting!\n";
+                nets.erase(net_key);
+                implementations.erase(net_key);
+            }
+
+            nets[net_key] = unique_ptr<net_abstract>(new cpu::net_cpu(n_ins, n_p_l));
+            implementations[net_key] = implementation;
+            break;
         }
     }
 
@@ -34,45 +42,27 @@ namespace net
         switch (implementation)
         {
             bool succeeded;
-            // TODO
-            //  case MULTI:
-            //      if (random)
-            //          succeeded = manager.load_net_structure(file, file_reload);
-            //      else
-            //          succeeded = manager.load_net(file, file_reload);
+        // case FPGA:
+        //     if (random)
+        //         succeeded = manager.load_net_structure(file, file_reload);
+        //     else
+        //         succeeded = manager.load_net(file, file_reload);
 
-            //     if (succeeded)
-            //     {
-            //         multi::create_pool();
-            //         nets[net_key] = unique_ptr<net_abstract>(new multi::net_multi(manager.data, derivate, random));
-            //         implementations[net_key] = implementation;
-            //         multi::free_pool();
-            //     }
-            //     else
-            //         cout << "failed to create new net " << net_key << " from file \"" << file << "\"\n";
-            //     break;
-        case FPGA:
-            if (random)
-                succeeded = manager.load_net_structure(file, file_reload);
-            else
-                succeeded = manager.load_net(file, file_reload);
+        //     if (succeeded)
+        //     {
+        //         if (nets.find(net_key) != nets.end())
+        //         {
+        //             // cout << "net " << net_key << " already exists, overwriting!\n";
+        //             nets.erase(net_key);
+        //             implementations.erase(net_key);
+        //         }
 
-            if (succeeded)
-            {
-                if (nets.find(net_key) != nets.end())
-                {
-                    // cout << "net " << net_key << " already exists, overwriting!\n";
-                    nets.erase(net_key);
-                    implementations.erase(net_key);
-                }
-
-                nets[net_key] = unique_ptr<net_abstract>(new fpga::net_fpga(manager.data, derivate, random));
-                implementations[net_key] = implementation;
-            }
-            else
-                cout << "failed to create new net " << net_key << " from file \"" << file << "\"\n";
-            break;
-
+        //         nets[net_key] = unique_ptr<net_abstract>(new fpga::net_fpga(manager.data, derivate, random));
+        //         implementations[net_key] = implementation;
+        //     }
+        //     else
+        //         cout << "failed to create new net " << net_key << " from file \"" << file << "\"\n";
+        //     break;
         case CPU:
         default:
             if (random)
@@ -130,7 +120,7 @@ namespace net
         }
     }
 
-    vector<DATA_TYPE> net_handler::active_net_launch_gradient(int iterations)
+    vector<DATA_TYPE> net_handler::active_net_launch_gradient(int iterations, DATA_TYPE error_threshold, DATA_TYPE multiplier)
     {
         if (!active_net)
         {
@@ -140,7 +130,7 @@ namespace net
         else
         {
             // cout << "launching net " << active_net_name << " gradient! Errors are:\n";
-            return active_net->launch_gradient(iterations);
+            return active_net->launch_gradient(iterations, error_threshold, multiplier);
         }
     }
 
@@ -189,5 +179,24 @@ namespace net
             cout << "no active net!\n";
         else
             manager.write_net_to_file(file, active_net->get_net_data());
+    }
+
+    void net_handler::filter_image(const image_set &set)
+    {
+        if (!active_net)
+            cout << "no active net!\n";
+        else
+            active_net->filter_image(set);
+    }
+
+    image_set net_handler::get_filtered_image()
+    {
+        if (!active_net)
+        {
+            cout << "no active net!\n";
+            return image_set{.resized_image_data = {0}, .original_x_pos = 0, .original_y_pos = 0, .original_h = 0, .original_w = 0};
+        }
+        else
+            return active_net->get_filtered_image();
     }
 }
