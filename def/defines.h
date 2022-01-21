@@ -30,7 +30,7 @@ namespace net
 
     typedef struct
     {
-        std::vector<DATA_TYPE> resized_image_data;
+        std::vector<unsigned char> resized_image_data;
         size_t original_x_pos;
         size_t original_y_pos;
         size_t original_h;

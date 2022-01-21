@@ -1,11 +1,16 @@
 #include <netHandler.h>
 #include <netCPU.h>
 #include <iostream>
-// #include <netFPGA.h>
+#include <netFPGA.h>
+#include "opencv2/opencv.hpp"
+#include <opencv2/highgui/highgui.hpp>
+#include <experimental/filesystem>
+#include <opencv2/videoio/videoio_c.h>
 
 namespace net
 {
     using namespace std;
+    using namespace cv;
 
     void net_handler::set_active_net(const string &net_key)
     {
@@ -42,27 +47,27 @@ namespace net
         switch (implementation)
         {
             bool succeeded;
-        // case FPGA:
-        //     if (random)
-        //         succeeded = manager.load_net_structure(file, file_reload);
-        //     else
-        //         succeeded = manager.load_net(file, file_reload);
+        case FPGA:
+            if (random)
+                succeeded = manager.load_net_structure(file, file_reload);
+            else
+                succeeded = manager.load_net(file, file_reload);
 
-        //     if (succeeded)
-        //     {
-        //         if (nets.find(net_key) != nets.end())
-        //         {
-        //             // cout << "net " << net_key << " already exists, overwriting!\n";
-        //             nets.erase(net_key);
-        //             implementations.erase(net_key);
-        //         }
+            if (succeeded)
+            {
+                if (nets.find(net_key) != nets.end())
+                {
+                    // cout << "net " << net_key << " already exists, overwriting!\n";
+                    nets.erase(net_key);
+                    implementations.erase(net_key);
+                }
 
-        //         nets[net_key] = unique_ptr<net_abstract>(new fpga::net_fpga(manager.data, derivate, random));
-        //         implementations[net_key] = implementation;
-        //     }
-        //     else
-        //         cout << "failed to create new net " << net_key << " from file \"" << file << "\"\n";
-        //     break;
+                nets[net_key] = unique_ptr<net_abstract>(new fpga::net_fpga(manager.data, derivate, random));
+                implementations[net_key] = implementation;
+            }
+            else
+                cout << "failed to create new net " << net_key << " from file \"" << file << "\"\n";
+            break;
         case CPU:
         default:
             if (random)
@@ -198,5 +203,105 @@ namespace net
         }
         else
             return active_net->get_filtered_image();
+    }
+
+    void net_handler::process_video(const string &video_name)
+    {
+        // auto it = experimental::filesystem::directory_iterator("./");
+        // for (const auto &file : it)
+        //     cout << file.path() << endl;
+
+        VideoCapture cap(0); // open the default camera
+        if (!cap.isOpened()) // check if we succeeded
+        {
+            cout << "Fallo al abrir el archivo\n";
+            return;
+        }
+
+        namedWindow("Camara", 1);
+        namedWindow("FPGA", 1);
+        // Mat frame;
+        image_set in_image = {.resized_image_data=vector<unsigned char>(IMAGE_WIDTH * IMAGE_HEIGHT, 0),
+        .original_x_pos = 0,
+        .original_y_pos = 0,
+        .original_h = 1080,
+        .original_w = 1920};
+
+
+        int batch_load = 0;
+        for (;;)
+        {
+            // cap >> frame;
+
+            while (batch_load < 3)
+            {
+
+                batch_load++;
+                Mat frame;
+                cap.read(frame);
+                // cap >> frame; // get a new frame from camera
+                // frame = cvQueryFrame(cap);
+                // unsigned char *data = (unsigned char *)frame.data;
+                int cn = frame.channels();
+
+                for (int y = 0; y < min(1080, frame.rows); y++)
+                {
+                    for (int x = 0; x < min(1920, frame.cols); x++)
+                    {
+                        Vec3b &intensity = frame.at<Vec3b>(y, x);
+                        in_image.resized_image_data[y*1920+x] = 0;
+
+                        for (int k = 0; k < cn; k++)
+                            in_image.resized_image_data[y * 1920 + x] += intensity.val[k];
+
+                        // in_image.resized_image_data.emplace_back((data[y * frame.cols * cn + x * cn + 0] + data[y * frame.cols * cn + x * cn + 1] + data[y * frame.cols * cn + x * cn + 2]) / 3);
+                    }
+                    if (min(1920, frame.cols) != 1920)
+                    {
+                        for (int x = min(1920, frame.cols); x < 1920; x++)
+                            in_image.resized_image_data[y * 1920 + x] = 0;
+                    }
+                }
+                if (min(1080, frame.rows) != 1080)
+                {
+                    for (int y = min(1080, frame.cols); y < 1080; y++)
+                    {
+                        for (int x = 0; x < 1920; x++)
+                            in_image.resized_image_data[y * 1920 + x] = 0;
+                    }
+                }
+
+                filter_image(in_image);
+            }
+
+            Mat frame;
+            cap.read(frame);
+            image_set out_image = get_filtered_image();
+            batch_load--;
+
+            imshow("Camara", frame);
+            // cap >> frame;
+            // unsigned char *data = (unsigned char *)frame.data;
+            int cn = frame.channels();
+            for (int y = 0; y < min(1080, frame.rows); y++)
+            {
+                // unsigned char * data = frame.ptr<unsigned char>(y);
+
+                for (int x = 0; x < min(1920, frame.cols); x++)
+                {
+                    Vec3b &intensity = frame.at<Vec3b>(y, x);
+                    for(int k = 0; k < cn; k++)
+                        intensity.val[k] = out_image.resized_image_data[y*1920 + x]*6;
+                    // data[y * frame.cols * cn + x * cn + 0] = out_image.resized_image_data[y*1920 + x]*6;
+                    // data[y * frame.cols * cn + x * cn + 1] = out_image.resized_image_data[y*1920 + x]*6;
+                    // data[y * frame.cols * cn + x * cn + 2] = out_image.resized_image_data[y*1920 + x]*6;
+                }
+            }
+            // cout << "prev imshow\n";
+            if (waitKey(70) >= 0)
+                break;
+            imshow("FPGA", frame);
+        }
+        return;
     }
 }

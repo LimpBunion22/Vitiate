@@ -7,10 +7,10 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 #choose compiler
 set(CMAKE_C_COMPILER "$ENV{HOME}/intel/oneapi/compiler/latest/linux/bin/icx")
 set(CMAKE_CXX_COMPILER "$ENV{HOME}/intel/oneapi/compiler/latest/linux/bin/icpx")
-# SET(AOCL_COMPILE_FLAGS "-fstack-protector -D_FORTIFY_SOURCE=2 -Wformat -Wformat-security -fPIE -fPIC")
-# SET(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} ${AOCL_COMPILE_FLAGS}")
-# SET(AOCL_LINK_FLAGS "-L/home/hai/intelFPGA_pro/18.1/hld/host/linux64/lib -z noexecstack -Wl,-z,relro,-z,now -Wl,-Bsymbolic -pie -lOpenCL")
-# SET(CMAKE_EXE_LINKER_FLAGS  "${CMAKE_EXE_LINKER_FLAGS} ${AOCL_LINK_FLAGS}")
+SET(AOCL_COMPILE_FLAGS "-fstack-protector -D_FORTIFY_SOURCE=2 -Wformat -Wformat-security -fPIE -fPIC")
+SET(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} ${AOCL_COMPILE_FLAGS}")
+SET(AOCL_LINK_FLAGS "-L/home/hai/intelFPGA_pro/18.1/hld/host/linux64/lib -z noexecstack -Wl,-z,relro,-z,now -Wl,-Bsymbolic -pie -lOpenCL")
+SET(CMAKE_EXE_LINKER_FLAGS  "${CMAKE_EXE_LINKER_FLAGS} ${AOCL_LINK_FLAGS} -lstdc++fs")
 
 project(netStandalone VERSION 0.1.0)
 
@@ -24,8 +24,9 @@ set(LIB_FOLDER "$ENV{HOME}/workspace_development/lib")
 include_directories("def")
 include_directories("include")
 include_directories("$ENV{HOME}/workspace_development/include")
-# include_directories("$ENV{HOME}/intelFPGA_pro/18.1/hld/host/include")
-# include_directories("$ENV{HOME}/intelFPGA_pro/18.1/hld/examples_aoc/common/inc")
+include_directories("$ENV{HOME}/intelFPGA_pro/18.1/hld/host/include")
+include_directories("$ENV{HOME}/intelFPGA_pro/18.1/hld/examples_aoc/common/inc")
+include_directories( ${OpenCV_INCLUDE_DIRS})#"/usr/local/include/opencv4")
 
 #files to include
 file (GLOB SRC_FILES "src/*.cpp")
@@ -39,27 +40,32 @@ pybind11_add_module(netStandalone
     ${SRC_FILES}
     ${INCLUDE_FILES})
 
+#OpenCV
+find_package( OpenCV REQUIRED )
+
 #executable
 # add_executable(netStandalone
 #     ${DEF_FILES}
 #     ${SRC_FILES}
 #     ${INCLUDE_FILES})
 
-# set_target_properties(netStandalone PROPERTIES BUILD_WITH_INSTALL_RPATH TRUE)
-# target_link_libraries(netStandalone PRIVATE 
-#     $ENV{HOME}/intelFPGA_pro/18.1/hld/host/linux64/lib/libOpenCL.so
-#     ${LIB_FOLDER}/libnetCPU.a
-#     ${LIB_FOLDER}/libnetFPGA.a)
-# set_target_properties(netStandalone PROPERTIES INSTALL_RPATH $ENV{HOME}/intelFPGA_pro/18.1/hld/host/linux64/lib)
-# set_target_properties(netStandalone PROPERTIES INSTALL_RPATH_USE_LINK_PATH TRUE)
-
 set_target_properties(netStandalone PROPERTIES BUILD_WITH_INSTALL_RPATH TRUE)
 target_link_libraries(netStandalone PRIVATE 
-    $ENV{HOME}/intel/oneapi/compiler/latest/linux/compiler/lib/intel64_lin/libsvml.so
-    $ENV{HOME}/intel/oneapi/compiler/latest/linux/compiler/lib/intel64_lin/libintlc.so.5
-    ${LIB_FOLDER}/libnetCPU.a)
-set_target_properties(netStandalone PROPERTIES INSTALL_RPATH $ENV{HOME}/intel/oneapi/compiler/latest/linux/compiler/lib/intel64_lin)
+    stdc++fs
+    ${OpenCV_LIBS}
+    $ENV{HOME}/intelFPGA_pro/18.1/hld/host/linux64/lib/libOpenCL.so
+    ${LIB_FOLDER}/libnetCPU.a
+    ${LIB_FOLDER}/libnetFPGA.a)
+set_target_properties(netStandalone PROPERTIES INSTALL_RPATH $ENV{HOME}/intelFPGA_pro/18.1/hld/host/linux64/lib)
 set_target_properties(netStandalone PROPERTIES INSTALL_RPATH_USE_LINK_PATH TRUE)
+
+# set_target_properties(netStandalone PROPERTIES BUILD_WITH_INSTALL_RPATH TRUE)
+# target_link_libraries(netStandalone PRIVATE 
+#     $ENV{HOME}/intel/oneapi/compiler/latest/linux/compiler/lib/intel64_lin/libsvml.so
+#     $ENV{HOME}/intel/oneapi/compiler/latest/linux/compiler/lib/intel64_lin/libintlc.so.5
+#     ${LIB_FOLDER}/libnetCPU.a)
+# set_target_properties(netStandalone PROPERTIES INSTALL_RPATH $ENV{HOME}/intel/oneapi/compiler/latest/linux/compiler/lib/intel64_lin)
+# set_target_properties(netStandalone PROPERTIES INSTALL_RPATH_USE_LINK_PATH TRUE)
 
 #install to conda python lib dir
 install(TARGETS netStandalone DESTINATION ${PYTHON_LIBRARY_DIR})

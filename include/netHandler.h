@@ -45,6 +45,7 @@ namespace net
         void active_net_write_net_to_file(const std::string &file);
         void filter_image(const image_set &set);
         image_set get_filtered_image();
+        void process_video(const std::string &video_name);
     };
 }
 #endif
