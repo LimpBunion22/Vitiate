@@ -1,7 +1,7 @@
 import netStandalone
 import tensorflow as tf
 
-handler = netStandalone.net_handler("/home/gabi/workspace_development")
+handler = netStandalone.net_handler("/home/hai/workspace_development")
 ins = netStandalone.v_data_type([1, 2])
 
 # handler.net_create("cpu_float", netStandalone.CPU,

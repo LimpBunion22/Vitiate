@@ -20,7 +20,6 @@ PYBIND11_MODULE(netStandalone, m)
     m.attr("CPU") = py::size_t(net::CPU);
     m.attr("GPU") = py::size_t(net::GPU);
     m.attr("FPGA") = py::size_t(net::FPGA);
-    m.attr("MULTI") = py::size_t(net::MULTI);
     m.attr("DERIVATE") = py::bool_(net::DERIVATE);
     m.attr("NOT_DERIVATE") = py::bool_(net::NOT_DERIVATE);
     m.attr("RANDOM") = py::bool_(net::RANDOM);

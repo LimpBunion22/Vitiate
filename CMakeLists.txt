@@ -21,8 +21,7 @@ set(PYTHON_EXECUTABLE "$ENV{HOME}/anaconda3/envs/Vitiate/bin/python")
 set(LIB_FOLDER "$ENV{HOME}/workspace_development/lib")
 
 #dirs paths
-include_directories("/usr/local/cuda/include")
-include_directories("/usr/local/cuda/samples/common/inc")
+include_directories("/usr/local/cuda/include") #INCLUDE THIS FIRST BECAUSE IT SHARES HEADERS WITH FPGA, AND CUDA OPENCL HAS MORE DECLARATIONS?
 include_directories("def")
 include_directories("include")
 include_directories("$ENV{HOME}/workspace_development/include")

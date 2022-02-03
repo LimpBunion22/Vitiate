@@ -15,7 +15,6 @@ namespace net
     constexpr size_t CPU = 0;
     constexpr size_t GPU = 1;
     constexpr size_t FPGA = 2;
-    constexpr size_t MULTI = 3;
     constexpr bool DERIVATE = true;
     constexpr bool NOT_DERIVATE = false;
     constexpr bool RANDOM = true;
@@ -32,6 +31,7 @@ namespace net
 
     public:
         net_handler(const std::string &path) : manager(path), active_net(nullptr) { srand(time(NULL)); }
+        ~net_handler();
 
         void set_active_net(const std::string &net_key);
         void net_create_random_from_vector(const std::string &net_key, size_t implementation, size_t n_ins, const std::vector<size_t> &n_p_l);

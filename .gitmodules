@@ -4,3 +4,6 @@
 [submodule "utils/VIT-FPGA"]
 	path = utils/VIT-FPGA
 	url = https://github.com/LimpBunion22/VIT-FPGA.git
+[submodule "utils/VIT-GPU"]
+	path = utils/VIT-GPU
+	url = https://github.com/gepet/VIT-GPU.git

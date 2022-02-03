@@ -13,6 +13,11 @@ namespace net
     using namespace std;
     using namespace cv;
 
+    net_handler::~net_handler()
+    {
+        gpu::free_resources();
+    }
+
     void net_handler::set_active_net(const string &net_key)
     {
         if (nets.find(net_key) == nets.end())
@@ -233,12 +238,11 @@ namespace net
         namedWindow("Camara", WINDOW_AUTOSIZE);
         namedWindow("FPGA", WINDOW_AUTOSIZE);
         // Mat frame;
-        image_set in_image = {.resized_image_data=vector<unsigned char>(IMAGE_WIDTH * IMAGE_HEIGHT, 0),
-        .original_x_pos = 0,
-        .original_y_pos = 0,
-        .original_h = 1080,
-        .original_w = 1920};
-
+        image_set in_image = {.resized_image_data = vector<unsigned char>(IMAGE_WIDTH * IMAGE_HEIGHT, 0),
+                              .original_x_pos = 0,
+                              .original_y_pos = 0,
+                              .original_h = 1080,
+                              .original_w = 1920};
 
         int batch_load = 0;
         for (;;)
@@ -262,7 +266,7 @@ namespace net
                 //     }
                 //     if (min(1920, frame.cols) != 1920)
                 //         for (int x = min(1920, frame.cols); x < 1920; x++)
-                //             in_image.resized_image_data[y * 1920 + x] = 0;                    
+                //             in_image.resized_image_data[y * 1920 + x] = 0;
                 // }
                 // if (min(1080, frame.rows) != 1080)
                 //     for (int y = min(1080, frame.cols); y < 1080; y++)
@@ -274,19 +278,19 @@ namespace net
                     for (int y = 0; y < min(1080, frame.rows); y++)
                     {
                         Vec3b &intensity = frame.at<Vec3b>(y, x);
-                        in_image.resized_image_data[y + x*1080] = 0;
+                        in_image.resized_image_data[y + x * 1080] = 0;
 
                         for (int k = 0; k < cn; k++)
-                            in_image.resized_image_data[y + x*1080] += intensity.val[k];
+                            in_image.resized_image_data[y + x * 1080] += intensity.val[k];
                     }
                     if (min(1080, frame.rows) != 1080)
                         for (int y = min(1080, frame.cols); y < 1080; y++)
-                                in_image.resized_image_data[y + x*1080] = 0;                                      
+                            in_image.resized_image_data[y + x * 1080] = 0;
                 }
                 if (min(1920, frame.cols) != 1920)
                     for (int x = min(1920, frame.cols); x < 1920; x++)
                         for (int y = min(1080, frame.cols); y < 1080; y++)
-                            in_image.resized_image_data[y + x*1080] = 0;  
+                            in_image.resized_image_data[y + x * 1080] = 0;
 
                 // cout << "Entrando en filter_image\n";
                 filter_image(in_image);
@@ -317,8 +321,8 @@ namespace net
                 for (int y = 0; y < min(1080, frame.rows); y++)
                 {
                     Vec3b &intensity = frame.at<Vec3b>(y, x);
-                    for(int k = 0; k < cn; k++)
-                        intensity.val[k] = out_image.resized_image_data[y + x*1080]*2;
+                    for (int k = 0; k < cn; k++)
+                        intensity.val[k] = out_image.resized_image_data[y + x * 1080] * 2;
                 }
             }
             if (waitKey(60) >= 0)
