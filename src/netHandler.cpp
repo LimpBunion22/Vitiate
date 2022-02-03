@@ -218,8 +218,8 @@ namespace net
             return;
         }
 
-        namedWindow("Camara", 1);
-        namedWindow("FPGA", 1);
+        namedWindow("Camara", WINDOW_AUTOSIZE);
+        namedWindow("FPGA", WINDOW_AUTOSIZE);
         // Mat frame;
         image_set in_image = {.resized_image_data=vector<unsigned char>(IMAGE_WIDTH * IMAGE_HEIGHT, 0),
         .original_x_pos = 0,
@@ -231,47 +231,54 @@ namespace net
         int batch_load = 0;
         for (;;)
         {
-            // cap >> frame;
-
-            while (batch_load < 3)
+            while (batch_load < 1)
             {
-
                 batch_load++;
                 Mat frame;
                 cap.read(frame);
-                // cap >> frame; // get a new frame from camera
-                // frame = cvQueryFrame(cap);
-                // unsigned char *data = (unsigned char *)frame.data;
                 int cn = frame.channels();
 
-                for (int y = 0; y < min(1080, frame.rows); y++)
+                // for (int y = 0; y < min(1080, frame.rows); y++)
+                // {
+                //     for (int x = 0; x < min(1920, frame.cols); x++)
+                //     {
+                //         Vec3b &intensity = frame.at<Vec3b>(y, x);
+                //         in_image.resized_image_data[y*1920+x] = 0;
+
+                //         for (int k = 0; k < cn; k++)
+                //             in_image.resized_image_data[y * 1920 + x] += intensity.val[k];
+                //     }
+                //     if (min(1920, frame.cols) != 1920)
+                //         for (int x = min(1920, frame.cols); x < 1920; x++)
+                //             in_image.resized_image_data[y * 1920 + x] = 0;                    
+                // }
+                // if (min(1080, frame.rows) != 1080)
+                //     for (int y = min(1080, frame.cols); y < 1080; y++)
+                //         for (int x = 0; x < 1920; x++)
+                //             in_image.resized_image_data[y * 1920 + x] = 0;
+
+                for (int x = 0; x < min(1920, frame.cols); x++)
                 {
-                    for (int x = 0; x < min(1920, frame.cols); x++)
+                    for (int y = 0; y < min(1080, frame.rows); y++)
                     {
                         Vec3b &intensity = frame.at<Vec3b>(y, x);
-                        in_image.resized_image_data[y*1920+x] = 0;
+                        in_image.resized_image_data[y + x*1080] = 0;
 
                         for (int k = 0; k < cn; k++)
-                            in_image.resized_image_data[y * 1920 + x] += intensity.val[k];
-
-                        // in_image.resized_image_data.emplace_back((data[y * frame.cols * cn + x * cn + 0] + data[y * frame.cols * cn + x * cn + 1] + data[y * frame.cols * cn + x * cn + 2]) / 3);
+                            in_image.resized_image_data[y + x*1080] += intensity.val[k];
                     }
-                    if (min(1920, frame.cols) != 1920)
-                    {
-                        for (int x = min(1920, frame.cols); x < 1920; x++)
-                            in_image.resized_image_data[y * 1920 + x] = 0;
-                    }
+                    if (min(1080, frame.rows) != 1080)
+                        for (int y = min(1080, frame.cols); y < 1080; y++)
+                                in_image.resized_image_data[y + x*1080] = 0;                                      
                 }
-                if (min(1080, frame.rows) != 1080)
-                {
-                    for (int y = min(1080, frame.cols); y < 1080; y++)
-                    {
-                        for (int x = 0; x < 1920; x++)
-                            in_image.resized_image_data[y * 1920 + x] = 0;
-                    }
-                }
+                if (min(1920, frame.cols) != 1920)
+                    for (int x = min(1920, frame.cols); x < 1920; x++)
+                        for (int y = min(1080, frame.cols); y < 1080; y++)
+                            in_image.resized_image_data[y + x*1080] = 0;  
 
+                // cout << "Entrando en filter_image\n";
                 filter_image(in_image);
+                // cout << "Saliendo de filter_image\n";
             }
 
             Mat frame;
@@ -280,25 +287,29 @@ namespace net
             batch_load--;
 
             imshow("Camara", frame);
-            // cap >> frame;
-            // unsigned char *data = (unsigned char *)frame.data;
             int cn = frame.channels();
-            for (int y = 0; y < min(1080, frame.rows); y++)
+            // for (int y = 0; y < min(1080, frame.rows); y++)
+            // {
+            //     for (int x = 0; x < min(1920, frame.cols); x++)
+            //     {
+            //         Vec3b &intensity = frame.at<Vec3b>(y, x);
+            //         for(int k = 0; k < cn; k++)
+            //             intensity.val[k] = out_image.resized_image_data[y*1920 + x]*6;
+            //     }
+            // }
+            // cout << "pixel 5000: " << out_image.resized_image_data[5000] << "\n";
+            // cout << "pixel 500000: " << out_image.resized_image_data[500000] << "\n";
+            // cout << "pixel 1000000: " << out_image.resized_image_data[1000000] << "\n";
+            for (int x = 0; x < min(1920, frame.cols); x++)
             {
-                // unsigned char * data = frame.ptr<unsigned char>(y);
-
-                for (int x = 0; x < min(1920, frame.cols); x++)
+                for (int y = 0; y < min(1080, frame.rows); y++)
                 {
                     Vec3b &intensity = frame.at<Vec3b>(y, x);
                     for(int k = 0; k < cn; k++)
-                        intensity.val[k] = out_image.resized_image_data[y*1920 + x]*6;
-                    // data[y * frame.cols * cn + x * cn + 0] = out_image.resized_image_data[y*1920 + x]*6;
-                    // data[y * frame.cols * cn + x * cn + 1] = out_image.resized_image_data[y*1920 + x]*6;
-                    // data[y * frame.cols * cn + x * cn + 2] = out_image.resized_image_data[y*1920 + x]*6;
+                        intensity.val[k] = out_image.resized_image_data[y + x*1080]*2;
                 }
             }
-            // cout << "prev imshow\n";
-            if (waitKey(70) >= 0)
+            if (waitKey(60) >= 0)
                 break;
             imshow("FPGA", frame);
         }
