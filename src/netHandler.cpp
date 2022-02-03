@@ -1,5 +1,6 @@
 #include <netHandler.h>
 #include <netCPU.h>
+#include <netGPU.h>
 #include <iostream>
 // #include <netFPGA.h>
 
@@ -22,6 +23,17 @@ namespace net
     {
         switch (implementation)
         {
+        case CUDA:
+            if (nets.find(net_key) != nets.end())
+            {
+                // cout << "net " << net_key << " already exists, overwriting!\n";
+                nets.erase(net_key);
+                implementations.erase(net_key);
+            }
+
+            nets[net_key] = unique_ptr<net_abstract>(new gpu::net_gpu(n_ins, n_p_l));
+            implementations[net_key] = implementation;
+            break;
         case CPU:
         default:
             if (nets.find(net_key) != nets.end())

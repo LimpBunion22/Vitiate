@@ -21,6 +21,8 @@ set(PYTHON_EXECUTABLE "$ENV{HOME}/anaconda3/envs/Vitiate/bin/python")
 set(LIB_FOLDER "$ENV{HOME}/workspace_development/lib")
 
 #dirs paths
+include_directories("/usr/local/cuda/include")
+include_directories("/usr/local/cuda/samples/common/inc")
 include_directories("def")
 include_directories("include")
 include_directories("$ENV{HOME}/workspace_development/include")
@@ -31,6 +33,9 @@ include_directories("$ENV{HOME}/workspace_development/include")
 file (GLOB SRC_FILES "src/*.cpp")
 file (GLOB DEF_FILES "def/*.h")
 file (GLOB INCLUDE_FILES "include/*.h")
+
+list(APPEND CMAKE_INSTALL_RPATH "$ENV{HOME}/intel/oneapi/compiler/latest/linux/compiler/lib/intel64_lin")
+list(APPEND CMAKE_INSTALL_RPATH "/usr/local/cuda/lib64")
 
 #pybind tasks
 find_package(pybind11 REQUIRED)
@@ -54,12 +59,14 @@ pybind11_add_module(netStandalone
 # set_target_properties(netStandalone PROPERTIES INSTALL_RPATH_USE_LINK_PATH TRUE)
 
 set_target_properties(netStandalone PROPERTIES BUILD_WITH_INSTALL_RPATH TRUE)
-target_link_libraries(netStandalone PRIVATE 
-    $ENV{HOME}/intel/oneapi/compiler/latest/linux/compiler/lib/intel64_lin/libsvml.so
-    $ENV{HOME}/intel/oneapi/compiler/latest/linux/compiler/lib/intel64_lin/libintlc.so.5
-    ${LIB_FOLDER}/libnetCPU.a)
-set_target_properties(netStandalone PROPERTIES INSTALL_RPATH $ENV{HOME}/intel/oneapi/compiler/latest/linux/compiler/lib/intel64_lin)
 set_target_properties(netStandalone PROPERTIES INSTALL_RPATH_USE_LINK_PATH TRUE)
+target_link_libraries(netStandalone PRIVATE 
+    # $ENV{HOME}/intel/oneapi/compiler/latest/linux/compiler/lib/intel64_lin/libsvml.so
+    # $ENV{HOME}/intel/oneapi/compiler/latest/linux/compiler/lib/intel64_lin/libintlc.so.5
+    /usr/local/cuda/lib64/libcudart.so
+    /usr/local/cuda/lib64/libcublas.so
+    ${LIB_FOLDER}/libnetCPU.so
+    ${LIB_FOLDER}/libnetGPU.so)
 
 #install to conda python lib dir
 install(TARGETS netStandalone DESTINATION ${PYTHON_LIBRARY_DIR})

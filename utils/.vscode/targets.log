@@ -8,7 +8,7 @@ make: *** No rule to make target 'all'.  Stop.
 # This is free software: you are free to change and redistribute it.
 # There is NO WARRANTY, to the extent permitted by law.
 
-# Make data base, printed on Thu Feb  3 09:39:48 2022
+# Make data base, printed on Thu Feb  3 09:39:39 2022
 
 # Variables
 
@@ -41,7 +41,7 @@ GDMSESSION = ubuntu
 # environment
 XMODIFIERS = @im=ibus
 # makefile
-CURDIR := /home/gabi/Vitiate
+CURDIR := /home/gabi/Vitiate/utils
 # makefile
 SHELL = /bin/sh
 # environment
@@ -117,7 +117,7 @@ CONDA_EXE = /home/gabi/anaconda3/bin/conda
 # environment
 VSCODE_PIPE_LOGGING = true
 # environment
-PWD = /home/gabi/Vitiate
+PWD = /home/gabi/Vitiate/utils
 # default
 .LOADED := 
 # environment
@@ -163,7 +163,7 @@ SHLVL = 0
 # environment
 GNOME_SHELL_SESSION_MODE = ubuntu
 # environment
-VSCODE_IPC_HOOK_EXTHOST = /run/user/1000/vscode-ipc-5e7ad5aa-3f06-4d8f-b2b8-b298098d071c.sock
+VSCODE_IPC_HOOK_EXTHOST = /run/user/1000/vscode-ipc-e74b29e9-8582-4c96-bee3-c52038d86ccf.sock
 # default
 MAKE_VERSION := 4.2.1
 # environment
@@ -253,9 +253,9 @@ _CE_CONDA =
 
 # Directories
 
-# . (device 66312, inode 11796530): 16 files, no impossibilities.
+# . (device 66312, inode 11797235): 5 files, no impossibilities.
 
-# 16 files, no impossibilities in 1 directories.
+# 5 files, no impossibilities in 1 directories.
 
 # Implicit Rules
 
@@ -306,12 +306,12 @@ GNUmakefile:
 
 # No general ('VPATH' variable) search path.
 
-# strcache buffers: 1 (0) / strings = 24 / storage = 211 B / avg = 8 B
-# current buf: size = 8162 B / used = 211 B / count = 24 / avg = 8 B
+# strcache buffers: 1 (0) / strings = 13 / storage = 115 B / avg = 8 B
+# current buf: size = 8162 B / used = 115 B / count = 13 / avg = 8 B
 
-# strcache performance: lookups = 27 / hit rate = 11%
+# strcache performance: lookups = 16 / hit rate = 18%
 # hash-table stats:
-# Load=24/8192=0%, Rehash=0, Collisions=1/27=4%
-# Finished Make data base on Thu Feb  3 09:39:48 2022
+# Load=13/8192=0%, Rehash=0, Collisions=1/16=6%
+# Finished Make data base on Thu Feb  3 09:39:39 2022
 
  
