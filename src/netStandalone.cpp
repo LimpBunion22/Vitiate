@@ -8,6 +8,7 @@ namespace py = pybind11;
 using namespace std;
 PYBIND11_MAKE_OPAQUE(vector<DATA_TYPE>);
 PYBIND11_MAKE_OPAQUE(vector<size_t>);
+PYBIND11_MAKE_OPAQUE(vector<unsigned char>);
 
 PYBIND11_MODULE(netStandalone, m)
 {
@@ -15,8 +16,9 @@ PYBIND11_MODULE(netStandalone, m)
 
     py::bind_vector<vector<DATA_TYPE>>(m, "v_data_type");
     py::bind_vector<vector<size_t>>(m, "v_size_t");
+    py::bind_vector<vector<unsigned char>>(m, "v_uchar");
     m.attr("CPU") = py::size_t(net::CPU);
-    m.attr("CUDA") = py::size_t(net::CUDA);
+    m.attr("GPU") = py::size_t(net::GPU);
     m.attr("FPGA") = py::size_t(net::FPGA);
     m.attr("MULTI") = py::size_t(net::MULTI);
     m.attr("DERIVATE") = py::bool_(net::DERIVATE);
@@ -47,7 +49,8 @@ PYBIND11_MODULE(netStandalone, m)
         .def("active_net_get_forward_performance", &net::net_handler::active_net_get_forward_performance)
         .def("active_net_write_net_to_file", &net::net_handler::active_net_write_net_to_file, py::arg("file"))
         .def("filter_image", &net::net_handler::filter_image, py::arg("set"))
-        .def("get_filtered_image", &net::net_handler::get_filtered_image);
+        .def("get_filtered_image", &net::net_handler::get_filtered_image)
+        .def("process_video", &net::net_handler::process_video, py::arg("video_name"));
 }
 
 // #include <defines.h>

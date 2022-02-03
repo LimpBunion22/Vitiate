@@ -13,7 +13,7 @@ namespace net
     class net_abstract;
 
     constexpr size_t CPU = 0;
-    constexpr size_t CUDA = 1;
+    constexpr size_t GPU = 1;
     constexpr size_t FPGA = 2;
     constexpr size_t MULTI = 3;
     constexpr bool DERIVATE = true;
@@ -45,6 +45,7 @@ namespace net
         void active_net_write_net_to_file(const std::string &file);
         void filter_image(const image_set &set);
         image_set get_filtered_image();
+        void process_video(const std::string &video_name);
     };
 }
 #endif

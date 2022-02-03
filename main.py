@@ -17,7 +17,7 @@ print(handler.active_net_launch_forward(ins))
 print(handler.active_net_get_forward_performance())
 
 handler.net_create_random_from_vector(
-    "gpu_float", netStandalone.CUDA, 2, n_p_l=netStandalone.v_size_t([100, 1000, 1000, 5]))
+    "gpu_float", netStandalone.GPU, 2, n_p_l=netStandalone.v_size_t([100, 1000, 1000, 5]))
 handler.set_active_net("gpu_float")
 handler.active_net_init_gradient("sets")
 handler.active_net_launch_forward(ins)
