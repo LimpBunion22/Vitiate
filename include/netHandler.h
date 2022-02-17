@@ -43,8 +43,6 @@ namespace net
         signed long active_net_get_gradient_performance();
         signed long active_net_get_forward_performance();
         void active_net_write_net_to_file(const std::string &file);
-        void filter_image(unsigned char* red_image, unsigned char* green_image,unsigned char* blue_image);
-        image_set get_filtered_image();
         void process_video(const std::string &video_name);
     };
 }

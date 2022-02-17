@@ -224,27 +224,15 @@ namespace net
             manager.write_net_to_file(file, active_net->get_net_data());
     }
 
-    void net_handler::filter_image(unsigned char *red_image, unsigned char *green_image, unsigned char *blue_image)
-    {
-        if (!active_net)
-            cout << "no active net!\n";
-        else
-            active_net->filter_image(red_image, green_image, blue_image);
-    }
-
-    image_set net_handler::get_filtered_image()
-    {
-        if (!active_net)
-        {
-            cout << "no active net!\n";
-            return image_set{.resized_image_data = {0}, .original_x_pos = 0, .original_y_pos = 0, .original_h = 0, .original_w = 0};
-        }
-        else
-            return active_net->get_filtered_image();
-    }
-
     void net_handler::process_video(const string &video_name)
     {
+        if (implementations[active_net_name] != FPGA)
+        {
+            cout << "active net is not an FPGA implementation\n";
+            return;
+        }
+
+        fpga::net_fpga *net = (fpga::net_fpga *)active_net;
         // auto it = experimental::filesystem::directory_iterator("./");
         // for (const auto &file : it)
         //     cout << file.path() << endl;
@@ -282,21 +270,21 @@ namespace net
                     for (int y = 0; y < min(1080, frame.rows); y++)
                     {
                         Vec3b &intensity = frame.at<Vec3b>(y, x);
-                        red_image[y + x * 1080] = (unsigned char)(intensity.val[2]);    //R
+                        red_image[y + x * 1080] = (unsigned char)(intensity.val[2]);   //R
                         green_image[y + x * 1080] = (unsigned char)(intensity.val[1]); //G
                         blue_image[y + x * 1080] = (unsigned char)(intensity.val[0]);  //B
                     }
                 }
 
                 // cout << "Entrando en filter_image\n";
-                filter_image(red_image, green_image, blue_image);
+                net->filter_image(red_image, green_image, blue_image);
                 // cout << "Saliendo de filter_image\n";
             }
 
             imshow("Camara", frame);
             cn = frame.channels();
 
-            image_set out_image = get_filtered_image();
+            image_set out_image = net->get_filtered_image();
             batch_load--;
             for (int x = 0; x < min(1920, frame.cols); x++)
             {
@@ -304,7 +292,7 @@ namespace net
                 {
                     Vec3b &intensity = frame.at<Vec3b>(y, x);
                     for (int k = 0; k < cn; k++)
-                        intensity.val[k] = min(255,out_image.resized_image_data[y + x * 1080]*4);
+                        intensity.val[k] = min(255, out_image.resized_image_data[y + x * 1080] * 4);
                 }
             }
             if (waitKey(30) >= 0)
