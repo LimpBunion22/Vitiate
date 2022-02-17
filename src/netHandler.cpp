@@ -15,7 +15,7 @@ namespace net
 
     net_handler::~net_handler()
     {
-        gpu::free_resources();
+        // gpu::free_resources();
     }
 
     void net_handler::set_active_net(const string &net_key)
@@ -224,12 +224,12 @@ namespace net
             manager.write_net_to_file(file, active_net->get_net_data());
     }
 
-    void net_handler::filter_image(const image_set &set)
+    void net_handler::filter_image(unsigned char *red_image, unsigned char *green_image, unsigned char *blue_image)
     {
         if (!active_net)
             cout << "no active net!\n";
         else
-            active_net->filter_image(set);
+            active_net->filter_image(red_image, green_image, blue_image);
     }
 
     image_set net_handler::get_filtered_image()
@@ -257,102 +257,57 @@ namespace net
         }
         cap.set(CAP_PROP_FRAME_WIDTH, 1920);
         cap.set(CAP_PROP_FRAME_HEIGHT, 1080);
+        cap.set(CAP_PROP_BUFFERSIZE, 3);
 
         namedWindow("Camara", WINDOW_AUTOSIZE);
         namedWindow("FPGA", WINDOW_AUTOSIZE);
         // Mat frame;
-        image_set in_image = {.resized_image_data = vector<unsigned char>(IMAGE_WIDTH * IMAGE_HEIGHT, 0),
-                              .original_x_pos = 0,
-                              .original_y_pos = 0,
-                              .original_h = 1080,
-                              .original_w = 1920};
+        unsigned char *red_image = new unsigned char[1920 * 1080]();
+        unsigned char *green_image = new unsigned char[1920 * 1080]();
+        unsigned char *blue_image = new unsigned char[1920 * 1080]();
 
         int batch_load = 0;
         Mat frame;
+        int cn;
         for (;;)
         {
             while (batch_load < 1)
             {
                 batch_load++;
-                // Mat frame;
                 cap.read(frame);
-                int cn = frame.channels();
-
-                // for (int y = 0; y < min(1080, frame.rows); y++)
-                // {
-                //     for (int x = 0; x < min(1920, frame.cols); x++)
-                //     {
-                //         Vec3b &intensity = frame.at<Vec3b>(y, x);
-                //         in_image.resized_image_data[y*1920+x] = 0;
-
-                //         for (int k = 0; k < cn; k++)
-                //             in_image.resized_image_data[y * 1920 + x] += intensity.val[k];
-                //     }
-                //     if (min(1920, frame.cols) != 1920)
-                //         for (int x = min(1920, frame.cols); x < 1920; x++)
-                //             in_image.resized_image_data[y * 1920 + x] = 0;
-                // }
-                // if (min(1080, frame.rows) != 1080)
-                //     for (int y = min(1080, frame.cols); y < 1080; y++)
-                //         for (int x = 0; x < 1920; x++)
-                //             in_image.resized_image_data[y * 1920 + x] = 0;
+                cn = frame.channels();
 
                 for (int x = 0; x < min(1920, frame.cols); x++)
                 {
                     for (int y = 0; y < min(1080, frame.rows); y++)
                     {
                         Vec3b &intensity = frame.at<Vec3b>(y, x);
-                        // in_image.resized_image_data[y + x * 1080] = 0;
-                        in_image.resized_image_data[y + x * 1080] = (unsigned char)(0.257*intensity.val[2] + 16); //R
-                        in_image.resized_image_data[y + x * 1080] += (unsigned char)(0.504*intensity.val[1]); //G
-                        in_image.resized_image_data[y + x * 1080] += (unsigned char)(0.098*intensity.val[0]); //B
-                        // for (int k = 0; k < cn; k++)
-                        //     in_image.resized_image_data[y + x * 1080] += intensity.val[k];
+                        red_image[y + x * 1080] = (unsigned char)(intensity.val[2]);    //R
+                        green_image[y + x * 1080] = (unsigned char)(intensity.val[1]); //G
+                        blue_image[y + x * 1080] = (unsigned char)(intensity.val[0]);  //B
                     }
-                    if (min(1080, frame.rows) != 1080)
-                        for (int y = min(1080, frame.cols); y < 1080; y++)
-                            in_image.resized_image_data[y + x * 1080] = 0;
                 }
-                if (min(1920, frame.cols) != 1920)
-                    for (int x = min(1920, frame.cols); x < 1920; x++)
-                        for (int y = min(1080, frame.cols); y < 1080; y++)
-                            in_image.resized_image_data[y + x * 1080] = 0;
 
                 // cout << "Entrando en filter_image\n";
-                filter_image(in_image);
+                filter_image(red_image, green_image, blue_image);
                 // cout << "Saliendo de filter_image\n";
             }
 
-            // Mat frame;
-            // cap.read(frame);
+            imshow("Camara", frame);
+            cn = frame.channels();
+
             image_set out_image = get_filtered_image();
             batch_load--;
-
-            imshow("Camara", frame);
-            int cn = frame.channels();
-            // for (int y = 0; y < min(1080, frame.rows); y++)
-            // {
-            //     for (int x = 0; x < min(1920, frame.cols); x++)
-            //     {
-            //         Vec3b &intensity = frame.at<Vec3b>(y, x);
-            //         for(int k = 0; k < cn; k++)
-            //             intensity.val[k] = out_image.resized_image_data[y*1920 + x]*6;
-            //     }
-            // }
-            // cout << "pixel 5000: " << out_image.resized_image_data[5000] << "\n";
-            // cout << "pixel 500000: " << out_image.resized_image_data[500000] << "\n";
-            // cout << "pixel 1000000: " << out_image.resized_image_data[1000000] << "\n";
             for (int x = 0; x < min(1920, frame.cols); x++)
             {
                 for (int y = 0; y < min(1080, frame.rows); y++)
                 {
                     Vec3b &intensity = frame.at<Vec3b>(y, x);
                     for (int k = 0; k < cn; k++)
-                        intensity.val[k] = min(255,out_image.resized_image_data[y + x * 1080]*3);
-                    // intensity.val[2] = out_image.resized_image_data[y + x * 1080];
+                        intensity.val[k] = min(255,out_image.resized_image_data[y + x * 1080]*4);
                 }
             }
-            if (waitKey(60) >= 0)
+            if (waitKey(30) >= 0)
                 break;
             imshow("FPGA", frame);
         }

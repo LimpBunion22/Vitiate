@@ -47,7 +47,7 @@ PYBIND11_MODULE(netStandalone, m)
         .def("active_net_get_gradient_performance", &net::net_handler::active_net_get_gradient_performance)
         .def("active_net_get_forward_performance", &net::net_handler::active_net_get_forward_performance)
         .def("active_net_write_net_to_file", &net::net_handler::active_net_write_net_to_file, py::arg("file"))
-        .def("filter_image", &net::net_handler::filter_image, py::arg("set"))
+        .def("filter_image", &net::net_handler::filter_image, py::arg("red_image"), py::arg("green_image"), py::arg("blue_image"))
         .def("get_filtered_image", &net::net_handler::get_filtered_image)
         .def("process_video", &net::net_handler::process_video, py::arg("video_name"));
 }
