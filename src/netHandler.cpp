@@ -64,6 +64,27 @@ namespace net
         switch (implementation)
         {
             bool succeeded;
+        case GPU:
+            if (random)
+                succeeded = manager.load_net_structure(file, file_reload);
+            else
+                succeeded = manager.load_net(file, file_reload);
+
+            if (succeeded)
+            {
+                if (nets.find(net_key) != nets.end())
+                {
+                    // cout << "net " << net_key << " already exists, overwriting!\n";
+                    nets.erase(net_key);
+                    implementations.erase(net_key);
+                }
+
+                nets[net_key] = unique_ptr<net_abstract>(new gpu::net_gpu(manager.data, derivate, random));
+                implementations[net_key] = implementation;
+            }
+            else
+                cout << "failed to create new net " << net_key << " from file \"" << file << "\"\n";
+            break;
         case FPGA:
             if (random)
                 succeeded = manager.load_net_structure(file, file_reload);
@@ -234,6 +255,8 @@ namespace net
             cout << "Fallo al abrir el archivo\n";
             return;
         }
+        cap.set(CAP_PROP_FRAME_WIDTH, 1920);
+        cap.set(CAP_PROP_FRAME_HEIGHT, 1080);
 
         namedWindow("Camara", WINDOW_AUTOSIZE);
         namedWindow("FPGA", WINDOW_AUTOSIZE);
@@ -245,12 +268,13 @@ namespace net
                               .original_w = 1920};
 
         int batch_load = 0;
+        Mat frame;
         for (;;)
         {
             while (batch_load < 1)
             {
                 batch_load++;
-                Mat frame;
+                // Mat frame;
                 cap.read(frame);
                 int cn = frame.channels();
 
@@ -278,10 +302,12 @@ namespace net
                     for (int y = 0; y < min(1080, frame.rows); y++)
                     {
                         Vec3b &intensity = frame.at<Vec3b>(y, x);
-                        in_image.resized_image_data[y + x * 1080] = 0;
-
-                        for (int k = 0; k < cn; k++)
-                            in_image.resized_image_data[y + x * 1080] += intensity.val[k];
+                        // in_image.resized_image_data[y + x * 1080] = 0;
+                        in_image.resized_image_data[y + x * 1080] = (unsigned char)(0.257*intensity.val[2] + 16); //R
+                        in_image.resized_image_data[y + x * 1080] += (unsigned char)(0.504*intensity.val[1]); //G
+                        in_image.resized_image_data[y + x * 1080] += (unsigned char)(0.098*intensity.val[0]); //B
+                        // for (int k = 0; k < cn; k++)
+                        //     in_image.resized_image_data[y + x * 1080] += intensity.val[k];
                     }
                     if (min(1080, frame.rows) != 1080)
                         for (int y = min(1080, frame.cols); y < 1080; y++)
@@ -297,8 +323,8 @@ namespace net
                 // cout << "Saliendo de filter_image\n";
             }
 
-            Mat frame;
-            cap.read(frame);
+            // Mat frame;
+            // cap.read(frame);
             image_set out_image = get_filtered_image();
             batch_load--;
 
@@ -322,7 +348,8 @@ namespace net
                 {
                     Vec3b &intensity = frame.at<Vec3b>(y, x);
                     for (int k = 0; k < cn; k++)
-                        intensity.val[k] = out_image.resized_image_data[y + x * 1080] * 2;
+                        intensity.val[k] = min(255,out_image.resized_image_data[y + x * 1080]*3);
+                    // intensity.val[2] = out_image.resized_image_data[y + x * 1080];
                 }
             }
             if (waitKey(60) >= 0)
