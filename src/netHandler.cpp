@@ -8,6 +8,7 @@
 #include <experimental/filesystem>
 #include <opencv2/videoio/videoio_c.h>
 
+
 namespace net
 {
     using namespace std;
@@ -243,11 +244,13 @@ namespace net
             cout << "Fallo al abrir el archivo\n";
             return;
         }
+        // cap.set(CAP_PROP_FRAME_WIDTH, 854);
+        // cap.set(CAP_PROP_FRAME_HEIGHT, 480);
         cap.set(CAP_PROP_FRAME_WIDTH, 1920);
         cap.set(CAP_PROP_FRAME_HEIGHT, 1080);
-        cap.set(CAP_PROP_BUFFERSIZE, 3);
+        cap.set(CAP_PROP_BUFFERSIZE, 1);
 
-        namedWindow("Camara", WINDOW_AUTOSIZE);
+        namedWindow("Camara", WINDOW_AUTOSIZE); //WINDOW_OPENGL
         namedWindow("FPGA", WINDOW_AUTOSIZE);
         // Mat frame;
         unsigned char *red_image = new unsigned char[1920 * 1080]();
@@ -255,21 +258,23 @@ namespace net
         unsigned char *blue_image = new unsigned char[1920 * 1080]();
 
         int batch_load = 0;
-        Mat frame;
-        int cn;
+        Mat cpu_frame;
+        
+        cap.read(cpu_frame);
+        int cn = cpu_frame.channels();        
+
         for (;;)
         {
             while (batch_load < 1)
             {
                 batch_load++;
-                cap.read(frame);
-                cn = frame.channels();
+                cap.read(cpu_frame);
 
-                for (int x = 0; x < min(1920, frame.cols); x++)
+                for (int x = 0; x < min(1920, cpu_frame.cols); x++)
                 {
-                    for (int y = 0; y < min(1080, frame.rows); y++)
+                    for (int y = 0; y < min(1080, cpu_frame.rows); y++)
                     {
-                        Vec3b &intensity = frame.at<Vec3b>(y, x);
+                        Vec3b &intensity = cpu_frame.at<Vec3b>(y, x);
                         red_image[y + x * 1080] = (unsigned char)(intensity.val[2]);   //R
                         green_image[y + x * 1080] = (unsigned char)(intensity.val[1]); //G
                         blue_image[y + x * 1080] = (unsigned char)(intensity.val[0]);  //B
@@ -281,23 +286,25 @@ namespace net
                 // cout << "Saliendo de filter_image\n";
             }
 
-            imshow("Camara", frame);
-            cn = frame.channels();
+            // cap.read(gpu_frame);
+            imshow("Camara", cpu_frame);
 
             image_set out_image = net->get_filtered_image();
             batch_load--;
-            for (int x = 0; x < min(1920, frame.cols); x++)
+
+            for (int x = 0; x < min(1920, cpu_frame.cols); x++)
             {
-                for (int y = 0; y < min(1080, frame.rows); y++)
+                for (int y = 0; y < min(1080, cpu_frame.rows); y++)
                 {
-                    Vec3b &intensity = frame.at<Vec3b>(y, x);
+                    Vec3b &intensity = cpu_frame.at<Vec3b>(y, x);
                     for (int k = 0; k < cn; k++)
-                        intensity.val[k] = min(255, out_image.resized_image_data[y + x * 1080] * 4);
+                        intensity.val[k] = min(255, out_image.resized_image_data[y + x * 1080] * 3);
                 }
             }
+
             if (waitKey(30) >= 0)
                 break;
-            imshow("FPGA", frame);
+            imshow("FPGA", cpu_frame);
         }
         return;
     }
