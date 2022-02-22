@@ -1,3 +1,6 @@
 build/
 vector_kernels.aocx
 image_kernels.aocx
+PRG_DNN_V1.aocx
+PRG_IMG_1920x1080.aocx
+PRG_IMG_1000x1000.aocx

@@ -44,6 +44,11 @@
         "mutex": "cpp",
         "thread": "cpp",
         "codecvt": "cpp",
-        "filesystem": "cpp"
+        "filesystem": "cpp",
+        "atomic": "cpp",
+        "list": "cpp",
+        "iomanip": "cpp",
+        "numeric": "cpp",
+        "typeindex": "cpp"
     }
 }

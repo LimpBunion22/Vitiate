@@ -282,14 +282,14 @@ namespace net
                 }
 
                 // cout << "Entrando en filter_image\n";
-                net->filter_image(red_image, green_image, blue_image);
+                net->process_img_1920_1080(red_image, green_image, blue_image);
                 // cout << "Saliendo de filter_image\n";
             }
 
             // cap.read(gpu_frame);
             imshow("Camara", cpu_frame);
 
-            image_set out_image = net->get_filtered_image();
+            image_set out_image = net->get_img_1920_1080();
             batch_load--;
 
             for (int x = 0; x < min(1920, cpu_frame.cols); x++)
