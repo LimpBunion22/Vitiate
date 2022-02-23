@@ -250,8 +250,8 @@ namespace net
         cap.set(CAP_PROP_FRAME_HEIGHT, 1080);
         cap.set(CAP_PROP_BUFFERSIZE, 1);
 
-        namedWindow("Camara", WINDOW_AUTOSIZE); //WINDOW_OPENGL
-        namedWindow("FPGA", WINDOW_AUTOSIZE);
+        namedWindow("Camara", WINDOW_NORMAL); //WINDOW_OPENGL
+        namedWindow("FPGA", WINDOW_NORMAL);
         // Mat frame;
         unsigned char *red_image = new unsigned char[1920 * 1080]();
         unsigned char *green_image = new unsigned char[1920 * 1080]();
