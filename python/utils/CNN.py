@@ -107,6 +107,7 @@ fig_ident = 0
 for i in tqdm(range(3*VAL_PACK_SZ)):
     handler.set_active_net("FPGA_net")
     process_val_img.append(handler.process_img_1000x1000(netStandalone.v_data_type(val_imgs[i])))
+    handler.set_active_net("GPU_net")
     val_net_outs.append(handler.active_net_launch_forward(process_val_img[i]))
     aux = np.argsort(val_net_outs[i])
     if aux[2] == int(i/VAL_PACK_SZ):
