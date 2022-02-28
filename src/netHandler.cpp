@@ -1,28 +1,26 @@
+#include <iostream>
 #include <netHandler.h>
 #include <netCPU.h>
 #include <netGPU.h>
-#include <iostream>
+#ifdef USE_FPGA
 #include <netFPGA.h>
-#include "opencv2/opencv.hpp"
-#include <opencv2/highgui/highgui.hpp>
 #include <experimental/filesystem>
+#include <opencv2/opencv.hpp>
+#include <opencv2/highgui/highgui.hpp>
 #include <opencv2/videoio/videoio_c.h>
-
+#endif
 
 namespace net
 {
     using namespace std;
+#ifdef USE_FPGA
     using namespace cv;
-
-    net_handler::~net_handler()
-    {
-        // gpu::free_resources();
-    }
+#endif
 
     void net_handler::set_active_net(const string &net_key)
     {
         if (nets.find(net_key) == nets.end())
-            cout << "net " << net_key << " doesn't exist!\n";
+            cout << YELLOW << "net " << net_key << " doesn't exist" << RESET << "\n";
         else
         {
             active_net = nets[net_key].get();
@@ -30,158 +28,125 @@ namespace net
         }
     }
 
-    void net_handler::net_create_random_from_vector(const string &net_key, size_t implementation, size_t n_ins, const vector<size_t> &n_p_l)
+    void net_handler::delete_net(const string &net_key)
     {
+        if (nets.find(net_key) == nets.end())
+            cout << YELLOW << "can't delete nonexistent net " << net_key << RESET << "\n";
+        else
+        {
+            if (active_net_name == net_key)
+            {
+                active_net = nullptr;
+                active_net_name = " ";
+            }
+
+            nets.erase(net_key);
+        }
+    }
+
+    void net_handler::net_create_random_from_vector(const string &net_key, size_t implementation, size_t n_ins, const vector<size_t> &n_p_l, const std::vector<int> activation_type)
+    {
+        if (nets.find(net_key) != nets.end())
+        {
+            nets.erase(net_key);
+            implementations.erase(net_key);
+        }
+
         switch (implementation)
         {
         case GPU:
-            if (nets.find(net_key) != nets.end())
-            {
-                // cout << "net " << net_key << " already exists, overwriting!\n";
-                nets.erase(net_key);
-                implementations.erase(net_key);
-            }
-
-            nets[net_key] = unique_ptr<net_abstract>(new gpu::net_gpu(n_ins, n_p_l));
+            nets[net_key] = unique_ptr<net_abstract>(new gpu::net_gpu(n_ins, n_p_l, activation_type));
             implementations[net_key] = implementation;
             break;
         case CPU:
-        default:
-            if (nets.find(net_key) != nets.end())
-            {
-                // cout << "net " << net_key << " already exists, overwriting!\n";
-                nets.erase(net_key);
-                implementations.erase(net_key);
-            }
-
-            nets[net_key] = unique_ptr<net_abstract>(new cpu::net_cpu(n_ins, n_p_l));
+            nets[net_key] = unique_ptr<net_abstract>(new cpu::net_cpu(n_ins, n_p_l, activation_type));
             implementations[net_key] = implementation;
+            break;
+        default:
+            cout << RED << "implementation doesn't exist" << RESET << "\n";
             break;
         }
     }
 
-    void net_handler::net_create(const string &net_key, size_t implementation, bool derivate, bool random, const string &file, bool file_reload)
+    void net_handler::net_create(const string &net_key, size_t implementation, bool random, const string &file, bool file_reload)
     {
+        bool succeeded = random ? manager.load_net_structure(file, file_reload) : manager.load_net(file, file_reload);
+
+        if (!succeeded)
+        {
+            cout << RED << "failed to create new net " << net_key << " from file \"" << file << '\"' << RESET << "\n";
+            return;
+        }
+
+        if (nets.find(net_key) != nets.end())
+        {
+            nets.erase(net_key);
+            implementations.erase(net_key);
+        }
+
         switch (implementation)
         {
-            bool succeeded;
         case GPU:
-            if (random)
-                succeeded = manager.load_net_structure(file, file_reload);
-            else
-                succeeded = manager.load_net(file, file_reload);
-
-            if (succeeded)
-            {
-                if (nets.find(net_key) != nets.end())
-                {
-                    // cout << "net " << net_key << " already exists, overwriting!\n";
-                    nets.erase(net_key);
-                    implementations.erase(net_key);
-                }
-
-                nets[net_key] = unique_ptr<net_abstract>(new gpu::net_gpu(manager.data, derivate, random));
-                implementations[net_key] = implementation;
-            }
-            else
-                cout << "failed to create new net " << net_key << " from file \"" << file << "\"\n";
+            nets[net_key] = unique_ptr<net_abstract>(new gpu::net_gpu(manager.data, random));
+            implementations[net_key] = implementation;
             break;
+#ifdef USE_FPGA
         case FPGA:
-            if (random)
-                succeeded = manager.load_net_structure(file, file_reload);
-            else
-                succeeded = manager.load_net(file, file_reload);
-
-            if (succeeded)
-            {
-                if (nets.find(net_key) != nets.end())
-                {
-                    // cout << "net " << net_key << " already exists, overwriting!\n";
-                    nets.erase(net_key);
-                    implementations.erase(net_key);
-                }
-
-                nets[net_key] = unique_ptr<net_abstract>(new fpga::net_fpga(manager.data, derivate, random));
-                implementations[net_key] = implementation;
-            }
-            else
-                cout << "failed to create new net " << net_key << " from file \"" << file << "\"\n";
+            nets[net_key] = unique_ptr<net_abstract>(new fpga::net_fpga(manager.data, random));
+            implementations[net_key] = implementation;
             break;
+#endif
         case CPU:
+            nets[net_key] = unique_ptr<net_abstract>(new cpu::net_cpu(manager.data, random));
+            implementations[net_key] = implementation;
+            break;
         default:
-            if (random)
-                succeeded = manager.load_net_structure(file, file_reload);
-            else
-                succeeded = manager.load_net(file, file_reload);
-
-            if (succeeded)
-            {
-                if (nets.find(net_key) != nets.end())
-                {
-                    // cout << "net " << net_key << " already exists, overwriting!\n";
-                    nets.erase(net_key);
-                    implementations.erase(net_key);
-                }
-
-                nets[net_key] = unique_ptr<net_abstract>(new cpu::net_cpu(manager.data, derivate, random));
-                implementations[net_key] = implementation;
-            }
-            else
-                cout << "failed to create new net " << net_key << " from file \"" << file << "\"\n";
+            cout << RED << "implementation doesn't exist" << RESET << "\n";
             break;
         }
     }
 
-    vector<DATA_TYPE> net_handler::active_net_launch_forward(const vector<DATA_TYPE> &inputs)
+    vector<float> net_handler::active_net_launch_forward(const vector<float> &inputs)
     {
         if (!active_net)
         {
-            cout << "no active net!\n";
-            return vector<DATA_TYPE>{(DATA_TYPE)-1};
+            cout << YELLOW << "no active net" << RESET << "\n ";
+            return vector<float>{-1.0f};
         }
         else
-        {
-            // cout << "launching net " << active_net_name << " forward! Outputs are:\n";
             return active_net->launch_forward(inputs);
-        }
     }
 
     void net_handler::active_net_init_gradient(const string &file, bool file_reload)
     {
         if (!active_net)
-            cout << "no active net!\n";
+            cout << YELLOW << "no active net" << RESET << "\n ";
         else
         {
             bool succeeded = manager.load_sets(file, file_reload);
 
             if (succeeded)
-            {
                 active_net->init_gradient(manager.sets);
-                // cout << "net " << active_net_name << " gradient initialized!\n";
-            }
             else
-                cout << "failed to initialize net " << active_net_name << " from file \"" << file << "\"\n";
+                cout << RED << "failed to initialize net " << active_net_name << " from file \"" << file << '\"' << RESET "\n";
         }
     }
 
-    vector<DATA_TYPE> net_handler::active_net_launch_gradient(int iterations, DATA_TYPE error_threshold, DATA_TYPE multiplier)
+    vector<float> net_handler::active_net_launch_gradient(int iterations, float error_threshold, float multiplier)
     {
         if (!active_net)
         {
-            cout << "no active net!\n";
-            return vector<DATA_TYPE>{(DATA_TYPE)-1};
+            cout << YELLOW << "no active net" << RESET << "\n ";
+            return vector<float>{(float)-1};
         }
         else
-        {
-            // cout << "launching net " << active_net_name << " gradient! Errors are:\n";
             return active_net->launch_gradient(iterations, error_threshold, multiplier);
-        }
     }
 
     void net_handler::active_net_print_inner_vals()
     {
         if (!active_net)
-            cout << "no active net!\n";
+            cout << YELLOW << "no active net" << RESET << "\n ";
         else
         {
             cout << "printing net " << active_net_name << " inner vals\n";
@@ -193,43 +158,38 @@ namespace net
     {
         if (!active_net)
         {
-            cout << "no active net!\n";
+            cout << YELLOW << "no active net" << RESET << "\n ";
             return -1;
         }
         else
-        {
-            // cout << "net " << active_net_name << " gradient performance in us\n";
             return active_net->get_gradient_performance();
-        }
     }
 
     signed long net_handler::active_net_get_forward_performance()
     {
         if (!active_net)
         {
-            cout << "no active net!\n";
+            cout << YELLOW << "no active net" << RESET << "\n ";
             return -1;
         }
         else
-        {
-            // cout << "net " << active_net_name << " forward performance in us\n";
             return active_net->get_forward_performance();
-        }
     }
 
     void net_handler::active_net_write_net_to_file(const string &file)
     {
         if (!active_net)
-            cout << "no active net!\n";
+            cout << YELLOW << "no active net" << RESET << "\n ";
         else
             manager.write_net_to_file(file, active_net->get_net_data());
     }
 
     void net_handler::process_video(const string &video_name)
     {
+#ifdef USE_FPGA
         if (implementations[active_net_name] != FPGA)
         {
-            cout << "active net is not an FPGA implementation\n";
+            cout << YELLOW << "active net is not an FPGA implementation" << RESET << "\n";
             return;
         }
 
@@ -250,7 +210,7 @@ namespace net
         cap.set(CAP_PROP_FRAME_HEIGHT, 1080);
         cap.set(CAP_PROP_BUFFERSIZE, 1);
 
-        namedWindow("Camara", WINDOW_NORMAL); //WINDOW_OPENGL
+        namedWindow("Camara", WINDOW_NORMAL); // WINDOW_OPENGL
         namedWindow("FPGA", WINDOW_NORMAL);
         // Mat frame;
         unsigned char *red_image = new unsigned char[1920 * 1080]();
@@ -259,9 +219,9 @@ namespace net
 
         int batch_load = 0;
         Mat cpu_frame;
-        
+
         cap.read(cpu_frame);
-        int cn = cpu_frame.channels();        
+        int cn = cpu_frame.channels();
 
         for (;;)
         {
@@ -275,9 +235,9 @@ namespace net
                     for (int y = 0; y < min(1080, cpu_frame.rows); y++)
                     {
                         Vec3b &intensity = cpu_frame.at<Vec3b>(y, x);
-                        red_image[y + x * 1080] = (unsigned char)(intensity.val[2]);   //R
-                        green_image[y + x * 1080] = (unsigned char)(intensity.val[1]); //G
-                        blue_image[y + x * 1080] = (unsigned char)(intensity.val[0]);  //B
+                        red_image[y + x * 1080] = (unsigned char)(intensity.val[2]);   // R
+                        green_image[y + x * 1080] = (unsigned char)(intensity.val[1]); // G
+                        blue_image[y + x * 1080] = (unsigned char)(intensity.val[0]);  // B
                     }
                 }
 
@@ -306,6 +266,9 @@ namespace net
                 break;
             imshow("FPGA", cpu_frame);
         }
-        return;
+
+#else
+        cout << YELLOW << "compiled without FPGA suppport" << RESET << "\n";
+#endif
     }
 }

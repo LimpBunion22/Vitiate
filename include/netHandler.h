@@ -12,13 +12,13 @@ namespace net
 {
     class net_abstract;
 
-    constexpr size_t CPU = 0;
-    constexpr size_t GPU = 1;
-    constexpr size_t FPGA = 2;
-    constexpr bool DERIVATE = true;
-    constexpr bool NOT_DERIVATE = false;
+    constexpr int CPU = 0;
+    constexpr int GPU = 1;
+#ifdef USE_FPGA
+    constexpr int FPGA = 2;
+#endif
     constexpr bool RANDOM = true;
-    constexpr bool NOT_RANDOM = false;
+    constexpr bool FIXED = false;
 
     class net_handler
     {
@@ -31,14 +31,14 @@ namespace net
 
     public:
         net_handler(const std::string &path) : manager(path), active_net(nullptr) { srand(time(NULL)); }
-        ~net_handler();
 
         void set_active_net(const std::string &net_key);
-        void net_create_random_from_vector(const std::string &net_key, size_t implementation, size_t n_ins, const std::vector<size_t> &n_p_l);
-        void net_create(const std::string &net_key, size_t implementation, bool derivate, bool random, const std::string &file, bool file_reload = false);
-        std::vector<DATA_TYPE> active_net_launch_forward(const std::vector<DATA_TYPE> &inputs); //* returns result
+        void delete_net(const std::string &net_key);
+        void net_create_random_from_vector(const std::string &net_key, size_t implementation, size_t n_ins, const std::vector<size_t> &n_p_l, const std::vector<int> activation_type);
+        void net_create(const std::string &net_key, size_t implementation, bool random, const std::string &file, bool file_reload = false);
+        std::vector<float> active_net_launch_forward(const std::vector<float> &inputs); //* returns result
         void active_net_init_gradient(const std::string &file, bool file_reload = false);
-        std::vector<DATA_TYPE> active_net_launch_gradient(int iterations, DATA_TYPE error_threshold, DATA_TYPE multiplier); //* returns it times error
+        std::vector<float> active_net_launch_gradient(int iterations, float error_threshold, float multiplier); //* returns it times error
         void active_net_print_inner_vals();
         signed long active_net_get_gradient_performance();
         signed long active_net_get_forward_performance();

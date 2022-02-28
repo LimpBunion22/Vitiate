@@ -23,27 +23,23 @@
 
 namespace net
 {
-#define ASSERT
-#define PERFORMANCE
-#define DATA_TYPE float
-    constexpr DATA_TYPE MAX_RANGE = 1;
-    constexpr DATA_TYPE MIN_RANGE = -1;
+    constexpr int RELU2 = 0;
+    constexpr int SIGMOID = 1;
 
     typedef struct
     {
         size_t n_ins;
         size_t n_layers;
         std::vector<size_t> n_p_l;
-        std::vector<std::vector<std::vector<DATA_TYPE>>> params;
-        std::vector<std::vector<DATA_TYPE>> bias;
-        std::vector<std::vector<DATA_TYPE>> activations; //* valor numérico que indica qué función usar
-                                                         // TODO: IMPLEMENTAR ACTIVATIONS
+        std::vector<std::vector<std::vector<float>>> params;
+        std::vector<std::vector<float>> bias;
+        std::vector<int> activation_type; //* valor numérico que indica qué función usar por capa
     } net_data;
 
     typedef struct
     {
-        std::vector<std::vector<DATA_TYPE>> set_ins;
-        std::vector<std::vector<DATA_TYPE>> set_outs;
+        std::vector<std::vector<float>> set_ins;
+        std::vector<std::vector<float>> set_outs;
     } net_sets;
 
     typedef struct

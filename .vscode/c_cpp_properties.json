@@ -4,16 +4,16 @@
             "name": "Linux",
             "includePath": [
                 "${workspaceFolder}/**",
+                "/usr/local/include/opencv4",
                 "${HOME}/intelFPGA_pro/18.1/hld/host/include",
-                "${HOME}/intelFPGA_pro/18.1/hld/examples_aoc/common/inc",
-                "/usr/local/include/opencv4"
+                "${HOME}/intelFPGA_pro/18.1/hld/examples_aoc/common/inc"
             ],
             "defines": [],
             "compilerPath": "/usr/bin/gcc",
-            "cStandard": "gnu11",
+            "cStandard": "gnu17",
             "cppStandard": "gnu++14",
             "intelliSenseMode": "linux-gcc-x64",
-            "configurationProvider": "ms-vscode.cmake-tools"
+            "configurationProvider": "ms-vscode.makefile-tools"
         }
     ],
     "version": 4

@@ -7,13 +7,14 @@
 
 namespace net
 {
-    constexpr char SEPARATOR = ' ';
+    constexpr char SEPARATOR = ',';
     constexpr bool RELOAD_FILE = true;
     constexpr bool REUSE_FILE = false;
 
     class file_manager
     {
     private:
+        const std::string HOME = getenv("HOME");
         const std::string PATH;
         std::string net_file = " ";
         std::string net_structure_file = " ";

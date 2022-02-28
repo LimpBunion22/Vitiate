@@ -9,32 +9,51 @@ namespace net
 
     bool file_manager::load_net_structure(const string &file)
     {
-        ifstream file_handler(PATH + "/" + file + ".csv", ios::in);
+        ifstream file_handler(HOME + PATH + '/' + file + ".csv", ios::in);
 
         if (file_handler.is_open())
         {
             string val, line;
+            auto skip_lines = [&](int n_lines)
+            {
+                for (int i = 0; i < n_lines; i++)
+                    getline(file_handler, line);
+            };
 
             getline(file_handler, line);
-            stringstream s(line);
 
-            getline(s, val, SEPARATOR);
-            data.n_ins = (size_t)stoi(val);
+            {
+                stringstream s(line);
+                getline(s, val, SEPARATOR);
+                data.n_ins = (size_t)stoi(val);
+                data.n_p_l.clear();
 
-            data.n_p_l.clear();
+                while (getline(s, val, SEPARATOR))
+                    if (val[0] != ' ') //* asegurar que no hay un espacio al final
+                        data.n_p_l.push_back((size_t)stoi(val));
 
-            while (getline(s, val, SEPARATOR))
-                data.n_p_l.push_back((size_t)stoi(val));
+                data.n_layers = data.n_p_l.size();
+            }
 
-            data.n_layers = data.n_p_l.size();
+            skip_lines(1);
+            getline(file_handler, line);
+
+            {
+                stringstream s(line);
+                data.activation_type.clear();
+                data.activation_type.reserve(data.n_layers);
+
+                while (getline(s, val, SEPARATOR))
+                    if (val[0] != ' ')
+                        data.activation_type.emplace_back(val[0] == 'R' ? net::RELU2 : net::SIGMOID);
+            }
 
             file_handler.close();
-            // cout << "file read!\n";
             return true;
         }
         else
         {
-            cout << "unable to open file\n";
+            cout << RED << "unable to open file" << RESET << "\n";
             return false;
         }
     }
@@ -45,7 +64,7 @@ namespace net
         {
             bool succeeded = load_net_structure(file);
 
-            if (succeeded && !file_reload)
+            if (succeeded && !file_reload) //* si es un nuevo archivo
                 net_structure_file = file;
 
             return succeeded;
@@ -56,7 +75,7 @@ namespace net
 
     bool file_manager::load_net(const string &file)
     {
-        ifstream file_handler(PATH + "/" + file + ".csv", ios::in);
+        ifstream file_handler(HOME + PATH + '/' + file + ".csv", ios::in);
 
         if (file_handler.is_open())
         {
@@ -71,14 +90,14 @@ namespace net
                     getline(file_handler, line);
             };
 
-            skip_lines(2);
+            skip_lines(4);
 
             for (int i = 0; i < data.n_layers; i++)
             {
                 if (i == 0)
-                    data.params.emplace_back(data.n_p_l[i], vector<DATA_TYPE>(data.n_ins, 0));
+                    data.params.emplace_back(data.n_p_l[i], vector<float>(data.n_ins, 0));
                 else
-                    data.params.emplace_back(data.n_p_l[i], vector<DATA_TYPE>(data.n_p_l[i - 1], 0));
+                    data.params.emplace_back(data.n_p_l[i], vector<float>(data.n_p_l[i - 1], 0));
 
                 data.bias.emplace_back(data.n_p_l[i], 0);
 
@@ -89,7 +108,8 @@ namespace net
                     size_t k = 0;
 
                     while (getline(s, val, SEPARATOR))
-                        data.params[i][j][k++] = (DATA_TYPE)stod(val);
+                        if (val[0] != ' ')
+                            data.params[i][j][k++] = stof(val);
                 }
 
                 skip_lines(1);
@@ -98,18 +118,18 @@ namespace net
                 size_t j = 0;
 
                 while (getline(s, val, SEPARATOR))
-                    data.bias[i][j++] = (DATA_TYPE)stod(val);
+                    if (val[0] != ' ')
+                        data.bias[i][j++] = stof(val);
 
                 skip_lines(1);
             }
 
             file_handler.close();
-            // cout << "file read!\n";
             return true;
         }
         else
         {
-            cout << "unable to open file\n";
+            cout << RED << "unable to open file" << RESET << "\n";
             return false;
         }
     }
@@ -136,7 +156,7 @@ namespace net
 
     bool file_manager::load_sets(const string &file)
     {
-        ifstream file_handler(PATH + "/" + file + ".csv", ios::in);
+        ifstream file_handler(HOME + PATH + '/' + file + ".csv", ios::in);
 
         if (file_handler.is_open())
         {
@@ -153,15 +173,14 @@ namespace net
             stringstream s(line);
             getline(s, val, SEPARATOR);
             size_t n_sets = (size_t)stoi(val);
-            skip_lines(1);
             sets.set_ins.reserve(n_sets);
             sets.set_outs.reserve(n_sets);
-            //* load first set to get n_ins and n_layers, so we can reuse them later
-            sets.set_ins.emplace_back(0, 0);
+            sets.set_ins.emplace_back(0, 0); //* load first set to get n_ins and n_layers, so we can reuse them later
             sets.set_outs.emplace_back(0, 0);
             size_t n_ins = 0;
             size_t n_outs = 0;
 
+            skip_lines(1);
             getline(file_handler, line);
 
             {
@@ -169,8 +188,11 @@ namespace net
 
                 while (getline(s, val, SEPARATOR))
                 {
-                    n_ins++;
-                    sets.set_ins[0].emplace_back((DATA_TYPE)stod(val));
+                    if (val[0] != ' ')
+                    {
+                        n_ins++;
+                        sets.set_ins[0].emplace_back(stof(val));
+                    }
                 }
             }
 
@@ -181,14 +203,17 @@ namespace net
 
                 while (getline(s, val, SEPARATOR))
                 {
-                    n_outs++;
-                    sets.set_outs[0].emplace_back((DATA_TYPE)stod(val));
+                    if (val[0] != ' ')
+                    {
+                        n_outs++;
+                        sets.set_outs[0].emplace_back(stof(val));
+                    }
                 }
             }
 
             skip_lines(1);
-            //* remaining sets
-            for (int i = 1; i < n_sets; i++)
+
+            for (int i = 1; i < n_sets; i++) //* remaining sets
             {
                 sets.set_ins.emplace_back(n_ins, 0);
                 sets.set_outs.emplace_back(n_outs, 0);
@@ -200,7 +225,8 @@ namespace net
                     size_t j = 0;
 
                     while (getline(s, val, SEPARATOR))
-                        sets.set_ins[i][j++] = (DATA_TYPE)stod(val);
+                        if (val[0] != ' ')
+                            sets.set_ins[i][j++] = stof(val);
                 }
 
                 getline(file_handler, line);
@@ -210,19 +236,19 @@ namespace net
                     size_t j = 0;
 
                     while (getline(s, val, SEPARATOR))
-                        sets.set_outs[i][j++] = (DATA_TYPE)stod(val);
+                        if (val[0] != ' ')
+                            sets.set_outs[i][j++] = stof(val);
                 }
 
                 skip_lines(1);
             }
 
             file_handler.close();
-            // cout << "file read!\n";
             return true;
         }
         else
         {
-            cout << "unable to open file\n";
+            cout << RED << "unable to open file" << RESET << "\n";
             return false;
         }
     }
@@ -244,7 +270,7 @@ namespace net
 
     bool file_manager::write_net_to_file(const string &file, const net_data &n_data)
     {
-        ofstream file_handler(PATH + "/" + file + ".csv", ios::out | ios::trunc);
+        ofstream file_handler(HOME + PATH + '/' + file + ".csv", ios::out | ios::trunc);
 
         if (file_handler.is_open())
         {
@@ -252,6 +278,11 @@ namespace net
 
             for (auto &i : n_data.n_p_l)
                 file_handler << i << SEPARATOR;
+
+            file_handler << "\n\n";
+
+            for (auto &i : n_data.activation_type)
+                file_handler << (i == net::RELU2 ? 'R' : 'S') << SEPARATOR;
 
             file_handler << "\n\n";
 
@@ -274,12 +305,11 @@ namespace net
             }
 
             file_handler.close();
-            // cout << "file written!\n";
             return true;
         }
         else
         {
-            cout << "unable to open file\n";
+            cout << RED << "unable to open file" << RESET << "\n";
             return false;
         }
     }
