@@ -271,4 +271,39 @@ namespace net
         cout << YELLOW << "compiled without FPGA suppport" << RESET << "\n";
 #endif
     }
+
+
+    std::vector<float> net_handler::process_img_1000x1000(const vector<DATA_TYPE> &image)
+    {
+        // cout << "Llamando al metodo 1000x1000\n";
+        if (implementations[active_net_name] != FPGA)
+        {
+            cout << "active net is not an FPGA implementation\n";
+            return;
+        }
+
+        fpga::net_fpga *net = (fpga::net_fpga *)active_net;
+       
+        unsigned char *red_image = new unsigned char[1000 * 1000]();
+        unsigned char *green_image = new unsigned char[1000 * 1000]();
+        unsigned char *blue_image = new unsigned char[1000 * 1000]();
+
+        
+        for (int x = 0; x < 1000*1000; x++)
+        {
+            red_image[x] = (unsigned char)(image[x]);   //R
+            green_image[x] = (unsigned char)(image[x + 1000000]); //G
+            blue_image[x] = (unsigned char)(image[x + 2000000]);  //B
+        }
+
+        // cout << "Enqueuing image\n";
+        net->process_img_1000_1000(red_image, green_image, blue_image);
+
+        // cout << "Reading image\n";
+        // image_set out_image = net->get_img_1000_1000();
+        vector out_image = net->get_img_1000_1000();
+
+        // cout << "Returning\n";
+        return out_image;
+    }
 }
