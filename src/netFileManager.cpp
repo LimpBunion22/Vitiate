@@ -9,7 +9,7 @@ namespace net
 
     bool file_manager::load_net_structure(const string &file)
     {
-        ifstream file_handler(HOME + PATH + '/' + file + ".csv", ios::in);
+        ifstream file_handler(PATH + '/' + file + ".csv", ios::in);
 
         if (file_handler.is_open())
         {
@@ -75,7 +75,7 @@ namespace net
 
     bool file_manager::load_net(const string &file)
     {
-        ifstream file_handler(HOME + PATH + '/' + file + ".csv", ios::in);
+        ifstream file_handler(PATH + '/' + file + ".csv", ios::in);
 
         if (file_handler.is_open())
         {
@@ -156,7 +156,7 @@ namespace net
 
     bool file_manager::load_sets(const string &file)
     {
-        ifstream file_handler(HOME + PATH + '/' + file + ".csv", ios::in);
+        ifstream file_handler(PATH + '/' + file + ".csv", ios::in);
 
         if (file_handler.is_open())
         {
@@ -270,7 +270,7 @@ namespace net
 
     bool file_manager::write_net_to_file(const string &file, const net_data &n_data)
     {
-        ofstream file_handler(HOME + PATH + '/' + file + ".csv", ios::out | ios::trunc);
+        ofstream file_handler(PATH + '/' + file + ".csv", ios::out | ios::trunc);
 
         if (file_handler.is_open())
         {

@@ -23,8 +23,9 @@ class ag_handler:
         for p in range(self.pop_size):
             # neurons = [np.random.randint(n_ins,n_ins +50), np.random.randint(int(n_ins/2),int(n_ins/2) + 50), np.random.randint(n_outs,n_outs + 50), n_outs]
             neurons = [np.random.randint(n_ins,n_ins +50), np.random.randint(n_outs,n_outs + 50), n_outs]
+            activation_type=netStandalone.v_int([netStandalone.RELU2, netStandalone.RELU2, netStandalone.RELU2])
             self.names.append("AG_NET_G0_" + str(p))
-            self.handler.net_create_random_from_vector(self.names[p], net_imp, n_ins, n_p_l=netStandalone.v_size_t(neurons))
+            self.handler.net_create_random_from_vector(self.names[p], net_imp, n_ins, n_p_l=netStandalone.v_size_t(neurons),activation_type=activation_type)
         
         self._data_out = []    
         self._pack_data_out = []
@@ -39,7 +40,7 @@ class ag_handler:
 
         for p in range(self.pop_size):
             self.handler.set_active_net(self.names[p])
-            data_out[p] = self.handler.active_net_launch_forward(netStandalone.v_data_type(data_in))
+            data_out[p] = self.handler.active_net_launch_forward(netStandalone.v_float(data_in))
 
         return data_out
 
@@ -60,7 +61,7 @@ class ag_handler:
             self.handler.set_active_net(self.names[p])
 
             for i in range(len(pack_data_in)):
-                pack_data_out[p][i] = self.handler.active_net_launch_forward(netStandalone.v_data_type(pack_data_in[i]))
+                pack_data_out[p][i] = self.handler.active_net_launch_forward(netStandalone.v_float(pack_data_in[i]))
 
         return pack_data_out
 
@@ -69,7 +70,7 @@ class ag_handler:
 
         self.handler.set_active_net(self.names[self.black_list[0]])
 
-        return self.handler.active_net_launch_forward(netStandalone.v_data_type(data_in))
+        return self.handler.active_net_launch_forward(netStandalone.v_float(data_in))
 
     def exe_pack_best(self, pack_data_in):
 
@@ -77,7 +78,7 @@ class ag_handler:
         self.handler.set_active_net(self.names[self.black_list[0]])
 
         for i in range(len(pack_data_in)):
-            pack_data_out.append(self.handler.active_net_launch_forward(netStandalone.v_data_type(pack_data_in[i])))
+            pack_data_out.append(self.handler.active_net_launch_forward(netStandalone.v_float(pack_data_in[i])))
 
         return pack_data_out
 
@@ -93,10 +94,10 @@ class ag_handler:
                 aux_str_out = ""
 
                 for j in range(len(pack_data_in[0])):
-                    aux_str_in += str(pack_data_in[i][j]) + " "
+                    aux_str_in += str(pack_data_in[i][j]) + ","
 
                 for j in range(len(pack_rigth_outs[0])):
-                    aux_str_out += str(pack_rigth_outs[i][j]) + " "
+                    aux_str_out += str(pack_rigth_outs[i][j]) + ","
 
                 aux_str_in += "\n"
                 aux_str_out += "\n\n"

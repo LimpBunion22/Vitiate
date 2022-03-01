@@ -14,7 +14,6 @@ namespace net
     class file_manager
     {
     private:
-        const std::string HOME = getenv("HOME");
         const std::string PATH;
         std::string net_file = " ";
         std::string net_structure_file = " ";

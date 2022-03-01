@@ -7,12 +7,13 @@ from tqdm import tqdm
 
 PATH = os.path.join(os.environ['HOME'], "workspace_development")
 handler = netStandalone.net_handler(PATH)
-handler.net_create_random_from_vector("FPGA_net", netStandalone.FPGA, 1, n_p_l=netStandalone.v_size_t([1,1]))
-handler.net_create_random_from_vector("GPU_net", netStandalone.GPU, 1000000, n_p_l=netStandalone.v_size_t([2*256,128,3]))
+activation_type=netStandalone.v_int([netStandalone.RELU2, netStandalone.RELU2, netStandalone.RELU2])
+handler.net_create_random_from_vector("FPGA_net", netStandalone.FPGA, 1, netStandalone.v_size_t([1,1]), netStandalone.v_int([netStandalone.RELU2, netStandalone.RELU2]))
+handler.net_create_random_from_vector("GPU_net", netStandalone.GPU, 1000000, netStandalone.v_size_t([256,64,3]),activation_type)
 handler.set_active_net("FPGA_net")
 
-TRAIN_PACK_SZ = 30
-VAL_PACK_SZ = 5
+TRAIN_PACK_SZ = 20
+VAL_PACK_SZ = 50
 train_imgs = np.zeros((3*TRAIN_PACK_SZ,1000*1000*3))
 train_right_outs = np.zeros((3*TRAIN_PACK_SZ,3))
 process_train_img = []
@@ -76,7 +77,7 @@ for i in tqdm(range(VAL_PACK_SZ)):
 print("Processing images")
 for i in tqdm(range(3*TRAIN_PACK_SZ)):
     handler.set_active_net("FPGA_net")
-    process_train_img.append(handler.process_img_1000x1000(netStandalone.v_data_type(train_imgs[i])))
+    process_train_img.append(handler.process_img_1000x1000(netStandalone.v_float(train_imgs[i])))
 
 print("Wrinting file")
 with open(os.path.join(PATH, "images_sets.csv"), "w") as file:
@@ -87,10 +88,10 @@ with open(os.path.join(PATH, "images_sets.csv"), "w") as file:
         aux_str_out = ""
 
         for j in range(len(process_train_img[0])):
-            aux_str_in += str(process_train_img[i][j]) + " "
+            aux_str_in += str(process_train_img[i][j]) + ","
 
         for j in range(len(train_right_outs[0])):
-            aux_str_out += str(train_right_outs[i][j]) + " "
+            aux_str_out += str(train_right_outs[i][j]) + ","
 
         aux_str_in += "\n"
         aux_str_out += "\n\n"
@@ -100,21 +101,63 @@ with open(os.path.join(PATH, "images_sets.csv"), "w") as file:
 print("Training net")
 handler.set_active_net("GPU_net")
 handler.active_net_init_gradient("images_sets")
-handler.active_net_launch_gradient(50, error_threshold=0.1, multiplier=1.01)
+handler.active_net_launch_gradient(250, error_threshold=0.1, multiplier=2)
 
 print("Validating")
+fig_ident_train = 0
+handler.set_active_net("GPU_net")
+train_net_outs = []
+for i in tqdm(range(3*TRAIN_PACK_SZ)):
+    train_net_outs.append(handler.active_net_launch_forward(process_train_img[i]))
+    aux = np.argsort(train_net_outs[i])
+    if aux[2] == int(i/VAL_PACK_SZ):
+        fig_ident_train += 1
+
+print("Figuras acertadas entrenamiento: " + str(fig_ident_train)+"/"+str(3*TRAIN_PACK_SZ))
+
 fig_ident = 0
 for i in tqdm(range(3*VAL_PACK_SZ)):
     handler.set_active_net("FPGA_net")
-    process_val_img.append(handler.process_img_1000x1000(netStandalone.v_data_type(val_imgs[i])))
+    process_val_img.append(handler.process_img_1000x1000(netStandalone.v_float(val_imgs[i])))
     handler.set_active_net("GPU_net")
     val_net_outs.append(handler.active_net_launch_forward(process_val_img[i]))
     aux = np.argsort(val_net_outs[i])
     if aux[2] == int(i/VAL_PACK_SZ):
         fig_ident += 1
 
-print("Figuras acertadas: " + str(fig_ident)+"/"+str(3*VAL_PACK_SZ))
+print("Figuras acertadas validación: " + str(fig_ident)+"/"+str(3*VAL_PACK_SZ))
 
+cnt = 0
+while (fig_ident < 0.85*3*VAL_PACK_SZ) and (cnt < 20):
+    cnt +=1
+    print("Training net")
+    handler.set_active_net("GPU_net")
+    handler.active_net_init_gradient("images_sets")
+    handler.active_net_launch_gradient(250, error_threshold=0.1, multiplier=2)
+
+    print("Validating")
+    fig_ident_train = 0
+    handler.set_active_net("GPU_net")
+    train_net_outs = []
+    for i in tqdm(range(3*TRAIN_PACK_SZ)):
+        train_net_outs.append(handler.active_net_launch_forward(process_train_img[i]))
+        aux = np.argsort(train_net_outs[i])
+        if aux[2] == int(i/VAL_PACK_SZ):
+            fig_ident_train += 1
+
+    print("Figuras acertadas entrenamiento: " + str(fig_ident_train)+"/"+str(3*TRAIN_PACK_SZ))
+
+    fig_ident = 0
+    for i in tqdm(range(3*VAL_PACK_SZ)):
+        handler.set_active_net("FPGA_net")
+        process_val_img.append(handler.process_img_1000x1000(netStandalone.v_float(val_imgs[i])))
+        handler.set_active_net("GPU_net")
+        val_net_outs.append(handler.active_net_launch_forward(process_val_img[i]))
+        aux = np.argsort(val_net_outs[i])
+        if aux[2] == int(i/VAL_PACK_SZ):
+            fig_ident += 1
+
+    print("Figuras acertadas validación: " + str(fig_ident)+"/"+str(3*VAL_PACK_SZ))
 # for x in range(1000):
 #     for y in range(1000):
 #         or_img[y,x,0] = original_image[1000*y + x]

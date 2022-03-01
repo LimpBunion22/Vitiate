@@ -62,6 +62,10 @@ namespace net
             nets[net_key] = unique_ptr<net_abstract>(new cpu::net_cpu(n_ins, n_p_l, activation_type));
             implementations[net_key] = implementation;
             break;
+        case FPGA:
+            nets[net_key] = unique_ptr<net_abstract>(new fpga::net_fpga());
+            implementations[net_key] = implementation;
+            break;
         default:
             cout << RED << "implementation doesn't exist" << RESET << "\n";
             break;
@@ -193,7 +197,7 @@ namespace net
             return;
         }
 
-        fpga::net_fpga *net = (fpga::net_fpga *)active_net;
+        fpga::net_fpga *net = dynamic_cast<fpga::net_fpga *> (active_net);
         // auto it = experimental::filesystem::directory_iterator("./");
         // for (const auto &file : it)
         //     cout << file.path() << endl;
@@ -272,28 +276,27 @@ namespace net
 #endif
     }
 
-
-    std::vector<float> net_handler::process_img_1000x1000(const vector<DATA_TYPE> &image)
+    std::vector<float> net_handler::process_img_1000x1000(const vector<float> &image)
     {
         // cout << "Llamando al metodo 1000x1000\n";
+#ifdef USE_FPGA
         if (implementations[active_net_name] != FPGA)
         {
-            cout << "active net is not an FPGA implementation\n";
+            cout << YELLOW << "active net is not an FPGA implementation" << RESET << "\n";
             return;
         }
 
-        fpga::net_fpga *net = (fpga::net_fpga *)active_net;
-       
+        fpga::net_fpga *net = dynamic_cast<fpga::net_fpga *> (active_net);
+
         unsigned char *red_image = new unsigned char[1000 * 1000]();
         unsigned char *green_image = new unsigned char[1000 * 1000]();
         unsigned char *blue_image = new unsigned char[1000 * 1000]();
 
-        
-        for (int x = 0; x < 1000*1000; x++)
+        for (int x = 0; x < 1000 * 1000; x++)
         {
-            red_image[x] = (unsigned char)(image[x]);   //R
-            green_image[x] = (unsigned char)(image[x + 1000000]); //G
-            blue_image[x] = (unsigned char)(image[x + 2000000]);  //B
+            red_image[x] = (unsigned char)(image[x]);             // R
+            green_image[x] = (unsigned char)(image[x + 1000000]); // G
+            blue_image[x] = (unsigned char)(image[x + 2000000]);  // B
         }
 
         // cout << "Enqueuing image\n";
@@ -305,5 +308,8 @@ namespace net
 
         // cout << "Returning\n";
         return out_image;
+#else
+        cout << YELLOW << "compiled without FPGA suppport" << RESET << "\n";
+#endif
     }
 }

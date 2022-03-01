@@ -1,9 +1,9 @@
-import tests
+from python import tests
 # import logger
 
 
 # tests.test_backward()
-# tests.test_forward()
+tests.test_forward()
 
 
 # logger.log("test info", "INFO")
@@ -36,7 +36,7 @@ import tests
 #     file.write(f"{inputs} 64 64 64 64 64 64 64 1 ")
 
 # handler = netStandalone.net_handler(PATH)
-# test_input = netStandalone.v_data_type(np.random.rand(inputs))
+# test_input = netStandalone.v_float(np.random.rand(inputs))
 
 # handler.net_create("cpu_float_test", netStandalone.CPU, netStandalone.NOT_DERIVATE, netStandalone.RANDOM, "_temporal_net", file_reload = True)
 # handler.set_active_net("cpu_float_test")
@@ -151,7 +151,7 @@ import os
 
 
 # handler = netStandalone.net_handler("/home/hai/workspace_development")
-# ins = netStandalone.v_data_type([1, 2])
+# ins = netStandalone.v_float([1, 2])
 
 # # handler.net_create("cpu_float", netStandalone.CPU,
 # #                    netStandalone.DERIVATE, netStandalone.NOT_RANDOM, "net", file_reload=True)
@@ -176,15 +176,17 @@ import os
 # print(handler.active_net_launch_forward(ins))
 # print(handler.active_net_get_forward_performance())
 
-PATH = os.path.join(os.environ['HOME'], "workspace_development")
-PATH_NET = os.path.join( PATH,"_temporal_net.csv")
-inputs = 1
-with open(PATH_NET, "w") as file:
-    file.write(f"{inputs} 64 64 64 64 64 64 64 1 ")
 
-handler = netStandalone.net_handler(PATH)
-handler.net_create("fpga_float_test", netStandalone.FPGA, netStandalone.NOT_DERIVATE, netStandalone.NOT_RANDOM, "_temporal_net_with_params", file_reload = True)
-handler.set_active_net("fpga_float_test")
 
-handler.process_video("VideoDAE.mp4")
-print("Finish")
+# PATH = os.path.join(os.environ['HOME'], "workspace_development")
+# PATH_NET = os.path.join( PATH,"_temporal_net.csv")
+# inputs = 1
+# with open(PATH_NET, "w") as file:
+#     file.write(f"{inputs}1,1,")
+
+# handler = netStandalone.net_handler(PATH)
+# handler.net_create("fpga_float_test", netStandalone.FPGA, netStandalone.FIXED, "_temporal_net_with_params", file_reload = True)
+# handler.set_active_net("fpga_float_test")
+
+# handler.process_video("VideoDAE.mp4")
+# print("Finish")

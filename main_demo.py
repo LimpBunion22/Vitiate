@@ -1,7 +1,9 @@
 import netStandalone
 import tensorflow as tf
+import os
 
-handler = netStandalone.net_handler("/workspace_development")
+PATH = os.path.join(os.environ["HOME"], "workspace_development")
+handler = netStandalone.net_handler(PATH)
 ins = netStandalone.v_float([1, 2])
 
 handler.net_create_random_from_vector(

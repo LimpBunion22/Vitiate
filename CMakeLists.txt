@@ -1,10 +1,13 @@
-option(WITH_FPGA OFF)
+cmake_minimum_required(VERSION 3.15.0)
+
+option(WITH_FPGA "build with FPGA" ON)
 
 if(WITH_FPGA)
     add_compile_definitions(USE_FPGA)
+    message(STATUS "using FPGA")
+else()
+    message(STATUS "FPGA disabled")
 endif()
-
-cmake_minimum_required(VERSION 3.1.0)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
