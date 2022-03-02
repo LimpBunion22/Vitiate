@@ -2,8 +2,8 @@ from python import tests
 # import logger
 
 
-# tests.test_backward()
-tests.test_forward()
+tests.test_backward()
+# tests.test_forward()
 
 
 # logger.log("test info", "INFO")

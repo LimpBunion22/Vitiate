@@ -14,18 +14,22 @@ class ag_handler:
 
     def __init__(self, population_size, n_ins, n_outs, net_imp = netStandalone.CPU):
 
+        self.gen = 0
         self.pop_size = population_size
         self.names = []
+        self.archs = []
         self.scores = np.zeros(self.pop_size)
         self.black_list = np.zeros(self.pop_size)
+        self.imp = net_imp
+        self.n_ins = n_ins
 
         self.handler = netStandalone.net_handler(PATH)
         for p in range(self.pop_size):
             # neurons = [np.random.randint(n_ins,n_ins +50), np.random.randint(int(n_ins/2),int(n_ins/2) + 50), np.random.randint(n_outs,n_outs + 50), n_outs]
-            neurons = [np.random.randint(n_ins,n_ins +50), np.random.randint(n_outs,n_outs + 50), n_outs]
+            self.archs.append([np.random.randint(5,150), np.random.randint(5,50), n_outs])
             activation_type=netStandalone.v_int([netStandalone.RELU2, netStandalone.RELU2, netStandalone.RELU2])
             self.names.append("AG_NET_G0_" + str(p))
-            self.handler.net_create_random_from_vector(self.names[p], net_imp, n_ins, n_p_l=netStandalone.v_size_t(neurons),activation_type=activation_type)
+            self.handler.net_create_random_from_vector(self.names[p], net_imp, n_ins, n_p_l=netStandalone.v_size_t(self.archs[p]),activation_type=activation_type)
         
         self._data_out = []    
         self._pack_data_out = []
@@ -83,31 +87,33 @@ class ag_handler:
         return pack_data_out
 
 
-    def learn(self, pack_data_in, pack_rigth_outs):
+    def learn(self, pack_data_in, pack_rigth_outs, write_file = True):
+        
+        if write_file:
+            print("Writing file")
+            with open(PATH_SETS, "w") as file:
+                file.write(f"{len(pack_data_in)} \n\n")
 
+                for i in range(len(pack_data_in)):
+                    aux_str_in = ""
+                    aux_str_out = ""
 
-        with open(PATH_SETS, "w") as file:
-            file.write(f"{len(pack_data_in)} \n\n")
+                    for j in range(len(pack_data_in[0])):
+                        aux_str_in += str(pack_data_in[i][j]) + ","
 
-            for i in range(len(pack_data_in)):
-                aux_str_in = ""
-                aux_str_out = ""
+                    for j in range(len(pack_rigth_outs[0])):
+                        aux_str_out += str(pack_rigth_outs[i][j]) + ","
 
-                for j in range(len(pack_data_in[0])):
-                    aux_str_in += str(pack_data_in[i][j]) + ","
+                    aux_str_in += "\n"
+                    aux_str_out += "\n\n"
 
-                for j in range(len(pack_rigth_outs[0])):
-                    aux_str_out += str(pack_rigth_outs[i][j]) + ","
+                    file.write(aux_str_in + aux_str_out)
 
-                aux_str_in += "\n"
-                aux_str_out += "\n\n"
-
-                file.write(aux_str_in + aux_str_out)
-
-        for p in range(self.pop_size):
+        print("Training")
+        for p in tqdm(range(self.pop_size)):
             self.handler.set_active_net(self.names[p])
             self.handler.active_net_init_gradient(SETS_NAME)
-            self.handler.active_net_launch_gradient(50, error_threshold = 0.01, multiplier = 2)
+            self.handler.active_net_launch_gradient(2, error_threshold = 0.01, multiplier = 2)
         
         return
 
@@ -125,5 +131,19 @@ class ag_handler:
         self.black_list = np.argsort(self.scores)
 
         return
-                
-        
+
+    def evolve(self, survival_factor = 0.5):
+
+        self.gen += 1
+        intit_p = int(self.pop_size*survival_factor) 
+
+        for p in range(intit_p,self.pop_size):
+            index = self.black_list[p]
+            self.handler.delete_net(self.names[index])
+            
+            self.archs[index] = [self.archs[index][0]+np.random.randint(2,5), self.archs[index][1]+np.random.randint(2,5), self.archs[index][2]]
+            activation_type=netStandalone.v_int([netStandalone.RELU2, netStandalone.RELU2, netStandalone.RELU2])
+            self.names[index] = "AG_NET_G" + str(self.gen) +"_" + str(p)
+            self.handler.net_create_random_from_vector(self.names[index], self.imp, self.n_ins, n_p_l=netStandalone.v_size_t(self.archs[p]),activation_type=activation_type)
+
+            return

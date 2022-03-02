@@ -62,10 +62,12 @@ namespace net
             nets[net_key] = unique_ptr<net_abstract>(new cpu::net_cpu(n_ins, n_p_l, activation_type));
             implementations[net_key] = implementation;
             break;
+#ifdef USE_FPGA
         case FPGA:
             nets[net_key] = unique_ptr<net_abstract>(new fpga::net_fpga());
             implementations[net_key] = implementation;
             break;
+#endif
         default:
             cout << RED << "implementation doesn't exist" << RESET << "\n";
             break;
@@ -197,7 +199,7 @@ namespace net
             return;
         }
 
-        fpga::net_fpga *net = dynamic_cast<fpga::net_fpga *> (active_net);
+        fpga::net_fpga *net = dynamic_cast<fpga::net_fpga *>(active_net);
         // auto it = experimental::filesystem::directory_iterator("./");
         // for (const auto &file : it)
         //     cout << file.path() << endl;
@@ -286,7 +288,7 @@ namespace net
             return;
         }
 
-        fpga::net_fpga *net = dynamic_cast<fpga::net_fpga *> (active_net);
+        fpga::net_fpga *net = dynamic_cast<fpga::net_fpga *>(active_net);
 
         unsigned char *red_image = new unsigned char[1000 * 1000]();
         unsigned char *green_image = new unsigned char[1000 * 1000]();

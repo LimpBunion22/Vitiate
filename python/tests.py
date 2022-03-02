@@ -17,7 +17,7 @@ TEST_DIM = {
     'n_per_layer': 100*STEP
 }
 
-ITERATIONS = 20
+ITERATIONS = 5
 
 PATH = os.path.join(os.environ['HOME'], "workspace_development")
 PATH_NET = os.path.join(PATH, "_temporal_net.csv")
@@ -48,7 +48,7 @@ def test_forward():
     for i in tqdm(range(5, TEST_DIM['inputs'], STEP)):
         structure['inputs_n'] = i
         with open(PATH_NET, "w") as file:
-            file.write(f"{i},5,5,5,5,5,")
+            file.write(f"{i},5,5,5,5,5,\n\nR,R,R,R,R,\n\n")
 
         test_input = netStandalone.v_float(np.random.rand(i))
         res_cpu = cpp_forward(cpp_bench['inputs'], handler, test_input)
@@ -62,13 +62,14 @@ def test_forward():
     # Layers
     logger.log("Testing forward layers", "INFO")
     aux_string = "5,5,5,5,5,5,"
+    aux_string_2 = "R,R,R,R,R,"
     structure['inputs_n'] = 5
     test_input = netStandalone.v_float(np.random.rand(5))
     for i in tqdm(range(5, TEST_DIM['layers'], STEP)):
         structure['layers_n'] = i
         structure['neurons_per_layer'] = 5*np.ones(i)
         with open(PATH_NET, "w") as file:
-            file.write(aux_string)
+            file.write(aux_string+"\n\n"+aux_string_2+"\n\n")
 
         res_cpu = cpp_forward(cpp_bench['layers'], handler, test_input)
         # res_fpga = fpga_forward(fpga_bench['layers'], handler, test_input)
@@ -77,6 +78,7 @@ def test_forward():
 
         for j in range(STEP):
             aux_string += "5,"
+            aux_string_2 += "R,"
         # validate_forward(res_cpu, res_fpga, "layers ", i)
 
     print("\n")
@@ -84,13 +86,14 @@ def test_forward():
     # Neurons per layer
     logger.log("Testing forward neurons per layer", "INFO")
     structure['layers_n'] = 5
+    aux_string_2 = "R,R,R,R,R,"
     test_input = netStandalone.v_float(np.random.rand(5))
     for i in tqdm(range(5, TEST_DIM['n_per_layer'], STEP)):
         ls = i*np.ones(5).astype(int)
         aux_string = "5,"+"".join(str(e)+"," for e in ls)
         structure['neurons_per_layer'] = i*np.ones(5)
         with open(PATH_NET, "w") as file:
-            file.write(aux_string)
+            file.write(aux_string+"\n\n"+aux_string_2+"\n\n")
 
         res_cpu = cpp_forward(cpp_bench['n_per_layer'], handler, test_input)
         # res_fpga = fpga_forward(fpga_bench['n_per_layer'], handler, test_input)
@@ -159,19 +162,19 @@ def test_backward():
     handler = netStandalone.net_handler(PATH)
 
     # Inputs
-    aux_string_d = "1,\n\n1,2,3,4,5"
+    aux_string_d = "1,\n\n1,2,3,4,5,"
     logger.log("Testing backward inputs", "INFO")
     for i in tqdm(range(5, TEST_DIM['inputs'], STEP)):
         structure['inputs_n'] = i
         with open(PATH_NET, "w") as file:
-            file.write(f"{i},5,5,5,5,5,")
+            file.write(f"{i},5,5,5,5,5,\n\nR,R,R,R,R,\n\n")
 
         
         with open(PATH_SETS, "w") as file:
             file.write(aux_string_d + "\n" + "5,5,5,5,5,")
 
         for j in range(STEP):
-            aux_string_d += str(i+j) + ","
+            aux_string_d += str(1+i+j) + ","
 
         cpp_backward(cpp_bench['inputs'], handler)
         gpu_backward(gpu_bench['inputs'], handler)
@@ -181,6 +184,7 @@ def test_backward():
 
     # Layers
     aux_string = "5,5,5,5,5,"
+    aux_string_2 = "R,R,R,R,R,"
     structure['inputs_n'] = 5
     logger.log("Testing backward layers", "INFO")
     with open(PATH_SETS, "w") as file:
@@ -190,7 +194,7 @@ def test_backward():
         structure['layers_n'] = i
         structure['neurons_per_layer'] = 5*np.ones(i)
         with open(PATH_NET, "w") as file:
-            file.write(aux_string)
+            file.write(aux_string+"\n\n"+aux_string_2+"\n\n")
 
         cpp_backward(cpp_bench['layers'], handler)
         gpu_backward(gpu_bench['layers'], handler)
@@ -198,11 +202,13 @@ def test_backward():
 
         for j in range(STEP):
             aux_string += "5,"
+            aux_string_2 += "R,"
 
     print("\n")
 
     # Neurons per layer
-    aux_string_d = "5,5,5,5,5"
+    aux_string_d = "5,5,5,5,5,"
+    aux_string_2 = "R,R,R,R,R,"
     logger.log("Testing backward neurons per layer", "INFO")
     structure['layers_n'] = 5
     for i in tqdm(range(5, TEST_DIM['n_per_layer'], STEP)):
@@ -210,13 +216,13 @@ def test_backward():
         aux_string = "5,"+"".join(str(e)+"," for e in ls)
         structure['neurons_per_layer'] = i*np.ones(5)
         with open(PATH_NET, "w") as file:
-            file.write(aux_string)
+            file.write(aux_string+"\n\n"+aux_string_2+"\n\n")
 
         with open(PATH_SETS, "w") as file:
             file.write("1,\n\n1,2,3,4,5," + "\n" + aux_string_d)
 
         for j in range(STEP):
-            aux_string_d += str(i+j) + ","
+            aux_string_d += str(1+i+j) + ","
 
         cpp_backward(cpp_bench['n_per_layer'], handler)
         gpu_backward(gpu_bench['n_per_layer'], handler)
