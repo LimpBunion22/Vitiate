@@ -278,7 +278,7 @@ namespace net
 #endif
     }
 
-    std::vector<float> net_handler::process_img_1000x1000(const vector<float> &image)
+    std::vector<float> net_handler::process_img_1000x1000(const vector<float> &image, bool dwz_10)
     {
         // cout << "Llamando al metodo 1000x1000\n";
 #ifdef USE_FPGA
@@ -302,11 +302,16 @@ namespace net
         }
 
         // cout << "Enqueuing image\n";
-        net->process_img_1000_1000(red_image, green_image, blue_image);
+        vector <float>out_image;
 
-        // cout << "Reading image\n";
-        // image_set out_image = net->get_img_1000_1000();
-        vector out_image = net->get_img_1000_1000();
+        if(dwz_10){
+            net->process_img_1000_1000_dwz10(red_image, green_image, blue_image);
+            out_image = net->get_img_100_100();
+        }
+        else{
+            net->process_img_1000_1000(red_image, green_image, blue_image);
+            out_image = net->get_img_1000_1000();
+        }
 
         // cout << "Returning\n";
         return out_image;

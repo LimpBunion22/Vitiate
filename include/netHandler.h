@@ -44,7 +44,7 @@ namespace net
         signed long active_net_get_forward_performance();
         void active_net_write_net_to_file(const std::string &file);
         void process_video(const std::string &video_name);
-        std::vector<float> process_img_1000x1000(const std::vector<float> &image);
+        std::vector<float> process_img_1000x1000(const std::vector<float> &image, bool dwz_10 = false);
     };
 }
 #endif

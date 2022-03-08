@@ -19,6 +19,7 @@ PYBIND11_MODULE(netStandalone, m)
     py::bind_vector<vector<unsigned char>>(m, "v_uchar");
     py::bind_vector<vector<int>>(m, "v_int");
     m.attr("RELU2") = py::int_(net::RELU2);
+    m.attr("RELU2_SOFT_MAX") = py::int_(net::RELU2_SOFT_MAX);
     m.attr("SIGMOID") = py::int_(net::SIGMOID);
     m.attr("CPU") = py::size_t(net::CPU);
     m.attr("GPU") = py::size_t(net::GPU);
@@ -52,7 +53,7 @@ PYBIND11_MODULE(netStandalone, m)
         .def("active_net_get_forward_performance", &net::net_handler::active_net_get_forward_performance)
         .def("active_net_write_net_to_file", &net::net_handler::active_net_write_net_to_file, py::arg("file"))
         .def("process_video", &net::net_handler::process_video, py::arg("video_name"))
-        .def("process_img_1000x1000", &net::net_handler::process_img_1000x1000, py::arg("image"));
+        .def("process_img_1000x1000", &net::net_handler::process_img_1000x1000, py::arg("image"), py::arg("dwz_10") = false);
 }
 
 // #include <defines.h>
