@@ -14,21 +14,26 @@ handler.net_create_random_from_vector(
 #     "cpu_float", netStandalone.CPU, netStandalone.FIXED, "net")
 handler.set_active_net("cpu2_float")
 handler.active_net_init_gradient("_temporal_data")
+# handler.net_create_random_from_vector(
+#     "cpu2_float", netStandalone.GPU, 5, n_p_l=netStandalone.v_size_t([100, 100, 100, 5]),
+#     activation_type=netStandalone.v_int([netStandalone.RELU2, netStandalone.RELU2, netStandalone.RELU2_SOFT_MAX]))
+
+handler.net_create(
+    "cpu_float", netStandalone.CPU, netStandalone.FIXED, "net", file_reload=netStandalone.REUSE_FILE)
+handler.set_active_net("cpu_float")
 print(handler.active_net_launch_gradient(
-    50, error_threshold=0.0001, multiplier=1.01))
+    iterations=50, batch_size=netStandalone.FULL_BATCH, alpha=2, alpha_decay=0.001, reg_lambda=0.01,
+    error_threshold=0.001, norm=netStandalone.NORM_REG_2, file="sets", file_reload=netStandalone.REUSE_FILE))
 print(handler.active_net_get_gradient_performance())
 print(handler.active_net_launch_forward(ins))
 print(handler.active_net_get_forward_performance())
 
-handler.delete_net("cpu2_float")
-handler.active_net_launch_forward(ins)
-
-# handler.net_create(
-#     "gpu_float", netStandalone.GPU, netStandalone.FIXED, "net")
-# handler.set_active_net("gpu_float")
-# handler.active_net_init_gradient("sets")
-# print(handler.active_net_launch_gradient(
-#     50, error_threshold=0.0001, multiplier=1.01))
-# print(handler.active_net_get_gradient_performance())
-# print(handler.active_net_launch_forward(ins))
-# print(handler.active_net_get_forward_performance())
+handler.net_create(
+    "gpu_float", netStandalone.GPU, netStandalone.FIXED, "net", file_reload=netStandalone.REUSE_FILE)
+handler.set_active_net("gpu_float")
+print(handler.active_net_launch_gradient(
+    iterations=50, batch_size=netStandalone.FULL_BATCH, alpha=2, alpha_decay=0.001, reg_lambda=0.01,
+    error_threshold=0.001, norm=netStandalone.NORM_REG_2, file="sets", file_reload=netStandalone.REUSE_FILE))
+print(handler.active_net_get_gradient_performance())
+print(handler.active_net_launch_forward(ins))
+print(handler.active_net_get_forward_performance())

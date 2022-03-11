@@ -1,7 +1,6 @@
 #include <iostream>
 #include <netHandler.h>
 #include <netCPU.h>
-#include <netGPU.h>
 #ifdef USE_FPGA
 #include <netFPGA.h>
 #include <experimental/filesystem>
@@ -16,6 +15,18 @@ namespace net
 #ifdef USE_FPGA
     using namespace cv;
 #endif
+
+    net_handler::net_handler(const string &path) : manager(path), active_net(nullptr)
+    {
+        srand(time(NULL));
+        stream = gpu::create_stream();
+    }
+
+    net_handler::~net_handler()
+    {
+        gpu::destroy_stream(stream);
+        gpu::free_cuda_libs_data(libs_data);
+    }
 
     void net_handler::set_active_net(const string &net_key)
     {
@@ -44,7 +55,7 @@ namespace net
         }
     }
 
-    void net_handler::net_create_random_from_vector(const string &net_key, size_t implementation, size_t n_ins, const vector<size_t> &n_p_l, const std::vector<int> activation_type)
+    void net_handler::net_create_random_from_vector(const string &net_key, int implementation, size_t n_ins, const vector<size_t> &n_p_l, const std::vector<int> activation_type)
     {
         if (nets.find(net_key) != nets.end())
         {
@@ -55,7 +66,7 @@ namespace net
         switch (implementation)
         {
         case GPU:
-            nets[net_key] = unique_ptr<net_abstract>(new gpu::net_gpu(n_ins, n_p_l, activation_type));
+            nets[net_key] = unique_ptr<net_abstract>(new gpu::net_gpu(n_ins, n_p_l, activation_type, stream, libs_data));
             implementations[net_key] = implementation;
             break;
         case CPU:
@@ -74,7 +85,7 @@ namespace net
         }
     }
 
-    void net_handler::net_create(const string &net_key, size_t implementation, bool random, const string &file, bool file_reload)
+    void net_handler::net_create(const string &net_key, int implementation, bool random, const string &file, bool file_reload)
     {
         bool succeeded = random ? manager.load_net_structure(file, file_reload) : manager.load_net(file, file_reload);
 
@@ -93,7 +104,7 @@ namespace net
         switch (implementation)
         {
         case GPU:
-            nets[net_key] = unique_ptr<net_abstract>(new gpu::net_gpu(manager.data, random));
+            nets[net_key] = unique_ptr<net_abstract>(new gpu::net_gpu(manager.data, random, stream, libs_data));
             implementations[net_key] = implementation;
             break;
 #ifdef USE_FPGA
@@ -123,22 +134,8 @@ namespace net
             return active_net->launch_forward(inputs);
     }
 
-    void net_handler::active_net_init_gradient(const string &file, bool file_reload)
-    {
-        if (!active_net)
-            cout << YELLOW << "no active net" << RESET << "\n ";
-        else
-        {
-            bool succeeded = manager.load_sets(file, file_reload);
-
-            if (succeeded)
-                active_net->init_gradient(manager.sets);
-            else
-                cout << RED << "failed to initialize net " << active_net_name << " from file \"" << file << '\"' << RESET "\n";
-        }
-    }
-
-    vector<float> net_handler::active_net_launch_gradient(int iterations, float error_threshold, float multiplier)
+    vector<float> net_handler::active_net_launch_gradient(size_t iterations, size_t batch_size,
+                                                          float alpha, float alpha_decay, float lambda, float error_threshold, int norm, const string &file, bool file_reload)
     {
         if (!active_net)
         {
@@ -146,7 +143,14 @@ namespace net
             return vector<float>{(float)-1};
         }
         else
-            return active_net->launch_gradient(iterations, error_threshold, multiplier);
+        {
+            bool succeeded = manager.load_sets(file, file_reload);
+
+            if (succeeded)
+                return active_net->launch_gradient(manager.sets, iterations, batch_size, alpha, alpha_decay, lambda, error_threshold, norm);
+            else
+                cout << RED << "failed to initialize net " << active_net_name << " from file \"" << file << '\"' << RESET "\n";
+        }
     }
 
     void net_handler::active_net_print_inner_vals()

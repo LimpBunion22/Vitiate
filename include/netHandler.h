@@ -7,6 +7,7 @@
 #include <memory>
 #include <netFileManager.h>
 #include <netAbstract.h>
+#include <netGPU.h>
 
 namespace net
 {
@@ -24,21 +25,24 @@ namespace net
     {
     private:
         std::map<std::string, std::unique_ptr<net_abstract>> nets;
-        std::map<std::string, size_t> implementations;
+        std::map<std::string, int> implementations;
         file_manager manager;
         net_abstract *active_net;
         std::string active_net_name;
+        cudaStream_t stream;
+        gpu::cuda_libs_data libs_data;
 
     public:
-        net_handler(const std::string &path) : manager(path), active_net(nullptr) { srand(time(NULL)); }
+        net_handler(const std::string &path);
+        ~net_handler();
 
         void set_active_net(const std::string &net_key);
         void delete_net(const std::string &net_key);
-        void net_create_random_from_vector(const std::string &net_key, size_t implementation, size_t n_ins, const std::vector<size_t> &n_p_l, const std::vector<int> activation_type);
-        void net_create(const std::string &net_key, size_t implementation, bool random, const std::string &file, bool file_reload = false);
-        std::vector<float> active_net_launch_forward(const std::vector<float> &inputs); //* returns result
-        void active_net_init_gradient(const std::string &file, bool file_reload = false);
-        std::vector<float> active_net_launch_gradient(int iterations, float error_threshold, float multiplier); //* returns it times error
+        void net_create_random_from_vector(const std::string &net_key, int implementation, size_t n_ins, const std::vector<size_t> &n_p_l, const std::vector<int> activation_type);
+        void net_create(const std::string &net_key, int implementation, bool random, const std::string &file, bool file_reload);
+        std::vector<float> active_net_launch_forward(const std::vector<float> &inputs);
+        std::vector<float> active_net_launch_gradient(size_t iterations, size_t batch_size,
+                                                      float alpha, float alpha_decay, float lambda, float error_threshold, int norm, const std::string &file, bool file_reload);
         void active_net_print_inner_vals();
         signed long active_net_get_gradient_performance();
         signed long active_net_get_forward_performance();

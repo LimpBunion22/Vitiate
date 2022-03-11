@@ -45,7 +45,11 @@ namespace net
 
                 while (getline(s, val, SEPARATOR))
                     if (val[0] != ' ')
-                        data.activation_type.emplace_back(val[0] == 'R' ? net::RELU2 : net::SIGMOID);
+                        data.activation_type.emplace_back(val == "R"
+                                                              ? net::RELU2
+                                                          : val == "RS"
+                                                              ? net::RELU2_SOFT_MAX
+                                                              : net::SIGMOID);
             }
 
             file_handler.close();
@@ -92,16 +96,18 @@ namespace net
 
             skip_lines(4);
 
-            for (int i = 0; i < data.n_layers; i++)
+            for (size_t i = 0; i < data.n_layers; i++)
             {
                 if (i == 0)
-                    data.params.emplace_back(data.n_p_l[i], vector<float>(data.n_ins, 0));
+                    data.params.emplace_back(data.n_p_l[i] * data.n_ins);
                 else
-                    data.params.emplace_back(data.n_p_l[i], vector<float>(data.n_p_l[i - 1], 0));
+                    data.params.emplace_back(data.n_p_l[i] * data.n_p_l[i - 1]);
 
                 data.bias.emplace_back(data.n_p_l[i], 0);
+                size_t rows = data.bias[i].size();
+                size_t cols = data.params[i].size() / rows;
 
-                for (int j = 0; j < data.params[i].size(); j++)
+                for (size_t j = 0; j < rows; j++)
                 {
                     getline(file_handler, line);
                     stringstream s(line);
@@ -109,7 +115,7 @@ namespace net
 
                     while (getline(s, val, SEPARATOR))
                         if (val[0] != ' ')
-                            data.params[i][j][k++] = stof(val);
+                            data.params[i][j * cols + k++] = stof(val);
                 }
 
                 skip_lines(1);
@@ -282,23 +288,31 @@ namespace net
             file_handler << "\n\n";
 
             for (auto &i : n_data.activation_type)
-                file_handler << (i == net::RELU2 ? 'R' : 'S') << SEPARATOR;
+                file_handler << (i == net::RELU2
+                                     ? "R"
+                                 : i == net::RELU2_SOFT_MAX
+                                     ? "RS"
+                                     : "S")
+                             << SEPARATOR;
 
             file_handler << "\n\n";
 
-            for (int i = 0; i < n_data.n_layers; i++)
+            for (size_t i = 0; i < n_data.n_layers; i++)
             {
-                for (int j = 0; j < n_data.params[i].size(); j++)
+                size_t rows = data.bias[i].size();
+                size_t cols = data.params[i].size() / rows;
+
+                for (size_t j = 0; j < rows; j++)
                 {
-                    for (int k = 0; k < n_data.params[i][j].size(); k++)
-                        file_handler << n_data.params[i][j][k] << SEPARATOR;
+                    for (size_t k = 0; k < cols; k++)
+                        file_handler << n_data.params[i][j * cols + k] << SEPARATOR;
 
                     file_handler << "\n";
                 }
 
                 file_handler << "\n";
 
-                for (int j = 0; j < n_data.bias[i].size(); j++)
+                for (size_t j = 0; j < rows; j++)
                     file_handler << n_data.bias[i][j] << SEPARATOR;
 
                 file_handler << "\n\n";
