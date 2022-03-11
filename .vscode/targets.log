@@ -1,4 +1,6 @@
 make all --print-data-base --no-builtin-variables --no-builtin-rules --question
+make: *** No rule to make target 'all'.  Stop.
+ 
 # GNU Make 4.2.1
 # Built for x86_64-pc-linux-gnu
 # Copyright (C) 1988-2016 Free Software Foundation, Inc.
@@ -6,7 +8,7 @@ make all --print-data-base --no-builtin-variables --no-builtin-rules --question
 # This is free software: you are free to change and redistribute it.
 # There is NO WARRANTY, to the extent permitted by law.
 
-# Make data base, printed on Mon Feb 28 14:23:52 2022
+# Make data base, printed on Fri Mar 11 09:11:20 2022
 
 # Variables
 
@@ -47,7 +49,7 @@ VSCODE_NLS_CONFIG = {"locale":"en-us","availableLanguages":{},"_languagePackSupp
 # environment
 _ = /usr/share/code/code
 # environment
-JOURNAL_STREAM = 8:50573
+JOURNAL_STREAM = 8:44784
 # environment
 XDG_CONFIG_DIRS = /etc/xdg/xdg-ubuntu:/etc/xdg
 # makefile
@@ -67,7 +69,7 @@ DBUS_SESSION_BUS_ADDRESS = unix:path=/run/user/1000/bus
 # environment
 VSCODE_VERBOSE_LOGGING = true
 # environment
-MANAGERPID = 1739
+MANAGERPID = 1778
 # environment
 LESSOPEN = | /usr/bin/lesspipe %s
 # environment
@@ -83,7 +85,7 @@ GPG_AGENT_INFO = /run/user/1000/gnupg/S.gpg-agent:0:1
 # environment
 GJS_DEBUG_OUTPUT = stderr
 # environment
-SESSION_MANAGER = local/gabipc:@/tmp/.ICE-unix/1997,unix/gabipc:/tmp/.ICE-unix/1997
+SESSION_MANAGER = local/gabipc:@/tmp/.ICE-unix/2033,unix/gabipc:/tmp/.ICE-unix/2033
 # environment
 XDG_RUNTIME_DIR = /run/user/1000
 # environment
@@ -93,9 +95,9 @@ XDG_MENU_PREFIX = gnome-
 # environment
 VSCODE_LOG_STACK = false
 # environment
-VSCODE_CRASH_REPORTER_START_OPTIONS = {"companyName":"Microsoft","productName":"VSCode","submitURL":"appcenter://code?aid=fba07a4d-84bd-4fc8-a125-9640fc8ce171&uid=27ebe938-0f7f-4e4e-97b8-f5e1c3c3a3df&iid=27ebe938-0f7f-4e4e-97b8-f5e1c3c3a3df&sid=27ebe938-0f7f-4e4e-97b8-f5e1c3c3a3df","uploadToServer":true}
+ELECTRON_RUN_AS_NODE = 1
 # environment
-INVOCATION_ID = b1d3552db4c9451e8dcf4a736bc0747b
+INVOCATION_ID = 0117283eefe44878b58ae8c30c8575fa
 # default
 .FEATURES := target-specific order-only second-expansion else-if shortest-stem undefine oneshell archives jobserver output-sync check-symlink load
 # environment
@@ -105,7 +107,7 @@ XDG_SESSION_DESKTOP = ubuntu
 # environment
 SSH_AUTH_SOCK = /run/user/1000/keyring/ssh
 # environment
-GIO_LAUNCHED_DESKTOP_FILE_PID = 2303
+GIO_LAUNCHED_DESKTOP_FILE_PID = 30706
 # automatic
 %F = $(notdir $%)
 # environment
@@ -119,19 +121,19 @@ PWD = /home/gabi/Vitiate
 # default
 .LOADED := 
 # environment
-SSH_AGENT_PID = 1962
+SSH_AGENT_PID = 1998
 # environment
 ORIGINAL_XDG_CURRENT_DESKTOP = ubuntu:GNOME
 # environment
 GTK_MODULES = gail:atk-bridge
 # environment
-VSCODE_AMD_ENTRYPOINT = vs/workbench/services/extensions/node/extensionHostProcess
+VSCODE_AMD_ENTRYPOINT = vs/workbench/api/node/extensionHostProcess
 # environment
 HOME = /home/gabi
 # environment
 LESSCLOSE = /usr/bin/lesspipe %s %s
 # environment
-VSCODE_CODE_CACHE_PATH = /home/gabi/.config/Code/CachedData/f80445acd5a3dadef24aa209168452a3d97cc326
+VSCODE_CODE_CACHE_PATH = /home/gabi/.config/Code/CachedData/8908a9ca0f221f36507231afb39d2d8d1e182702
 # environment
 LOGNAME = gabi
 # environment
@@ -163,7 +165,7 @@ GNOME_SHELL_SESSION_MODE = ubuntu
 # environment
 LIBVA_DRIVER_NAME = iHD
 # environment
-VSCODE_IPC_HOOK_EXTHOST = /run/user/1000/vscode-ipc-9395eb66-101c-412a-8f45-1e7a3610112f.sock
+VSCODE_IPC_HOOK_EXTHOST = /run/user/1000/vscode-ipc-ea0eb2e2-8a11-45cb-b2dc-34772026d762.sock
 # default
 MAKE_VERSION := 4.2.1
 # environment
@@ -187,15 +189,13 @@ MAKE_COMMAND := make
 # automatic
 *F = $(notdir $*)
 # environment
-VSCODE_IPC_HOOK = /run/user/1000/vscode-57be7052-1.64.2-main.sock
+VSCODE_IPC_HOOK = /run/user/1000/vscode-57be7052-1.65.1-main.sock
 # makefile
 MAKEFLAGS = pqrR
 # environment
 MFLAGS = -pqrR
 # automatic
 *D = $(patsubst %/,%,$(dir $*))
-# environment
-BREAKPAD_DUMP_LOCATION = /home/gabi/.config/Code/exthost Crash Reports
 # automatic
 +D = $(patsubst %/,%,$(dir $+))
 # environment
@@ -212,8 +212,6 @@ LC_NUMERIC = es_ES.UTF-8
 <F = $(notdir $<)
 # environment
 LIBVA_DRIVERS_PATH = /usr/local/lib/dri
-# environment
-ELECTRON_RUN_AS_NODE = 1
 # environment
 LC_MEASUREMENT = es_ES.UTF-8
 # environment
@@ -243,11 +241,11 @@ LC_ADDRESS = es_ES.UTF-8
 # environment
 LANG = C
 # environment
-VSCODE_PID = 2303
+VSCODE_PID = 30706
 # environment
 _CE_CONDA = 
 # variable set hash-table stats:
-# Load=118/1024=12%, Rehash=0, Collisions=21/140=15%
+# Load=116/1024=11%, Rehash=0, Collisions=20/138=14%
 
 # Pattern-specific Variable Values
 
@@ -289,9 +287,6 @@ makefile:
 # Not a target:
 .DEFAULT:
 #  Implicit rule search has not been done.
- 
-make: *** No rule to make target 'all'.  Stop.
- 
 #  Modification time never checked.
 #  File has not been updated.
 
@@ -309,13 +304,14 @@ GNUmakefile:
 # No 'vpath' search paths.
 
 # No general ('VPATH' variable) search path.
+ 
 
-# strcache buffers: 1 (0) / strings = 29 / storage = 275 B / avg = 9 B
-# current buf: size = 8162 B / used = 275 B / count = 29 / avg = 9 B
+# strcache buffers: 1 (0) / strings = 29 / storage = 271 B / avg = 9 B
+# current buf: size = 8162 B / used = 271 B / count = 29 / avg = 9 B
 
 # strcache performance: lookups = 32 / hit rate = 9%
 # hash-table stats:
 # Load=29/8192=0%, Rehash=0, Collisions=1/32=3%
-# Finished Make data base on Mon Feb 28 14:23:52 2022
+# Finished Make data base on Fri Mar 11 09:11:20 2022
 
  
