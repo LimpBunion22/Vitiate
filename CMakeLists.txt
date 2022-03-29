@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.15.0)
 
-option(WITH_FPGA "build with FPGA" OFF)
+option(WITH_FPGA "build with FPGA" ON)
 
 if(WITH_FPGA)
     add_compile_definitions(USE_FPGA)

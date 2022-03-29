@@ -57,15 +57,15 @@
 //         .def("net_create", &net::net_handler::net_create, py::arg("net_key"), py::arg("implementation"),
 //              py::arg("random"), py::arg("file"), py::arg("file_reload"))
 //         .def("active_net_launch_forward", &net::net_handler::active_net_launch_forward, py::arg("inputs"))
-//         .def("active_net_launch_gradient", py::overload_cast<size_t, size_t, float, float, float, float, int, const string &, bool>(&net::net_handler::active_net_launch_gradient),
-//              py::arg("iterations"), py::arg("batch_size"), py::arg("alpha"), py::arg("alpha_decay"), py::arg("reg_lambda"),
+//         .def("active_net_launch_gradient", &net::net_handler::active_net_launch_gradient, py::arg("iterations"),
+//              py::arg("batch_size"), py::arg("alpha"), py::arg("alpha_decay"), py::arg("reg_lambda"),
 //              py::arg("error_threshold"), py::arg("norm"), py::arg("file"), py::arg("file_reload"))
 //         .def("active_net_print_inner_vals", &net::net_handler::active_net_print_inner_vals)
 //         .def("active_net_get_gradient_performance", &net::net_handler::active_net_get_gradient_performance)
 //         .def("active_net_get_forward_performance", &net::net_handler::active_net_get_forward_performance)
 //         .def("active_net_write_net_to_file", &net::net_handler::active_net_write_net_to_file, py::arg("file"))
 //         .def("process_video", &net::net_handler::process_video, py::arg("video_name"))
-//         .def("process_img_1000x1000", &net::net_handler::process_img_1000x1000, py::arg("image"));
+//         .def("process_img_1000x1000", &net::net_handler::process_img_1000x1000, py::arg("image"), py::arg("dwz_10") = false);
 // }
 
 #include <defines.h>
