@@ -41,7 +41,6 @@ include_directories("def")
 include_directories("include")
 include_directories("$ENV{HOME}/workspace_development/include")
 if(WITH_FPGA)
-    include_directories(${OpenCV_INCLUDE_DIRS})
     include_directories("$ENV{HOME}/intelFPGA_pro/18.1/hld/host/include")
     include_directories("$ENV{HOME}/intelFPGA_pro/18.1/hld/examples_aoc/common/inc")
 endif()
@@ -57,17 +56,17 @@ if(WITH_FPGA)
     list(APPEND CMAKE_INSTALL_RPATH "$ENV{HOME}/intelFPGA_pro/18.1/hld/host/linux64/lib")
 endif()
 
-#pybind 
-pybind11_add_module(netStandalone
-    ${DEF_FILES}
-    ${SRC_FILES}
-    ${INCLUDE_FILES})
-
-# # executable
-# add_executable(netStandalone
+# #pybind 
+# pybind11_add_module(netStandalone
 #     ${DEF_FILES}
 #     ${SRC_FILES}
 #     ${INCLUDE_FILES})
+
+# executable
+add_executable(netStandalone
+    ${DEF_FILES}
+    ${SRC_FILES}
+    ${INCLUDE_FILES})
 
 set_target_properties(netStandalone PROPERTIES BUILD_WITH_INSTALL_RPATH TRUE)
 set_target_properties(netStandalone PROPERTIES INSTALL_RPATH_USE_LINK_PATH TRUE)
@@ -87,6 +86,7 @@ if(WITH_FPGA)
         ${LIB_FOLDER}/libnetGPU.so)
 else()
     target_link_libraries(netStandalone PRIVATE 
+        ${OpenCV_LIBS}
         $ENV{HOME}/intel/oneapi/compiler/latest/linux/compiler/lib/intel64_lin/libsvml.so
         $ENV{HOME}/intel/oneapi/compiler/latest/linux/compiler/lib/intel64_lin/libintlc.so.5
         $ENV{HOME}/intel/oneapi/compiler/latest/linux/compiler/lib/intel64_lin/libirng.so   

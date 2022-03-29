@@ -43,6 +43,8 @@ namespace net
         std::vector<float> active_net_launch_forward(const std::vector<float> &inputs);
         std::vector<float> active_net_launch_gradient(size_t iterations, size_t batch_size,
                                                       float alpha, float alpha_decay, float lambda, float error_threshold, int norm, const std::string &file, bool file_reload);
+        std::vector<float> active_net_launch_gradient(const net::net_sets &sets, size_t iterations, size_t batch_size,
+                                                      float alpha, float alpha_decay, float lambda, float error_threshold, int norm);
         void active_net_print_inner_vals();
         signed long active_net_get_gradient_performance();
         signed long active_net_get_forward_performance();

@@ -299,8 +299,8 @@ namespace net
 
             for (size_t i = 0; i < n_data.n_layers; i++)
             {
-                size_t rows = data.bias[i].size();
-                size_t cols = data.params[i].size() / rows;
+                size_t rows = n_data.bias[i].size();
+                size_t cols = n_data.params[i].size() / rows;
 
                 for (size_t j = 0; j < rows; j++)
                 {

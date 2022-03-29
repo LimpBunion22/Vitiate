@@ -140,7 +140,7 @@ namespace net
         if (!active_net)
         {
             cout << YELLOW << "no active net" << RESET << "\n ";
-            return vector<float>{(float)-1};
+            return vector<float>{-1.0f};
         }
         else
         {
@@ -149,8 +149,23 @@ namespace net
             if (succeeded)
                 return active_net->launch_gradient(manager.sets, iterations, batch_size, alpha, alpha_decay, lambda, error_threshold, norm);
             else
+            {
                 cout << RED << "failed to initialize net " << active_net_name << " from file \"" << file << '\"' << RESET "\n";
+                return vector<float>{-1.0f};
+            }
         }
+    }
+
+    vector<float> net_handler::active_net_launch_gradient(const net::net_sets &sets, size_t iterations, size_t batch_size,
+                                                          float alpha, float alpha_decay, float lambda, float error_threshold, int norm)
+    {
+        if (!active_net)
+        {
+            cout << YELLOW << "no active net" << RESET << "\n ";
+            return vector<float>{-1.0f};
+        }
+        else
+            return active_net->launch_gradient(sets, iterations, batch_size, alpha, alpha_decay, lambda, error_threshold, norm);
     }
 
     void net_handler::active_net_print_inner_vals()
@@ -316,6 +331,8 @@ namespace net
         return out_image;
 #else
         cout << YELLOW << "compiled without FPGA suppport" << RESET << "\n";
+        return vector<float>{-1.0f};
+
 #endif
     }
 }

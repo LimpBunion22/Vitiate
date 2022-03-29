@@ -8,7 +8,7 @@ make: *** No rule to make target 'all'.  Stop.
 # This is free software: you are free to change and redistribute it.
 # There is NO WARRANTY, to the extent permitted by law.
 
-# Make data base, printed on Tue Mar 29 13:15:57 2022
+# Make data base, printed on Thu Mar 17 18:35:08 2022
 
 # Variables
 
@@ -41,7 +41,7 @@ GDMSESSION = ubuntu
 # environment
 XMODIFIERS = @im=ibus
 # makefile
-CURDIR := /home/gabi/Vitiate
+CURDIR := /home/gabi/Vitiate/utils
 # makefile
 SHELL = /bin/sh
 # environment
@@ -49,7 +49,7 @@ VSCODE_NLS_CONFIG = {"locale":"en-us","availableLanguages":{},"_languagePackSupp
 # environment
 _ = /usr/share/code/code
 # environment
-JOURNAL_STREAM = 8:55404
+JOURNAL_STREAM = 8:53518
 # environment
 XDG_CONFIG_DIRS = /etc/xdg/xdg-ubuntu:/etc/xdg
 # makefile
@@ -69,7 +69,7 @@ DBUS_SESSION_BUS_ADDRESS = unix:path=/run/user/1000/bus
 # environment
 VSCODE_VERBOSE_LOGGING = true
 # environment
-MANAGERPID = 1866
+MANAGERPID = 1811
 # environment
 LESSOPEN = | /usr/bin/lesspipe %s
 # environment
@@ -85,7 +85,7 @@ GPG_AGENT_INFO = /run/user/1000/gnupg/S.gpg-agent:0:1
 # environment
 GJS_DEBUG_OUTPUT = stderr
 # environment
-SESSION_MANAGER = local/gabipc:@/tmp/.ICE-unix/2127,unix/gabipc:/tmp/.ICE-unix/2127
+SESSION_MANAGER = local/gabipc:@/tmp/.ICE-unix/2073,unix/gabipc:/tmp/.ICE-unix/2073
 # environment
 XDG_RUNTIME_DIR = /run/user/1000
 # environment
@@ -97,7 +97,7 @@ VSCODE_LOG_STACK = false
 # environment
 ELECTRON_RUN_AS_NODE = 1
 # environment
-INVOCATION_ID = fe6386c82e904829a21c840b6acf20f7
+INVOCATION_ID = 2fee14c77467459680fd190889477917
 # default
 .FEATURES := target-specific order-only second-expansion else-if shortest-stem undefine oneshell archives jobserver output-sync check-symlink load
 # environment
@@ -107,7 +107,7 @@ XDG_SESSION_DESKTOP = ubuntu
 # environment
 SSH_AUTH_SOCK = /run/user/1000/keyring/ssh
 # environment
-GIO_LAUNCHED_DESKTOP_FILE_PID = 30129
+GIO_LAUNCHED_DESKTOP_FILE_PID = 2592
 # automatic
 %F = $(notdir $%)
 # environment
@@ -117,11 +117,11 @@ CONDA_EXE = /home/gabi/anaconda3/bin/conda
 # environment
 VSCODE_PIPE_LOGGING = true
 # environment
-PWD = /home/gabi/Vitiate
+PWD = /home/gabi/Vitiate/utils
 # default
 .LOADED := 
 # environment
-SSH_AGENT_PID = 2092
+SSH_AGENT_PID = 2038
 # environment
 ORIGINAL_XDG_CURRENT_DESKTOP = ubuntu:GNOME
 # environment
@@ -165,7 +165,7 @@ GNOME_SHELL_SESSION_MODE = ubuntu
 # environment
 LIBVA_DRIVER_NAME = iHD
 # environment
-VSCODE_IPC_HOOK_EXTHOST = /run/user/1000/vscode-ipc-1837cd57-8fa8-4217-ac27-bc591dcb4606.sock
+VSCODE_IPC_HOOK_EXTHOST = /run/user/1000/vscode-ipc-ddc37eb1-5704-4a9f-9a38-3889bc20f118.sock
 # default
 MAKE_VERSION := 4.2.1
 # environment
@@ -241,7 +241,7 @@ LC_ADDRESS = es_ES.UTF-8
 # environment
 LANG = C
 # environment
-VSCODE_PID = 30129
+VSCODE_PID = 2592
 # environment
 _CE_CONDA = 
 # variable set hash-table stats:
@@ -253,9 +253,9 @@ _CE_CONDA =
 
 # Directories
 
-# . (device 66312, inode 17045432): 21 files, no impossibilities.
+# . (device 66312, inode 17170459): 6 files, no impossibilities.
 
-# 21 files, no impossibilities in 1 directories.
+# 6 files, no impossibilities in 1 directories.
 
 # Implicit Rules
 
@@ -280,6 +280,7 @@ Makefile:
 # Not a target:
 makefile:
 #  Implicit rule search has been done.
+ 
 #  File does not exist.
 #  File has been updated.
 #  Failed to be updated.
@@ -296,7 +297,6 @@ GNUmakefile:
 #  File does not exist.
 #  File has been updated.
 #  Failed to be updated.
- 
 
 # files hash-table stats:
 # Load=6/1024=1%, Rehash=0, Collisions=0/15=0%
@@ -306,12 +306,12 @@ GNUmakefile:
 
 # No general ('VPATH' variable) search path.
 
-# strcache buffers: 1 (0) / strings = 29 / storage = 271 B / avg = 9 B
-# current buf: size = 8162 B / used = 271 B / count = 29 / avg = 9 B
+# strcache buffers: 1 (0) / strings = 14 / storage = 123 B / avg = 8 B
+# current buf: size = 8162 B / used = 123 B / count = 14 / avg = 8 B
 
-# strcache performance: lookups = 32 / hit rate = 9%
+# strcache performance: lookups = 17 / hit rate = 17%
 # hash-table stats:
-# Load=29/8192=0%, Rehash=0, Collisions=1/32=3%
-# Finished Make data base on Tue Mar 29 13:15:57 2022
+# Load=14/8192=0%, Rehash=0, Collisions=1/17=6%
+# Finished Make data base on Thu Mar 17 18:35:08 2022
 
  
