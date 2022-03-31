@@ -209,6 +209,11 @@ namespace net
             manager.write_net_to_file(file, active_net->get_net_data());
     }
 
+    void net_handler::write_sets_to_file(const std::string &file, const net_sets &sets)
+    {
+        manager.write_sets_to_file(file, sets);
+    }
+
     void net_handler::process_video(const string &video_name)
     {
 #ifdef USE_FPGA
@@ -321,13 +326,15 @@ namespace net
         }
 
         // cout << "Enqueuing image\n";
-        vector <float>out_image;
+        vector<float> out_image;
 
-        if(dwz_10){
+        if (dwz_10)
+        {
             net->process_img_1000_1000_dwz10(red_image, green_image, blue_image);
             out_image = net->get_img_100_100();
         }
-        else{
+        else
+        {
             net->process_img_1000_1000(red_image, green_image, blue_image);
             out_image = net->get_img_1000_1000();
         }

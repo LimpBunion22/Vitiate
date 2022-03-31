@@ -6,29 +6,32 @@
 
 namespace net
 {
+    constexpr int LEARN_ALL = 0;
+    constexpr int LEARN_TRIANGLES = 1;
+    constexpr int LEARN_RECTANGLES = 2;
+    constexpr int LEARN_ELLIPSES = 3;
+
     class net_handler;
 
     class images_tester
     {
     private:
-        int w = 100;
-        int n_images = 100;
-        int triangles = 0;
-        int ellipses = 0;
-        int rectangles = 0;
+        std::vector<int> shape_type;
+        size_t outs = 0;
+        size_t ins = 0;
 
     private:
         int my_random(int max, int min);
-        void ellipse(cv::Mat &img);
-        void rectangle(cv::Mat &img);
-        void triangle(cv::Mat &img);
+        void ellipse(int w, cv::Mat &img);
+        void rectangle(int w, cv::Mat &img);
+        void triangle(int w, cv::Mat &img);
 
     public:
-        void set_attributes(int w, int n_images);
         size_t input_size();
         size_t ouput_size();
-        net_sets get_images();
-        void check_images(net_sets &sets, net_handler &handler);
+        net_sets generate_shapes(int w, int n_images, int type);
+        void check_images(net_sets &sets, net_handler &handler, int type);
+        void image_demo();
     };
 }
 

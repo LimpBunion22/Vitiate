@@ -74,32 +74,59 @@
 
 using namespace std;
 
-constexpr size_t first_layer = 200;
-
 int main()
 {
+    float alpha = 10.0f;
+    float alpha_decay = 0.00001f;
+    float error_threshold = 0.00001f;
+    float lambda = 0.1f;
+    int n_nets = 4;
+
     net::net_handler handler("/home/gabi/workspace_development");
     net::images_tester images;
-    images.set_attributes(100, 300);
+    net::net_sets sets = images.generate_shapes(100, 300, net::LEARN_RECTANGLES);
     size_t n_ins = images.input_size();
     size_t n_outs = images.ouput_size();
-    vector<size_t> n_p_l = {first_layer, first_layer / 8, first_layer / 16, n_outs};
+    vector<size_t> n_p_l = {50, 50, 6, n_outs};
     vector<int> activation_type = {
         net::RELU2,
         net::RELU2,
         net::RELU2,
-        net::RELU2_SOFT_MAX};
-    net::net_sets sets = images.get_images();
+        net::SIGMOID};
     handler.net_create_random_from_vector("gpu", net::GPU, n_ins, n_p_l, activation_type);
     handler.set_active_net("gpu");
-    auto out = handler.active_net_launch_gradient(sets, 100, 32, 0.05, 0.0001, 0.01, 0.001, net::NORM_REG_1);
+    auto out = handler.active_net_launch_gradient(sets, 400, net::FULL_BATCH, alpha, alpha_decay, lambda, error_threshold, net::NORM_1);
+    size_t size = out.size();
 
-    for (auto &i : out)
-        cout << i << " ";
+    for (size_t i = 0; i < size; i++)
+        if (i % 10 == 0)
+            cout << YELLOW << out[i] << " ";
+        else
+            cout << RESET << out[i] << " ";
 
     cout << "\n";
     cout << handler.active_net_get_gradient_performance() << "\n";
-    images.check_images(sets, handler);
+    images.check_images(sets, handler, net::LEARN_RECTANGLES);
+
+    // for (int i = 0; i < n_nets; i++)
+    // {
+    //     handler.net_create("my_net", net::GPU, net::FIXED, "base_net", net::REUSE_FILE);
+    //     handler.set_active_net("my_net");
+    //     cout << "alpha: " << alpha << ", alpha decay: " << alpha_decay << "\n";
+    //     auto out = handler.active_net_launch_gradient(4, 32, alpha, alpha_decay, lambda, error_threshold, net::NORM_1, "base_sets", net::REUSE_FILE);
+    //     size_t size = out.size();
+
+    //     for (size_t i = 0; i < size; i++)
+    //         if (i % 10 == 0)
+    //             cout << YELLOW << out[i] << " ";
+    //         else
+    //             cout << RESET << out[i] << " ";
+
+    //     cout << "\n";
+    //     cout << handler.active_net_get_gradient_performance() << "\n";
+    //     handler.delete_net("my_net");
+    //     alpha *= 10;
+    // }
 
     return 0;
 }

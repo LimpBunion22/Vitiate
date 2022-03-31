@@ -46,8 +46,10 @@ namespace net
                 while (getline(s, val, SEPARATOR))
                     if (val[0] != ' ')
                         data.activation_type.emplace_back(val == "R"
+                                                              ? net::RELU
+                                                          : val == "R2"
                                                               ? net::RELU2
-                                                          : val == "RS"
+                                                          : val == "R2S"
                                                               ? net::RELU2_SOFT_MAX
                                                               : net::SIGMOID);
             }
@@ -288,10 +290,12 @@ namespace net
             file_handler << "\n\n";
 
             for (auto &i : n_data.activation_type)
-                file_handler << (i == net::RELU2
+                file_handler << (i == net::RELU
                                      ? "R"
+                                 : i == net::RELU2
+                                     ? "R2"
                                  : i == net::RELU2_SOFT_MAX
-                                     ? "RS"
+                                     ? "R2S"
                                      : "S")
                              << SEPARATOR;
 
@@ -327,4 +331,38 @@ namespace net
             return false;
         }
     }
+
+    bool file_manager::write_sets_to_file(const std::string &file, const net_sets &n_sets)
+    {
+        ofstream file_handler(PATH + '/' + file + ".csv", ios::out | ios::trunc);
+
+        if (file_handler.is_open())
+        {
+            size_t data_size = n_sets.set_ins.size();
+            file_handler << data_size << SEPARATOR;
+            file_handler << "\n\n";
+
+            for (size_t i = 0; i < data_size; i++)
+            {
+                for (auto &j : n_sets.set_ins[i])
+                    file_handler << j << SEPARATOR;
+
+                file_handler << "\n";
+
+                for (auto &j : n_sets.set_outs[i])
+                    file_handler << j << SEPARATOR;
+
+                file_handler << "\n\n";
+            }
+
+            file_handler.close();
+            return true;
+        }
+        else
+        {
+            cout << RED << "unable to open file" << RESET << "\n";
+            return false;
+        }
+    }
+
 }

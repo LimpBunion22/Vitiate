@@ -23,9 +23,10 @@
 
 namespace net
 {
-    constexpr int RELU2 = 0;
-    constexpr int SIGMOID = 1;
-    constexpr int RELU2_SOFT_MAX = 2;
+    constexpr int RELU = 0;
+    constexpr int RELU2 = 1;
+    constexpr int SIGMOID = 2;
+    constexpr int RELU2_SOFT_MAX = 3;
     constexpr size_t FULL_BATCH = 0;
     constexpr int NO_NORM_REG = -1;
     constexpr int REG_ONLY = 0;
