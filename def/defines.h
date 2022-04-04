@@ -29,7 +29,7 @@ namespace net
     constexpr int RELU2_SOFT_MAX = 3;
     constexpr size_t FULL_BATCH = 0;
     constexpr int NO_NORM_REG = -1;
-    constexpr int REG_ONLY = 0;
+    constexpr int REG = 0;
     constexpr int NORM_0 = 1;
     constexpr int NORM_1 = 2;
     constexpr int NORM_2 = 3;

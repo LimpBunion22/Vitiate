@@ -134,8 +134,8 @@ namespace net
             return active_net->launch_forward(inputs);
     }
 
-    vector<float> net_handler::active_net_launch_gradient(size_t iterations, size_t batch_size,
-                                                          float alpha, float alpha_decay, float lambda, float error_threshold, int norm, const string &file, bool file_reload)
+    vector<float> net_handler::active_net_launch_gradient(size_t iterations, size_t batch_size, float alpha, float alpha_decay, float lambda,
+                                                          float error_threshold, int norm, size_t dropout_interval, const string &file, bool file_reload)
     {
         if (!active_net)
         {
@@ -147,7 +147,7 @@ namespace net
             bool succeeded = manager.load_sets(file, file_reload);
 
             if (succeeded)
-                return active_net->launch_gradient(manager.sets, iterations, batch_size, alpha, alpha_decay, lambda, error_threshold, norm);
+                return active_net->launch_gradient(manager.sets, iterations, batch_size, alpha, alpha_decay, lambda, error_threshold, norm, dropout_interval);
             else
             {
                 cout << RED << "failed to initialize net " << active_net_name << " from file \"" << file << '\"' << RESET "\n";
@@ -156,8 +156,8 @@ namespace net
         }
     }
 
-    vector<float> net_handler::active_net_launch_gradient(const net::net_sets &sets, size_t iterations, size_t batch_size,
-                                                          float alpha, float alpha_decay, float lambda, float error_threshold, int norm)
+    vector<float> net_handler::active_net_launch_gradient(const net::net_sets &sets, size_t iterations, size_t batch_size, float alpha,
+                                                          float alpha_decay, float lambda, float error_threshold, int norm, size_t dropout_interval)
     {
         if (!active_net)
         {
@@ -165,7 +165,7 @@ namespace net
             return vector<float>{-1.0f};
         }
         else
-            return active_net->launch_gradient(sets, iterations, batch_size, alpha, alpha_decay, lambda, error_threshold, norm);
+            return active_net->launch_gradient(sets, iterations, batch_size, alpha, alpha_decay, lambda, error_threshold, norm, dropout_interval);
     }
 
     void net_handler::active_net_print_inner_vals()

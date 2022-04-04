@@ -13,7 +13,7 @@ handler.net_create(
 handler.set_active_net("cpu_float")
 print(handler.active_net_launch_gradient(
     iterations=15, batch_size=netStandalone.FULL_BATCH, alpha=2, alpha_decay=0.0001, reg_lambda=0.01,
-    error_threshold=0, norm=netStandalone.NORM_2, file="sets", file_reload=netStandalone.REUSE_FILE))
+    error_threshold=0, norm=netStandalone.NORM_REG_2, dropout_interval=0, file="sets", file_reload=netStandalone.REUSE_FILE))
 print(handler.active_net_get_gradient_performance())
 print(handler.active_net_launch_forward(ins))
 print(handler.active_net_get_forward_performance())
@@ -25,7 +25,7 @@ handler.net_create(
 handler.set_active_net("gpu_float")
 print(handler.active_net_launch_gradient(
     iterations=15, batch_size=netStandalone.FULL_BATCH, alpha=2, alpha_decay=0.0001, reg_lambda=0.01,
-    error_threshold=0, norm=netStandalone.NORM_2, file="sets", file_reload=netStandalone.REUSE_FILE))
+    error_threshold=0, norm=netStandalone.NORM_REG_2, dropout_interval=0, file="sets", file_reload=netStandalone.REUSE_FILE))
 print(handler.active_net_get_gradient_performance())
 print(handler.active_net_launch_forward(ins))
 print(handler.active_net_get_forward_performance())
