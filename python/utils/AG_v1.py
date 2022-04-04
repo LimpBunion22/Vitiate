@@ -4,6 +4,7 @@ import numpy as np
 import copy
 import os
 from tqdm import tqdm
+from logger import log
 
 PATH = os.path.join(os.environ['HOME'], "workspace_development")
 SETS_NAME = "_temporal_sets"
@@ -13,7 +14,7 @@ ADDIT_PATHS = []
 for i in range(len(ADDIT_SETS)):
     ADDIT_PATHS.append(os.path.join(PATH, SETS_NAME + ADDIT_SETS[i] + ".csv"))
 
-GRADIENT_ITERATIONS = 10
+GRADIENT_ITERATIONS = 4
 
 class ag_handler:
 
@@ -31,7 +32,7 @@ class ag_handler:
         self.handler = netStandalone.net_handler(PATH)
         for p in range(self.pop_size):
             # neurons = [np.random.randint(n_ins,n_ins +50), np.random.randint(int(n_ins/2),int(n_ins/2) + 50), np.random.randint(n_outs,n_outs + 50), n_outs]
-            self.archs.append([np.random.randint(50,170), np.random.randint(15,40), n_outs])
+            self.archs.append([np.random.randint(200,1000), np.random.randint(10,100), n_outs])
             activation_type=netStandalone.v_int([netStandalone.RELU2, netStandalone.RELU2, netStandalone.RELU2_SOFT_MAX]) #RELU2_SOFT_MAX
             self.names.append("AG_NET_G0_" + str(p))
             self.handler.net_create_random_from_vector(self.names[p], net_imp, n_ins, n_p_l=netStandalone.v_size_t(self.archs[p]),activation_type=activation_type)
@@ -161,16 +162,12 @@ class ag_handler:
 
         for p in range(self.pop_size):
             self.handler.set_active_net(self.names[p])
-            self.handler.active_net_init_gradient(train_set_name)
-            if self.imp == netStandalone.CPU:
-                aux = self.handler.active_net_launch_gradient(GRADIENT_ITERATIONS, error_threshold = 1, multiplier = 2)
-                for i in range(len(aux)):
-                    if np.isnan(aux[i]):
-                        raise NameError("NaN detected in gradient")
-            else:
-                aux = np.sum(self.handler.active_net_launch_gradient(GRADIENT_ITERATIONS, error_threshold = 1, multiplier = 2))
-                if np.isnan(aux):
-                    raise NameError("NaN detected in gradient")        
+            # self.handler.active_net_init_gradient(train_set_name)
+            aux = self.handler.active_net_launch_gradient(iterations=GRADIENT_ITERATIONS, batch_size=netStandalone.FULL_BATCH, alpha=1, alpha_decay=0.001, reg_lambda=0.1, error_threshold=1, norm=netStandalone.NORM_2, file=train_set_name, file_reload=netStandalone.REUSE_FILE)
+            for i in range(len(aux)):
+                if np.isnan(aux[i]):
+                    log("NaN en red "+str(p)+". Arch: "+str(self.archs[p][0])+", "+str(self.archs[p][1])+", "+str(self.archs[p][2])+", ","ERROR")
+                    raise NameError("NaN detected in gradient")
         return
 
 
@@ -182,14 +179,16 @@ class ag_handler:
             self.scores[p] = 0
 
             if balance:
-                aux_score = np.zeros(3)
                 for i in range(len(pack_data_in)):
-                    aux_score += np.abs(pack_rigth_outs[i] - self._data_out[p][i])
-                aux_mult = 1
-                aux_score = 1/(1+aux_score)
-                for s in range(len(aux_score)):
-                    aux_mult *= aux_score[s]
-                self.scores[p] = 1/aux_mult
+                    self.scores[p] += np.sum(np.abs(pack_rigth_outs[i] - self._data_out[p][i])**2)
+                # aux_score = np.zeros(3)
+                # for i in range(len(pack_data_in)):
+                #     aux_score += np.abs(pack_rigth_outs[i] - self._data_out[p][i])
+                # aux_mult = 1
+                # aux_score = 1/(1+aux_score*aux_score)
+                # for s in range(len(aux_score)):
+                #     aux_mult *= aux_score[s]
+                # self.scores[p] = 1/aux_mult
             else:
                 for i in range(len(pack_data_in)):
                     self.scores[p] += np.sum(np.abs(pack_rigth_outs[i] - self._data_out[p][i]))

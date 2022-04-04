@@ -34,7 +34,7 @@ PYBIND11_MODULE(netStandalone, m)
     m.attr("CPU") = py::int_(net::CPU);
     m.attr("GPU") = py::int_(net::GPU);
 #ifdef USE_FPGA
-    m.attr("FPGA") = py::int(net::FPGA);
+    m.attr("FPGA") = py::int_(net::FPGA);
 #endif
     m.attr("RANDOM") = py::bool_(net::RANDOM);
     m.attr("FIXED") = py::bool_(net::FIXED);

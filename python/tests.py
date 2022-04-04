@@ -305,10 +305,10 @@ def cpp_backward(bench_list, handler, net_name="_temporal_net", set_name="_tempo
     handler.net_create("cpu_float_test", netStandalone.CPU,
                        netStandalone.RANDOM, net_name, file_reload=True)
     handler.set_active_net("cpu_float_test")
-    handler.active_net_init_gradient(set_name, file_reload=True)
+    # handler.active_net_init_gradient(set_name, file_reload=True)
     tic = time.perf_counter()
-    handler.active_net_launch_gradient(
-        ITERATIONS, error_threshold=0.0001, multiplier=1.01)
+    handler.active_net_launch_gradient(iterations=ITERATIONS, batch_size=netStandalone.FULL_BATCH, alpha=2, alpha_decay=0.001, reg_lambda=0.01,
+    error_threshold=0.0001, norm=netStandalone.NORM_REG_2, file=set_name, file_reload=netStandalone.RELOAD_FILE)
     bench_list.append((time.perf_counter()-tic)/ITERATIONS)
     return
 
@@ -318,10 +318,10 @@ def gpu_backward(bench_list, handler, net_name="_temporal_net", set_name="_tempo
     handler.net_create("gpu_float_test", netStandalone.GPU,
                        netStandalone.RANDOM, net_name, file_reload=True)
     handler.set_active_net("gpu_float_test")
-    handler.active_net_init_gradient(set_name, file_reload=True)
+    # handler.active_net_init_gradient(set_name, file_reload=True)
     tic = time.perf_counter()
-    handler.active_net_launch_gradient(
-        ITERATIONS, error_threshold=0.0001, multiplier=1.01)
+    handler.active_net_launch_gradient(iterations=ITERATIONS, batch_size=netStandalone.FULL_BATCH, alpha=2, alpha_decay=0.001, reg_lambda=0.01,
+    error_threshold=0.0001, norm=netStandalone.NORM_REG_2, file=set_name, file_reload=netStandalone.RELOAD_FILE)
     bench_list.append((time.perf_counter()-tic)/ITERATIONS)
     return
 

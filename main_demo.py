@@ -10,14 +10,6 @@ handler.net_create_random_from_vector(
     "cpu2_float", netStandalone.CPU, 5, n_p_l=netStandalone.v_size_t([3, 4, 5]),
     activation_type=netStandalone.v_int([netStandalone.RELU2, netStandalone.RELU2, netStandalone.RELU2_SOFT_MAX]))
 
-# handler.net_create(
-#     "cpu_float", netStandalone.CPU, netStandalone.FIXED, "net")
-handler.set_active_net("cpu2_float")
-handler.active_net_init_gradient("_temporal_data")
-# handler.net_create_random_from_vector(
-#     "cpu2_float", netStandalone.GPU, 5, n_p_l=netStandalone.v_size_t([100, 100, 100, 5]),
-#     activation_type=netStandalone.v_int([netStandalone.RELU2, netStandalone.RELU2, netStandalone.RELU2_SOFT_MAX]))
-
 handler.net_create(
     "cpu_float", netStandalone.CPU, netStandalone.FIXED, "net", file_reload=netStandalone.REUSE_FILE)
 handler.set_active_net("cpu_float")

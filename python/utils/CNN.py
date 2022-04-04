@@ -11,7 +11,7 @@ PATH = os.path.join(os.environ['HOME'], "workspace_development")
 handler = netStandalone.net_handler(PATH)
 activation_type=netStandalone.v_int([netStandalone.RELU2, netStandalone.RELU2, netStandalone.RELU2])
 handler.net_create_random_from_vector("FPGA_net", netStandalone.FPGA, 1, netStandalone.v_size_t([1,1]), netStandalone.v_int([netStandalone.RELU2, netStandalone.RELU2]))
-my_ag = AG_v1.ag_handler(population_size = 12, n_ins = 10000, n_outs = 3, net_imp = netStandalone.CPU)
+my_ag = AG_v1.ag_handler(population_size = 10, n_ins = 10000, n_outs = 3, net_imp = netStandalone.CPU)
 handler.set_active_net("FPGA_net")
 
 TRAIN_PACK_SZ = 100
@@ -96,6 +96,9 @@ while (np.sum(fig_ident) < 0.85*3*VAL_PACK_SZ) and (cnt < 30):
     fig_ident = [0,0,0]  
     total_fig = [0,0,0] 
     val_net_outs = my_ag.exe_pack_best(process_val_img)
+    print("5 primeras respuestas validación: ")
+    for i in range(5):
+        print("     "+str(i)+": "+str(val_net_outs[i][0])+", "+str(val_net_outs[i][1])+", "+str(val_net_outs[i][2])+", ")
     print("Figuras acertadas validación:\n")
     for i in range(3*VAL_PACK_SZ):
         aux = np.argmax(val_net_outs[i])
@@ -108,7 +111,14 @@ while (np.sum(fig_ident) < 0.85*3*VAL_PACK_SZ) and (cnt < 30):
     print("     Triángulos: " + str(fig_ident[1])+"/"+str(total_fig[1]))
     print("     Cuartos de esfera: " + str(fig_ident[2])+"/"+str(total_fig[2])) 
 
-    my_ag.learn(np.random.randint(0,4))#np.argmin(fig_ident)+1
+    l_ind = 0
+    if fig_ident[0]<5:
+        l_ind = 1
+    if fig_ident[1]<5:
+        l_ind = 2
+    if fig_ident[2]<5:
+        l_ind = 3
+    my_ag.learn(l_ind)# np.random.randint(0,4) np.argmin(fig_ident)+1
     my_ag.evolve(survival_factor=0.75)
     print("\n\n")
 
