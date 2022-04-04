@@ -35,6 +35,7 @@ namespace net
         bool load_net(const std::string &file, bool file_reload);
         bool load_sets(const std::string &file, bool file_reload);
         bool write_net_to_file(const std::string &file, const net_data &n_data); //^ last row element also followed by separator char!!
+        bool write_sets_to_file(const std::string &file, const net_sets &n_sets);
     };
 }
 #endif

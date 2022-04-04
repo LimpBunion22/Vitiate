@@ -5,15 +5,7 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Python: Current File",
-            "type": "python",
-            "request": "launch",
-            "program": "${file}",
-            "env": {"PYDEVD_WARN_EVALUATION_TIMEOUT": "500"},
-            "console": "integratedTerminal"
-        },
-        {
-            "name": "g++ - Build and debug active file",
+            "name": "(gdb) Launch",
             "type": "cppdbg",
             "request": "launch",
             "program": "${workspaceFolder}/build/netStandalone",

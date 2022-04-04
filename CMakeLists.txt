@@ -41,7 +41,6 @@ include_directories("def")
 include_directories("include")
 include_directories("$ENV{HOME}/workspace_development/include")
 if(WITH_FPGA)
-    include_directories(${OpenCV_INCLUDE_DIRS})
     include_directories("$ENV{HOME}/intelFPGA_pro/18.1/hld/host/include")
     include_directories("$ENV{HOME}/intelFPGA_pro/18.1/hld/examples_aoc/common/inc")
 endif()
@@ -87,6 +86,7 @@ if(WITH_FPGA)
         ${LIB_FOLDER}/libnetGPU.so)
 else()
     target_link_libraries(netStandalone PRIVATE 
+        ${OpenCV_LIBS}
         $ENV{HOME}/intel/oneapi/compiler/latest/linux/compiler/lib/intel64_lin/libsvml.so
         $ENV{HOME}/intel/oneapi/compiler/latest/linux/compiler/lib/intel64_lin/libintlc.so.5
         $ENV{HOME}/intel/oneapi/compiler/latest/linux/compiler/lib/intel64_lin/libirng.so   

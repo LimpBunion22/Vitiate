@@ -134,23 +134,38 @@ namespace net
             return active_net->launch_forward(inputs);
     }
 
-    vector<float> net_handler::active_net_launch_gradient(size_t iterations, size_t batch_size,
-                                                          float alpha, float alpha_decay, float lambda, float error_threshold, int norm, const string &file, bool file_reload)
+    vector<float> net_handler::active_net_launch_gradient(size_t iterations, size_t batch_size, float alpha, float alpha_decay, float lambda,
+                                                          float error_threshold, int norm, size_t dropout_interval, const string &file, bool file_reload)
     {
         if (!active_net)
         {
             cout << YELLOW << "no active net" << RESET << "\n ";
-            return vector<float>{(float)-1};
+            return vector<float>{-1.0f};
         }
         else
         {
             bool succeeded = manager.load_sets(file, file_reload);
 
             if (succeeded)
-                return active_net->launch_gradient(manager.sets, iterations, batch_size, alpha, alpha_decay, lambda, error_threshold, norm);
+                return active_net->launch_gradient(manager.sets, iterations, batch_size, alpha, alpha_decay, lambda, error_threshold, norm, dropout_interval);
             else
+            {
                 cout << RED << "failed to initialize net " << active_net_name << " from file \"" << file << '\"' << RESET "\n";
+                return vector<float>{-1.0f};
+            }
         }
+    }
+
+    vector<float> net_handler::active_net_launch_gradient(const net::net_sets &sets, size_t iterations, size_t batch_size, float alpha,
+                                                          float alpha_decay, float lambda, float error_threshold, int norm, size_t dropout_interval)
+    {
+        if (!active_net)
+        {
+            cout << YELLOW << "no active net" << RESET << "\n ";
+            return vector<float>{-1.0f};
+        }
+        else
+            return active_net->launch_gradient(sets, iterations, batch_size, alpha, alpha_decay, lambda, error_threshold, norm, dropout_interval);
     }
 
     void net_handler::active_net_print_inner_vals()
@@ -192,6 +207,11 @@ namespace net
             cout << YELLOW << "no active net" << RESET << "\n ";
         else
             manager.write_net_to_file(file, active_net->get_net_data());
+    }
+
+    void net_handler::write_sets_to_file(const std::string &file, const net_sets &sets)
+    {
+        manager.write_sets_to_file(file, sets);
     }
 
     void net_handler::process_video(const string &video_name)
@@ -306,13 +326,15 @@ namespace net
         }
 
         // cout << "Enqueuing image\n";
-        vector <float>out_image;
+        vector<float> out_image;
 
-        if(dwz_10){
+        if (dwz_10)
+        {
             net->process_img_1000_1000_dwz10(red_image, green_image, blue_image);
             out_image = net->get_img_100_100();
         }
-        else{
+        else
+        {
             net->process_img_1000_1000(red_image, green_image, blue_image);
             out_image = net->get_img_1000_1000();
         }
@@ -321,6 +343,8 @@ namespace net
         return out_image;
 #else
         cout << YELLOW << "compiled without FPGA suppport" << RESET << "\n";
+        return vector<float>{-1.0f};
+
 #endif
     }
 }
