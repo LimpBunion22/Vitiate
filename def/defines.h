@@ -39,7 +39,7 @@ namespace net
     constexpr int ON = 1;
     constexpr int OFF = 0;
 
-    //*normalization
+    //*output normalization
     constexpr int NO_NORM_REG = -1;
     constexpr int REG = 0;
     constexpr int NORM_0 = 1;
@@ -48,6 +48,10 @@ namespace net
     constexpr int NORM_REG_0 = 4;
     constexpr int NORM_REG_1 = 5;
     constexpr int NORM_REG_2 = 6;
+
+    //*intput normalization
+    constexpr int MIN_MAX = 0;
+    constexpr int STANDARIZATION = 1;
 
     //*activations
     constexpr int RELU = 0;
@@ -69,6 +73,7 @@ namespace net
     {
         std::vector<std::vector<float>> set_ins;
         std::vector<std::vector<float>> set_outs;
+        std::vector<int> labels;
     } net_sets;
 
     typedef struct

@@ -179,7 +179,8 @@ namespace net
             size_t n_sets = (size_t)stoi(val);
             sets.set_ins.reserve(n_sets);
             sets.set_outs.reserve(n_sets);
-            sets.set_ins.emplace_back(0, 0); //* load first set to get n_ins and n_layers, so we can reuse them later
+            sets.labels.reserve(n_sets);
+            sets.set_ins.emplace_back(0, 0); //* load first set to get n_ins and n_outs, so we can reuse them later
             sets.set_outs.emplace_back(0, 0);
             size_t n_ins = 0;
             size_t n_outs = 0;
@@ -215,6 +216,14 @@ namespace net
                 }
             }
 
+            getline(file_handler, line);
+
+            {
+                stringstream s(line);
+                getline(s, val, SEPARATOR);
+                sets.labels.emplace_back(stoi(val));
+            }
+
             skip_lines(1);
 
             for (int i = 1; i < n_sets; i++) //* remaining sets
@@ -242,6 +251,14 @@ namespace net
                     while (getline(s, val, SEPARATOR))
                         if (val[0] != ' ')
                             sets.set_outs[i][j++] = stof(val);
+                }
+
+                getline(file_handler, line);
+
+                {
+                    stringstream s(line);
+                    getline(s, val, SEPARATOR);
+                    sets.labels.emplace_back(stoi(val));
                 }
 
                 skip_lines(1);
@@ -344,6 +361,9 @@ namespace net
                 for (auto &j : n_sets.set_outs[i])
                     file_handler << j << SEPARATOR;
 
+                file_handler << "\n";
+
+                file_handler << n_sets.labels[i] << SEPARATOR;
                 file_handler << "\n\n";
             }
 

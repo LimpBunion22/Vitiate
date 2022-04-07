@@ -16,7 +16,6 @@ namespace net
     class images_tester
     {
     private:
-        std::vector<int> shape_type;
         size_t outs = 0;
         size_t ins = 0;
 

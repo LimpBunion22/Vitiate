@@ -123,6 +123,22 @@ namespace net
         }
     }
 
+    void net_handler::normalize_inputs(net::net_sets &sets, int implementation, int type)
+    {
+        switch (implementation)
+        {
+        case net::CPU:
+            cpu::net_cpu::normalize_inputs(sets.set_ins, type);
+            break;
+        case net::GPU:
+            gpu::net_gpu::normalize_inputs(sets.set_ins, type, stream, libs_data.data_cub);
+            break;
+        default:
+            cout << RED << "implementation doesn't exist" << RESET << "\n";
+            break;
+        }
+    }
+
     vector<float> net_handler::active_net_launch_forward(const vector<float> &inputs)
     {
         if (!active_net)

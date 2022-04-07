@@ -40,6 +40,7 @@ namespace net
         void delete_net(const std::string &net_key);
         void net_create_random_from_vector(const std::string &net_key, int implementation, size_t n_ins, const std::vector<size_t> &n_p_l, const std::vector<int> activation_type);
         void net_create(const std::string &net_key, int implementation, bool random, const std::string &file, bool file_reload);
+        void normalize_inputs(net::net_sets &sets, int implementation, int type);
         std::vector<float> active_net_launch_forward(const std::vector<float> &inputs);
         void active_net_set_gradient_attribute(int attribute, float value);
         std::vector<float> active_net_launch_gradient(size_t iterations, size_t batch_size, const std::string &file, bool file_reload);
