@@ -49,15 +49,28 @@ namespace net
     constexpr int NORM_REG_1 = 5;
     constexpr int NORM_REG_2 = 6;
 
-    //*intput normalization
+    //*input normalization
     constexpr int MIN_MAX = 0;
     constexpr int STANDARIZATION = 1;
+    constexpr int PER_IMAGE = 0;
+    constexpr int PER_CHANNEL = 1;
 
     //*activations
     constexpr int RELU = 0;
     constexpr int RELU2 = 1;
     constexpr int SIGMOID = 2;
     constexpr int RELU2_SOFT_MAX = 3;
+
+    //*net definitions
+    constexpr float RELU2_ALPHA = 0.1f;
+    constexpr float FLOAT_CERO = 1e-10f;
+    constexpr float FLOAT_INF = 1e20f;
+    constexpr int RANDOM = 0;
+    constexpr int CERO = 1;
+    constexpr int DONT_CARE = 2;
+    constexpr float MAX_RANGE = 1.0f;
+    constexpr float MIN_RANGE = -MAX_RANGE;
+    constexpr float RANGE = 2.0f * MAX_RANGE;
 
     typedef struct
     {
@@ -74,7 +87,7 @@ namespace net
         std::vector<std::vector<float>> set_ins;
         std::vector<std::vector<float>> set_outs;
         std::vector<int> labels;
-    } net_sets;
+    } net_set;
 
     typedef struct
     {

@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.15.0)
 
-option(WITH_FPGA "build with FPGA" ON)
+option(WITH_FPGA "build with FPGA" OFF)
 
 if(WITH_FPGA)
     add_compile_definitions(USE_FPGA)
@@ -70,31 +70,23 @@ add_executable(netStandalone
 
 set_target_properties(netStandalone PROPERTIES BUILD_WITH_INSTALL_RPATH TRUE)
 set_target_properties(netStandalone PROPERTIES INSTALL_RPATH_USE_LINK_PATH TRUE)
+target_link_libraries(netStandalone PRIVATE
+    ${OpenCV_LIBS}
+    $ENV{HOME}/intel/oneapi/compiler/latest/linux/compiler/lib/intel64_lin/libsvml.so
+    $ENV{HOME}/intel/oneapi/compiler/latest/linux/compiler/lib/intel64_lin/libintlc.so.5
+    $ENV{HOME}/intel/oneapi/compiler/latest/linux/compiler/lib/intel64_lin/libirng.so   
+    $ENV{HOME}/intel/oneapi/compiler/latest/linux/compiler/lib/intel64_lin/libimf.so
+    /usr/local/cuda/lib64/libcudart.so
+    /usr/local/cuda/lib64/libcublas.so
+    ${LIB_FOLDER}/libinputnormCPU.so
+    ${LIB_FOLDER}/libnetCPU.so
+    ${LIB_FOLDER}/libnetGPU.so)
+
 if(WITH_FPGA)
     target_link_libraries(netStandalone PRIVATE 
         stdc++fs
-        ${OpenCV_LIBS}
-        $ENV{HOME}/intel/oneapi/compiler/latest/linux/compiler/lib/intel64_lin/libsvml.so
-        $ENV{HOME}/intel/oneapi/compiler/latest/linux/compiler/lib/intel64_lin/libintlc.so.5
-        $ENV{HOME}/intel/oneapi/compiler/latest/linux/compiler/lib/intel64_lin/libirng.so   
-        $ENV{HOME}/intel/oneapi/compiler/latest/linux/compiler/lib/intel64_lin/libimf.so
         $ENV{HOME}/intelFPGA_pro/18.1/hld/host/linux64/lib/libOpenCL.so
-        ${LIB_FOLDER}/libnetFPGA.a
-        /usr/local/cuda/lib64/libcudart.so
-        /usr/local/cuda/lib64/libcublas.so
-        ${LIB_FOLDER}/libnetCPU.so
-        ${LIB_FOLDER}/libnetGPU.so)
-else()
-    target_link_libraries(netStandalone PRIVATE 
-        ${OpenCV_LIBS}
-        $ENV{HOME}/intel/oneapi/compiler/latest/linux/compiler/lib/intel64_lin/libsvml.so
-        $ENV{HOME}/intel/oneapi/compiler/latest/linux/compiler/lib/intel64_lin/libintlc.so.5
-        $ENV{HOME}/intel/oneapi/compiler/latest/linux/compiler/lib/intel64_lin/libirng.so   
-        $ENV{HOME}/intel/oneapi/compiler/latest/linux/compiler/lib/intel64_lin/libimf.so
-        /usr/local/cuda/lib64/libcudart.so
-        /usr/local/cuda/lib64/libcublas.so
-        ${LIB_FOLDER}/libnetCPU.so
-        ${LIB_FOLDER}/libnetGPU.so)
+        ${LIB_FOLDER}/libnetFPGA.a)
 endif()
 
 #install to conda python lib dir

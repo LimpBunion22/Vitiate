@@ -57,8 +57,8 @@
 // #ifdef USE_FPGA
 //     m.attr("FPGA") = py::int(net::FPGA);
 // #endif
-//     m.attr("RANDOM") = py::bool_(net::RANDOM);
-//     m.attr("FIXED") = py::bool_(net::FIXED);
+//     m.attr("RANDOM_NET") = py::bool_(net::RANDOM_NET);
+//     m.attr("FIXED_NET") = py::bool_(net::FIXED_NET);
 //     m.attr("RELOAD_FILE") = py::bool_(net::RELOAD_FILE);
 //     m.attr("REUSE_FILE") = py::bool_(net::REUSE_FILE);
 
@@ -106,18 +106,17 @@ int main()
     int n_nets = 8;
 
     net::images_tester images;
-    net::net_sets sets = images.generate_shapes(100, 300, net::LEARN_ALL);
-    handler.normalize_inputs(sets, net::CPU, net::MIN_MAX);
+    net::net_set set = images.generate_shapes(100, 300, net::LEARN_ALL);
+    handler.normalize_image_set(set, net::MIN_MAX, net::PER_IMAGE, 1.0f, 0.0f);
 
     size_t n_ins = images.input_size();
     size_t n_outs = images.ouput_size();
-    vector<size_t> n_p_l = {30, 30, 6, n_outs};
+    vector<size_t> n_p_l = {15, 15, n_outs};
     vector<int> activation_type = {
         net::RELU2,
         net::RELU2,
-        net::RELU2,
         net::RELU2_SOFT_MAX};
-    handler.net_create_random_from_vector("gpu", net::GPU, n_ins, n_p_l, activation_type);
+    handler.net_create_random_from_vector("gpu", net::CPU, n_ins, n_p_l, activation_type);
     handler.set_active_net("gpu");
     handler.active_net_set_gradient_attribute(net::ALPHA, alpha);
     handler.active_net_set_gradient_attribute(net::ALPHA_DECAY, alpha_decay);
@@ -125,7 +124,7 @@ int main()
     handler.active_net_set_gradient_attribute(net::ERROR_THRESHOLD, error_threshold);
     handler.active_net_set_gradient_attribute(net::NORM, net::NORM_1);
     handler.active_net_set_gradient_attribute(net::ADAM, net::ON);
-    auto out = handler.active_net_launch_gradient(sets, 100, 64);
+    auto out = handler.active_net_launch_gradient(set, 50, 64);
 
     for (auto &i : out)
         cout << i << " ";
@@ -133,11 +132,11 @@ int main()
     cout << "\n";
     cout << handler.active_net_get_gradient_performance() << "\n";
 
-    cout << "training sets\n";
-    images.check_images(sets, handler, net::LEARN_ALL);
-    cout << "validation sets\n";
-    net::net_sets validation = images.generate_shapes(100, 50, net::LEARN_ALL);
-    handler.normalize_inputs(validation, net::CPU, net::MIN_MAX);
+    cout << "training set\n";
+    images.check_images(set, handler, net::LEARN_ALL);
+    cout << "validation set\n";
+    net::net_set validation = images.generate_shapes(100, 50, net::LEARN_ALL);
+    handler.normalize_image_set(validation, net::MIN_MAX, net::PER_IMAGE, 1.0f, 0.0f);
     images.check_images(validation, handler, net::LEARN_ALL);
 
     // for (int i = 0; i < n_nets; i++)
@@ -183,7 +182,7 @@ int main()
     //         break;
     //     }
 
-    //     auto out = handler.active_net_launch_gradient(4, 32, alpha, alpha_decay, lambda, error_threshold, norm, 0, "base_sets", net::REUSE_FILE);
+    //     auto out = handler.active_net_launch_gradient(4, 32, alpha, alpha_decay, lambda, error_threshold, norm, 0, "base_set", net::REUSE_FILE);
     //     size_t size = out.size();
 
     //     for (size_t i = 0; i < size; i++)

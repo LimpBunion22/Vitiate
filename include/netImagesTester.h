@@ -28,8 +28,8 @@ namespace net
     public:
         size_t input_size();
         size_t ouput_size();
-        net_sets generate_shapes(int w, int n_images, int type);
-        void check_images(net_sets &sets, net_handler &handler, int type);
+        net_set generate_shapes(int w, int n_images, int type);
+        void check_images(net_set &set, net_handler &handler, int type);
         void image_demo();
     };
 }

@@ -6,7 +6,7 @@ make all --print-data-base --no-builtin-variables --no-builtin-rules --question
 # This is free software: you are free to change and redistribute it.
 # There is NO WARRANTY, to the extent permitted by law.
 
-# Make data base, printed on Thu Apr  7 20:19:01 2022
+# Make data base, printed on Fri Apr  8 21:39:39 2022
 
 # Variables
 
@@ -49,7 +49,7 @@ VSCODE_NLS_CONFIG = {"locale":"en-us","availableLanguages":{},"_languagePackSupp
 # environment
 _ = /usr/share/code/code
 # environment
-JOURNAL_STREAM = 8:47625
+JOURNAL_STREAM = 8:48365
 # environment
 XDG_CONFIG_DIRS = /etc/xdg/xdg-ubuntu:/etc/xdg
 # makefile
@@ -71,7 +71,7 @@ DBUS_SESSION_BUS_ADDRESS = unix:path=/run/user/1000/bus
 # environment
 VSCODE_VERBOSE_LOGGING = true
 # environment
-MANAGERPID = 1805
+MANAGERPID = 1809
 # environment
 LESSOPEN = | /usr/bin/lesspipe %s
 # environment
@@ -87,7 +87,7 @@ GPG_AGENT_INFO = /run/user/1000/gnupg/S.gpg-agent:0:1
 # environment
 GJS_DEBUG_OUTPUT = stderr
 # environment
-SESSION_MANAGER = local/gabipc:@/tmp/.ICE-unix/2061,unix/gabipc:/tmp/.ICE-unix/2061
+SESSION_MANAGER = local/gabipc:@/tmp/.ICE-unix/2072,unix/gabipc:/tmp/.ICE-unix/2072
 # environment
 XDG_RUNTIME_DIR = /run/user/1000
 # environment
@@ -99,7 +99,7 @@ VSCODE_LOG_STACK = false
 # environment
 ELECTRON_RUN_AS_NODE = 1
 # environment
-INVOCATION_ID = a16d770fe6664d8999ce41cca71cdf10
+INVOCATION_ID = c0a64136ef1b4cfebc45ac2e620552bf
 # default
 .FEATURES := target-specific order-only second-expansion else-if shortest-stem undefine oneshell archives jobserver output-sync check-symlink load
 # environment
@@ -109,7 +109,7 @@ XDG_SESSION_DESKTOP = ubuntu
 # environment
 SSH_AUTH_SOCK = /run/user/1000/keyring/ssh
 # environment
-GIO_LAUNCHED_DESKTOP_FILE_PID = 2677
+GIO_LAUNCHED_DESKTOP_FILE_PID = 74528
 # automatic
 %F = $(notdir $%)
 # environment
@@ -123,7 +123,7 @@ PWD = /home/gabi/Vitiate
 # default
 .LOADED := 
 # environment
-SSH_AGENT_PID = 2026
+SSH_AGENT_PID = 2036
 # environment
 ORIGINAL_XDG_CURRENT_DESKTOP = ubuntu:GNOME
 # environment
@@ -169,7 +169,7 @@ GNOME_SHELL_SESSION_MODE = ubuntu
 # environment
 LIBVA_DRIVER_NAME = iHD
 # environment
-VSCODE_IPC_HOOK_EXTHOST = /run/user/1000/vscode-ipc-e2a97a88-dc66-4752-a4a1-1365a1a2d839.sock
+VSCODE_IPC_HOOK_EXTHOST = /run/user/1000/vscode-ipc-a34b0be6-99ba-4086-9969-fcf950ffb11b.sock
 # default
 MAKE_VERSION := 4.2.1
 # environment
@@ -247,7 +247,7 @@ LC_ADDRESS = es_ES.UTF-8
 # environment
 LANG = C
 # environment
-VSCODE_PID = 2677
+VSCODE_PID = 74528
 # environment
 _CE_CONDA = 
 # variable set hash-table stats:
@@ -277,9 +277,6 @@ all:
 #  File has not been updated.
 
 # Not a target:
- 
-make: *** No rule to make target 'all'.  Stop.
-
 Makefile:
 #  Implicit rule search has been done.
 #  File does not exist.
@@ -294,6 +291,9 @@ makefile:
 #  Failed to be updated.
 
 # Not a target:
+ 
+make: *** No rule to make target 'all'.  Stop.
+
 .DEFAULT:
 #  Implicit rule search has not been done.
 #  Modification time never checked.
@@ -320,6 +320,6 @@ GNUmakefile:
 # strcache performance: lookups = 33 / hit rate = 9%
 # hash-table stats:
 # Load=30/8192=0%, Rehash=0, Collisions=1/33=3%
-# Finished Make data base on Thu Apr  7 20:19:01 2022
+# Finished Make data base on Fri Apr  8 21:39:39 2022
 
  
