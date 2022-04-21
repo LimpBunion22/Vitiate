@@ -56,17 +56,17 @@ if(WITH_FPGA)
     list(APPEND CMAKE_INSTALL_RPATH "$ENV{HOME}/intelFPGA_pro/18.1/hld/host/linux64/lib")
 endif()
 
-# #pybind 
-# pybind11_add_module(netStandalone
-#     ${DEF_FILES}
-#     ${SRC_FILES}
-#     ${INCLUDE_FILES})
-
-# executable
-add_executable(netStandalone
+#pybind 
+pybind11_add_module(netStandalone
     ${DEF_FILES}
     ${SRC_FILES}
     ${INCLUDE_FILES})
+
+# # executable
+# add_executable(netStandalone
+#     ${DEF_FILES}
+#     ${SRC_FILES}
+#     ${INCLUDE_FILES})
 
 set_target_properties(netStandalone PROPERTIES BUILD_WITH_INSTALL_RPATH TRUE)
 set_target_properties(netStandalone PROPERTIES INSTALL_RPATH_USE_LINK_PATH TRUE)

@@ -8,7 +8,6 @@
 #include <netFileManager.h>
 #include <netAbstract.h>
 #include <netGPU.h>
-#include <inputnormCPU.h>
 
 namespace net
 {
@@ -28,7 +27,6 @@ namespace net
         std::map<std::string, std::unique_ptr<net_abstract>> nets;
         std::map<std::string, int> implementations;
         file_manager manager;
-        cpu::input_norm cpu_input_norm;
         net_abstract *active_net;
         std::string active_net_name;
         cudaStream_t stream;
@@ -42,8 +40,6 @@ namespace net
         void delete_net(const std::string &net_key);
         void net_create_random_from_vector(const std::string &net_key, int implementation, size_t n_ins, const std::vector<size_t> &n_p_l, const std::vector<int> activation_type);
         void net_create(const std::string &net_key, int implementation, bool random, const std::string &file, bool file_reload);
-        void normalize_set(net::net_set &set, int type, float max_clamp = 1.0f, float min_clamp = -1.0f);
-        void normalize_image_set(net::net_set &set, int type, int batch, float max_clamp = 1.0f, float min_clamp = -1.0f);
         std::vector<float> active_net_launch_forward(const std::vector<float> &inputs);
         void active_net_set_gradient_attribute(int attribute, float value);
         std::vector<float> active_net_launch_gradient(size_t iterations, size_t batch_size, const std::string &file, bool file_reload);

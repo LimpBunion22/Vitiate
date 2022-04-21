@@ -123,16 +123,6 @@ namespace net
         }
     }
 
-    void net_handler::normalize_set(net::net_set &set, int type, float max_clamp, float min_clamp)
-    {
-        cpu_input_norm.normalize_set(set, type, max_clamp, min_clamp);
-    }
-
-    void net_handler::normalize_image_set(net::net_set &set, int type, int batch, float max_clamp, float min_clamp)
-    {
-        cpu_input_norm.normalize_image_set(set, type, batch, max_clamp, min_clamp);
-    }
-
     vector<float> net_handler::active_net_launch_forward(const vector<float> &inputs)
     {
         if (!active_net)
