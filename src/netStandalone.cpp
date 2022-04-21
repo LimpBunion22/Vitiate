@@ -36,11 +36,11 @@ PYBIND11_MODULE(netStandalone, m)
     m.attr("OFF") = py::int_(net::OFF);
 
     //*normalization
-    m.attr("NO_NORM_REG") = py::int_(net::NO_NORM_REG);
+    m.attr("DISABLE") = py::int_(net::DISABLE);
     m.attr("REG") = py::int_(net::REG);
-    m.attr("NORM_0") = py::int_(net::NORM_0);
-    m.attr("NORM_1") = py::int_(net::NORM_1);
-    m.attr("NORM_2") = py::int_(net::NORM_2);
+    m.attr("MAX") = py::int_(net::MAX);
+    m.attr("ABS") = py::int_(net::ABS);
+    m.attr("MODULO") = py::int_(net::MODULO);
     m.attr("NORM_REG_0") = py::int_(net::NORM_REG_0);
     m.attr("NORM_REG_1") = py::int_(net::NORM_REG_1);
     m.attr("NORM_REG_2") = py::int_(net::NORM_REG_2);
@@ -57,8 +57,8 @@ PYBIND11_MODULE(netStandalone, m)
 #ifdef USE_FPGA
     m.attr("FPGA") = py::int_(net::FPGA);
 #endif
-    m.attr("RANDOM") = py::bool_(net::RANDOM);
-    m.attr("FIXED") = py::bool_(net::FIXED);
+    m.attr("RANDOM_NET") = py::bool_(net::RANDOM_NET);
+    m.attr("FIXED_NET") = py::bool_(net::FIXED_NET);
     m.attr("RELOAD_FILE") = py::bool_(net::RELOAD_FILE);
     m.attr("REUSE_FILE") = py::bool_(net::REUSE_FILE);
 
@@ -101,99 +101,101 @@ PYBIND11_MODULE(netStandalone, m)
 
 // int main()
 // {
-//     net::net_handler handler("/home/hai/workspace_development");
-//     handler.net_create_random_from_vector("FPGA_NET", net::FPGA, 2, {3, 2, 2}, {net::RELU2, net::RELU2, net::RELU2});
-//     handler.set_active_net("FPGA_NET");
+//     net::net_handler handler("/home/gabi/workspace_development");
+//     float alpha = 30.0f;
+//     float alpha_decay = 0.00001f;
+//     float error_threshold = 0.00001f;
+//     float lambda = 0.1f;
+//     int n_nets = 8;
 
-//     handler.active_net_launch_forward({1,2});
+//     net::images_tester images;
+//     net::net_set set = images.generate_shapes(100, 300, net::LEARN_ALL);
 
-//     // float alpha = 5.0f;
-//     // float alpha_decay = 0.00001f;
-//     // float error_threshold = 0.00001f;
-//     // float lambda = 0.1f;
-//     // int n_nets = 8;
+//     size_t n_ins = images.input_size();
+//     size_t n_outs = images.ouput_size();
+//     vector<size_t> n_p_l = {15, 15, n_outs};
+//     vector<int> activation_type = {
+//         net::RELU2,
+//         net::RELU2,
+//         net::RELU2_SOFT_MAX};
+//     handler.net_create_random_from_vector("gpu", net::CPU, n_ins, n_p_l, activation_type);
+//     handler.set_active_net("gpu");
+//     handler.active_net_set_gradient_attribute(net::ALPHA, alpha);
+//     handler.active_net_set_gradient_attribute(net::ALPHA_DECAY, alpha_decay);
+//     handler.active_net_set_gradient_attribute(net::REG_LAMBDA, lambda);
+//     handler.active_net_set_gradient_attribute(net::ERROR_THRESHOLD, error_threshold);
+//     handler.active_net_set_gradient_attribute(net::NORM, net::ABS);
+//     handler.active_net_set_gradient_attribute(net::ADAM, net::ON);
+//     auto out = handler.active_net_launch_gradient(set, 50, 64);
 
-//     // net::images_tester images;
-//     // net::net_sets sets = images.generate_shapes(100, 300, net::LEARN_ALL);
-//     // size_t n_ins = images.input_size();
-//     // size_t n_outs = images.ouput_size();
-//     // vector<size_t> n_p_l = {50, 50, 6, n_outs};
-//     // vector<int> activation_type = {
-//     //     net::RELU2,
-//     //     net::RELU2,
-//     //     net::RELU2,
-//     //     net::RELU2_SOFT_MAX};
-//     // handler.net_create_random_from_vector("gpu", net::GPU, n_ins, n_p_l, activation_type);
-//     // handler.set_active_net("gpu");
-//     // auto out = handler.active_net_launch_gradient(sets, 100, 64, alpha, alpha_decay, lambda, error_threshold, net::NORM_1, 0);
-//     // size_t size = out.size();
+//     for (auto &i : out)
+//         cout << i << " ";
 
-//     // for (size_t i = 0; i < size; i++)
-//     //     if (i % 10 == 0)
-//     //         cout << YELLOW << out[i] << " ";
-//     //     else
-//     //         cout << RESET << out[i] << " ";
+//     cout << "\n";
+//     cout << handler.active_net_get_gradient_performance() << "\n";
 
-//     // cout << "\n";
-//     // cout << handler.active_net_get_gradient_performance() << "\n";
-//     // images.check_images(sets, handler, net::LEARN_ALL);
+//     cout << "training set\n";
+//     images.check_images(set, handler, net::LEARN_ALL);
+//     cout << "validation set\n";
+//     net::net_set validation = images.generate_shapes(100, 50, net::LEARN_ALL);
+//     images.check_images(validation, handler, net::LEARN_ALL);
 
-//     // // for (int i = 0; i < n_nets; i++)
-//     // // {
-//     // //     handler.net_create("my_net", net::GPU, net::FIXED, "base_net", net::REUSE_FILE);
-//     // //     handler.set_active_net("my_net");
-//     // //     cout << "alpha: " << alpha << ", alpha decay: " << alpha_decay << ", lambda: " << lambda << "\n";
+//     // for (int i = 0; i < n_nets; i++)
+//     // {
+//     //     handler.net_create("my_net", net::GPU, net::FIXED, "base_net", net::REUSE_FILE);
+//     //     handler.set_active_net("my_net");
+//     //     cout << "alpha: " << alpha << ", alpha decay: " << alpha_decay << ", lambda: " << lambda << "\n";
 
-//     // //     int norm = -1;
-//     // //     switch (i)
-//     // //     {
-//     // //     case 0:
-//     // //         norm = net::NO_NORM_REG;
-//     // //         cout << "no norm reg\n";
-//     // //         break;
-//     // //     case 1:
-//     // //         norm = net::REG;
-//     // //         cout << "reg\n";
-//     // //         break;
-//     // //     case 2:
-//     // //         norm = net::NORM_0;
-//     // //         cout << "norm 0\n";
-//     // //         break;
-//     // //     case 3:
-//     // //         norm = net::NORM_1;
-//     // //         cout << "norm 1\n";
-//     // //         break;
-//     // //     case 4:
-//     // //         norm = net::NORM_2;
-//     // //         cout << "norm 2\n";
-//     // //         break;
-//     // //     case 5:
-//     // //         norm = net::NORM_REG_0;
-//     // //         cout << "norm reg 0\n";
-//     // //         break;
-//     // //     case 6:
-//     // //         norm = net::NORM_REG_1;
-//     // //         cout << "norm reg 1\n";
-//     // //         break;
-//     // //     case 7:
-//     // //         norm = net::NORM_REG_2;
-//     // //         cout << "norm reg 2\n";
-//     // //         break;
-//     // //     }
+//     //     int norm = -1;
+//     //     switch (i)
+//     //     {
+//     //     case 0:
+//     //         norm = net::NO_NORM_REG;
+//     //         cout << "no norm reg\n";
+//     //         break;
+//     //     case 1:
+//     //         norm = net::REG;
+//     //         cout << "reg\n";
+//     //         break;
+//     //     case 2:
+//     //         norm = net::NORM_0;
+//     //         cout << "norm 0\n";
+//     //         break;
+//     //     case 3:
+//     //         norm = net::NORM_1;
+//     //         cout << "norm 1\n";
+//     //         break;
+//     //     case 4:
+//     //         norm = net::NORM_2;
+//     //         cout << "norm 2\n";
+//     //         break;
+//     //     case 5:
+//     //         norm = net::NORM_REG_0;
+//     //         cout << "norm reg 0\n";
+//     //         break;
+//     //     case 6:
+//     //         norm = net::NORM_REG_1;
+//     //         cout << "norm reg 1\n";
+//     //         break;
+//     //     case 7:
+//     //         norm = net::NORM_REG_2;
+//     //         cout << "norm reg 2\n";
+//     //         break;
+//     //     }
 
-//     // //     auto out = handler.active_net_launch_gradient(4, 32, alpha, alpha_decay, lambda, error_threshold, norm, 0, "base_sets", net::REUSE_FILE);
-//     // //     size_t size = out.size();
+//     //     auto out = handler.active_net_launch_gradient(4, 32, alpha, alpha_decay, lambda, error_threshold, norm, 0, "base_set", net::REUSE_FILE);
+//     //     size_t size = out.size();
 
-//     // //     for (size_t i = 0; i < size; i++)
-//     // //         if (i % 10 == 0)
-//     // //             cout << YELLOW << out[i] << " ";
-//     // //         else
-//     // //             cout << RESET << out[i] << " ";
+//     //     for (size_t i = 0; i < size; i++)
+//     //         if (i % 10 == 0)
+//     //             cout << YELLOW << out[i] << " ";
+//     //         else
+//     //             cout << RESET << out[i] << " ";
 
-//     // //     cout << "\n";
-//     // //     cout << handler.active_net_get_gradient_performance() << "\n";
-//     // //     handler.delete_net("my_net");
-//     // // }
+//     //     cout << "\n";
+//     //     cout << handler.active_net_get_gradient_performance() << "\n";
+//     //     handler.delete_net("my_net");
+//     // }
 
 //     return 0;
 // }

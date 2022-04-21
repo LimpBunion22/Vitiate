@@ -54,14 +54,14 @@ namespace net
         return outs;
     }
 
-    net_sets images_tester::generate_shapes(int w, int n_images, int type)
+    net_set images_tester::generate_shapes(int w, int n_images, int type)
     {
         ins = (size_t)w * w;
         outs = type == LEARN_ALL ? 3 : 1;
-        net_sets sets;
-        sets.set_ins.reserve(n_images);
-        sets.set_outs.reserve(n_images);
-        vector<int> shape_type(n_images);
+        net_set set;
+        set.set_ins.reserve(n_images);
+        set.set_outs.reserve(n_images);
+        set.labels.reserve(n_images);
 
         for (int i = 0; i < n_images; i++)
         {
@@ -75,17 +75,17 @@ namespace net
                 switch (type)
                 {
                 case LEARN_TRIANGLES:
-                    sets.set_outs.emplace_back(vector<float>{1.0f});
+                    set.set_outs.emplace_back(vector<float>{1.0f});
                     break;
                 case LEARN_ALL:
-                    sets.set_outs.emplace_back(vector<float>{1.0f, 0.0f, 0.0f});
+                    set.set_outs.emplace_back(vector<float>{1.0f, 0.0f, 0.0f});
                     break;
                 default:
-                    sets.set_outs.emplace_back(vector<float>{0.0f});
+                    set.set_outs.emplace_back(vector<float>{0.0f});
                     break;
                 }
 
-                shape_type[i] = LEARN_TRIANGLES;
+                set.labels.emplace_back(LEARN_TRIANGLES);
             }
             else if (shape > RAND_MAX / 3)
             {
@@ -94,17 +94,17 @@ namespace net
                 switch (type)
                 {
                 case LEARN_ELLIPSES:
-                    sets.set_outs.emplace_back(vector<float>{1.0f});
+                    set.set_outs.emplace_back(vector<float>{1.0f});
                     break;
                 case LEARN_ALL:
-                    sets.set_outs.emplace_back(vector<float>{0.0f, 1.0f, 0.0f});
+                    set.set_outs.emplace_back(vector<float>{0.0f, 1.0f, 0.0f});
                     break;
                 default:
-                    sets.set_outs.emplace_back(vector<float>{0.0f});
+                    set.set_outs.emplace_back(vector<float>{0.0f});
                     break;
                 }
 
-                shape_type[i] = LEARN_ELLIPSES;
+                set.labels.emplace_back(LEARN_ELLIPSES);
             }
             else
             {
@@ -113,49 +113,44 @@ namespace net
                 switch (type)
                 {
                 case LEARN_RECTANGLES:
-                    sets.set_outs.emplace_back(vector<float>{1.0f});
+                    set.set_outs.emplace_back(vector<float>{1.0f});
                     break;
                 case LEARN_ALL:
-                    sets.set_outs.emplace_back(vector<float>{0.0f, 0.0f, 1.0f});
+                    set.set_outs.emplace_back(vector<float>{0.0f, 0.0f, 1.0f});
                     break;
                 default:
-                    sets.set_outs.emplace_back(vector<float>{0.0f});
+                    set.set_outs.emplace_back(vector<float>{0.0f});
                     break;
                 }
 
-                shape_type[i] = LEARN_RECTANGLES;
+                set.labels.emplace_back(LEARN_RECTANGLES);
             }
 
-            sets.set_ins.emplace_back(vector<float>(w * w, 0.0f));
-            vector<float> &ref = sets.set_ins.back();
+            set.set_ins.emplace_back(vector<float>(w * w, 0.0f));
+            vector<float> &ref = set.set_ins.back();
             int size = ref.size();
 
             for (int j = 0; j < size; j++)
-                if (image.data[j] == 0)
-                    ref[j] = ((float)random() / (float)RAND_MAX * 9 + 1) / 255.0f - 0.5f; //* adding noise and normalizing
-                else
-                    ref[j] = (float)image.data[j] / 255.0f - 0.5f;
+                ref[j] = (float)image.data[j];
         }
 
-        this->shape_type = move(shape_type);
-        cout << "images generator used: " << (sets.set_ins.size() * sets.set_ins.back().size() + sets.set_outs.size() * sets.set_outs.back().size()) / 1024 / 1024 * sizeof(float) << " Mbytes\n";
-        return sets;
+        cout << "images generator used: " << (set.set_ins.size() * set.set_ins.back().size() + set.set_outs.size() * set.set_outs.back().size()) / 1024 / 1024 * sizeof(float) << " Mbytes\n";
+        return set;
     }
 
-    void images_tester::check_images(net_sets &sets, net_handler &handler, int type)
+    void images_tester::check_images(net_set &set, net_handler &handler, int type)
     {
-
         if (type == LEARN_ALL)
         {
             int triangles = 0, ellipses = 0, rectangles = 0;
             int correct_triangles = 0, correct_ellipses = 0, correct_rectangles = 0;
-            size_t set_size = sets.set_ins.size();
+            size_t set_size = set.set_ins.size();
 
             for (size_t i = 0; i < set_size; i++)
             {
                 float max = -1.0f;
                 int pos = -1, correct_pos = -1;
-                auto out = handler.active_net_launch_forward(sets.set_ins[i]);
+                auto out = handler.active_net_launch_forward(set.set_ins[i]);
                 size_t size = out.size();
 
                 for (int j = 0; j < size; j++)
@@ -166,11 +161,11 @@ namespace net
                         pos = j;
                     }
 
-                    if (sets.set_outs[i][j] != 0.0f)
+                    if (set.set_outs[i][j] != 0.0f)
                         correct_pos = j;
                 }
 
-                switch (shape_type[i])
+                switch (set.labels[i])
                 {
                 case LEARN_TRIANGLES:
                     triangles++;
@@ -206,34 +201,34 @@ namespace net
         {
             int triangles = 0, ellipses = 0, rectangles = 0;
             int correct_triangles = 0, correct_ellipses = 0, correct_rectangles = 0;
-            size_t set_size = sets.set_ins.size();
+            size_t set_size = set.set_ins.size();
 
             for (size_t i = 0; i < set_size; i++)
             {
                 float max = -1.0f;
                 int pos = -1, correct_pos = -1;
-                auto out = handler.active_net_launch_forward(sets.set_ins[i]);
+                auto out = handler.active_net_launch_forward(set.set_ins[i]);
 
-                switch (shape_type[i])
+                switch (set.labels[i])
                 {
                 case LEARN_TRIANGLES:
                     triangles++;
 
-                    if (out[0] >= 0.5f && sets.set_outs[i][0] == 1.0f || out[0] < 0.5f && sets.set_outs[i][0] == 0.0f)
+                    if (out[0] >= 0.5f && set.set_outs[i][0] == 1.0f || out[0] < 0.5f && set.set_outs[i][0] == 0.0f)
                         correct_triangles++;
 
                     break;
                 case LEARN_ELLIPSES:
                     ellipses++;
 
-                    if (out[0] >= 0.5f && sets.set_outs[i][0] == 1.0f || out[0] < 0.5f && sets.set_outs[i][0] == 0.0f)
+                    if (out[0] >= 0.5f && set.set_outs[i][0] == 1.0f || out[0] < 0.5f && set.set_outs[i][0] == 0.0f)
                         correct_ellipses++;
 
                     break;
                 case LEARN_RECTANGLES:
                     rectangles++;
 
-                    if (out[0] >= 0.5f && sets.set_outs[i][0] == 1.0f || out[0] < 0.5f && sets.set_outs[i][0] == 0.0f)
+                    if (out[0] >= 0.5f && set.set_outs[i][0] == 1.0f || out[0] < 0.5f && set.set_outs[i][0] == 0.0f)
                         correct_rectangles++;
 
                     break;

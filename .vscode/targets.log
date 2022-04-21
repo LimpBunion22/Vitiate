@@ -8,7 +8,7 @@ make: *** No rule to make target 'all'.  Stop.
 # This is free software: you are free to change and redistribute it.
 # There is NO WARRANTY, to the extent permitted by law.
 
-# Make data base, printed on Wed Apr  6 13:14:38 2022
+# Make data base, printed on Thu Apr 21 12:06:43 2022
 
 # Variables
 
@@ -51,7 +51,7 @@ VSCODE_NLS_CONFIG = {"locale":"en-us","availableLanguages":{},"_languagePackSupp
 # environment
 _ = /usr/share/code/code
 # environment
-JOURNAL_STREAM = 8:48910
+JOURNAL_STREAM = 8:46394
 # environment
 XDG_CONFIG_DIRS = /etc/xdg/xdg-ubuntu:/etc/xdg
 # makefile
@@ -73,7 +73,7 @@ DBUS_SESSION_BUS_ADDRESS = unix:path=/run/user/1000/bus
 # environment
 VSCODE_VERBOSE_LOGGING = true
 # environment
-MANAGERPID = 1811
+MANAGERPID = 1875
 # environment
 LESSOPEN = | /usr/bin/lesspipe %s
 # environment
@@ -89,7 +89,7 @@ GPG_AGENT_INFO = /run/user/1000/gnupg/S.gpg-agent:0:1
 # environment
 GJS_DEBUG_OUTPUT = stderr
 # environment
-SESSION_MANAGER = local/gabipc:@/tmp/.ICE-unix/2067,unix/gabipc:/tmp/.ICE-unix/2067
+SESSION_MANAGER = local/gabipc:@/tmp/.ICE-unix/2131,unix/gabipc:/tmp/.ICE-unix/2131
 # environment
 XDG_RUNTIME_DIR = /run/user/1000
 # environment
@@ -101,7 +101,7 @@ VSCODE_LOG_STACK = false
 # environment
 ELECTRON_RUN_AS_NODE = 1
 # environment
-INVOCATION_ID = e34e2375effd4b2cb9440667fc80de79
+INVOCATION_ID = ad81290df4f14062aee92f7c9ec0cce2
 # default
 .FEATURES := target-specific order-only second-expansion else-if shortest-stem undefine oneshell archives jobserver output-sync check-symlink load
 # environment
@@ -111,7 +111,7 @@ XDG_SESSION_DESKTOP = ubuntu
 # environment
 SSH_AUTH_SOCK = /run/user/1000/keyring/ssh
 # environment
-GIO_LAUNCHED_DESKTOP_FILE_PID = 2669
+GIO_LAUNCHED_DESKTOP_FILE_PID = 2977
 # automatic
 %F = $(notdir $%)
 # environment
@@ -125,7 +125,7 @@ PWD = /home/gabi/Vitiate
 # default
 .LOADED := 
 # environment
-SSH_AGENT_PID = 2032
+SSH_AGENT_PID = 2096
 # environment
 ORIGINAL_XDG_CURRENT_DESKTOP = ubuntu:GNOME
 # environment
@@ -137,7 +137,7 @@ HOME = /home/gabi
 # environment
 LESSCLOSE = /usr/bin/lesspipe %s %s
 # environment
-VSCODE_CODE_CACHE_PATH = /home/gabi/.config/Code/CachedData/e18005f0f1b33c29e81d732535d8c0e47cafb0b5
+VSCODE_CODE_CACHE_PATH = /home/gabi/.config/Code/CachedData/dfd34e8260c270da74b5c2d86d61aee4b6d56977
 # environment
 LOGNAME = gabi
 # environment
@@ -171,7 +171,7 @@ GNOME_SHELL_SESSION_MODE = ubuntu
 # environment
 LIBVA_DRIVER_NAME = iHD
 # environment
-VSCODE_IPC_HOOK_EXTHOST = /run/user/1000/vscode-ipc-24591110-7fd8-4a0e-9e57-2a80c7ebbdf7.sock
+VSCODE_IPC_HOOK_EXTHOST = /run/user/1000/vscode-ipc-d3d452b2-a96a-4a0c-b1b5-7f559e04e195.sock
 # default
 MAKE_VERSION := 4.2.1
 # environment
@@ -195,7 +195,7 @@ MAKE_COMMAND := make
 # automatic
 *F = $(notdir $*)
 # environment
-VSCODE_IPC_HOOK = /run/user/1000/vscode-57be7052-1.66.0-main.sock
+VSCODE_IPC_HOOK = /run/user/1000/vscode-57be7052-1.66.2-main.sock
 # makefile
 MAKEFLAGS = pqrR
 # environment
@@ -249,7 +249,7 @@ LC_ADDRESS = es_ES.UTF-8
 # environment
 LANG = C
 # environment
-VSCODE_PID = 2669
+VSCODE_PID = 2977
 # environment
 _CE_CONDA = 
 # variable set hash-table stats:
@@ -261,9 +261,9 @@ _CE_CONDA =
 
 # Directories
 
-# . (device 66312, inode 17045432): 21 files, no impossibilities.
+# . (device 66312, inode 17045432): 22 files, no impossibilities.
 
-# 21 files, no impossibilities in 1 directories.
+# 22 files, no impossibilities in 1 directories.
 
 # Implicit Rules
 
@@ -279,6 +279,7 @@ all:
 #  File has not been updated.
 
 # Not a target:
+ 
 Makefile:
 #  Implicit rule search has been done.
 #  File does not exist.
@@ -297,7 +298,6 @@ makefile:
 #  Implicit rule search has not been done.
 #  Modification time never checked.
 #  File has not been updated.
- 
 
 # Not a target:
 GNUmakefile:
@@ -314,12 +314,12 @@ GNUmakefile:
 
 # No general ('VPATH' variable) search path.
 
-# strcache buffers: 1 (0) / strings = 29 / storage = 271 B / avg = 9 B
-# current buf: size = 8162 B / used = 271 B / count = 29 / avg = 9 B
+# strcache buffers: 1 (0) / strings = 30 / storage = 299 B / avg = 9 B
+# current buf: size = 8162 B / used = 299 B / count = 30 / avg = 9 B
 
-# strcache performance: lookups = 32 / hit rate = 9%
+# strcache performance: lookups = 33 / hit rate = 9%
 # hash-table stats:
-# Load=29/8192=0%, Rehash=0, Collisions=1/32=3%
-# Finished Make data base on Wed Apr  6 13:14:38 2022
+# Load=30/8192=0%, Rehash=0, Collisions=1/33=3%
+# Finished Make data base on Thu Apr 21 12:06:43 2022
 
  

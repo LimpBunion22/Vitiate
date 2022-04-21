@@ -19,8 +19,8 @@ namespace net
 #ifdef USE_FPGA
     constexpr int FPGA = 2;
 #endif
-    constexpr bool RANDOM = true;
-    constexpr bool FIXED = false;
+    constexpr bool RANDOM_NET = true;
+    constexpr bool FIXED_NET = false;
 
     class net_handler
     {
@@ -47,7 +47,7 @@ namespace net
         std::vector<float> active_net_launch_forward(const std::vector<float> &inputs);
         void active_net_set_gradient_attribute(int attribute, float value);
         std::vector<float> active_net_launch_gradient(size_t iterations, size_t batch_size, const std::string &file, bool file_reload);
-        std::vector<float> active_net_launch_gradient(const net::net_sets &sets, size_t iterations, size_t batch_size);
+        std::vector<float> active_net_launch_gradient(const net::net_set &set, size_t iterations, size_t batch_size);
         void active_net_print_inner_vals();
         signed long active_net_get_gradient_performance();
         signed long active_net_get_forward_performance();

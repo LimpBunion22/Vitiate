@@ -158,15 +158,15 @@ namespace net
         return true;
     }
 
-    bool file_manager::load_sets(const string &file)
+    bool file_manager::load_set(const string &file)
     {
         ifstream file_handler(PATH + '/' + file + ".csv", ios::in);
 
         if (file_handler.is_open())
         {
             string val, line;
-            sets.set_ins.clear();
-            sets.set_outs.clear();
+            set.set_ins.clear();
+            set.set_outs.clear();
             auto skip_lines = [&](int n_lines)
             {
                 for (int i = 0; i < n_lines; i++)
@@ -176,11 +176,12 @@ namespace net
             getline(file_handler, line);
             stringstream s(line);
             getline(s, val, SEPARATOR);
-            size_t n_sets = (size_t)stoi(val);
-            sets.set_ins.reserve(n_sets);
-            sets.set_outs.reserve(n_sets);
-            sets.set_ins.emplace_back(0, 0); //* load first set to get n_ins and n_layers, so we can reuse them later
-            sets.set_outs.emplace_back(0, 0);
+            size_t n_set = (size_t)stoi(val);
+            set.set_ins.reserve(n_set);
+            set.set_outs.reserve(n_set);
+            set.labels.reserve(n_set);
+            set.set_ins.emplace_back(0, 0); //* load first set to get n_ins and n_outs, so we can reuse them later
+            set.set_outs.emplace_back(0, 0);
             size_t n_ins = 0;
             size_t n_outs = 0;
 
@@ -195,7 +196,7 @@ namespace net
                     if (val[0] != ' ')
                     {
                         n_ins++;
-                        sets.set_ins[0].emplace_back(stof(val));
+                        set.set_ins[0].emplace_back(stof(val));
                     }
                 }
             }
@@ -210,17 +211,25 @@ namespace net
                     if (val[0] != ' ')
                     {
                         n_outs++;
-                        sets.set_outs[0].emplace_back(stof(val));
+                        set.set_outs[0].emplace_back(stof(val));
                     }
                 }
             }
 
+            getline(file_handler, line);
+
+            {
+                stringstream s(line);
+                getline(s, val, SEPARATOR);
+                set.labels.emplace_back(stoi(val));
+            }
+
             skip_lines(1);
 
-            for (int i = 1; i < n_sets; i++) //* remaining sets
+            for (int i = 1; i < n_set; i++) //* remaining set
             {
-                sets.set_ins.emplace_back(n_ins, 0);
-                sets.set_outs.emplace_back(n_outs, 0);
+                set.set_ins.emplace_back(n_ins, 0);
+                set.set_outs.emplace_back(n_outs, 0);
 
                 getline(file_handler, line);
 
@@ -230,7 +239,7 @@ namespace net
 
                     while (getline(s, val, SEPARATOR))
                         if (val[0] != ' ')
-                            sets.set_ins[i][j++] = stof(val);
+                            set.set_ins[i][j++] = stof(val);
                 }
 
                 getline(file_handler, line);
@@ -241,7 +250,15 @@ namespace net
 
                     while (getline(s, val, SEPARATOR))
                         if (val[0] != ' ')
-                            sets.set_outs[i][j++] = stof(val);
+                            set.set_outs[i][j++] = stof(val);
+                }
+
+                getline(file_handler, line);
+
+                {
+                    stringstream s(line);
+                    getline(s, val, SEPARATOR);
+                    set.labels.emplace_back(stoi(val));
                 }
 
                 skip_lines(1);
@@ -255,14 +272,14 @@ namespace net
         return false;
     }
 
-    bool file_manager::load_sets(const string &file, bool file_reload)
+    bool file_manager::load_set(const string &file, bool file_reload)
     {
-        if (sets_file != file || file_reload) //* load new file
+        if (set_file != file || file_reload) //* load new file
         {
-            bool succeeded = load_sets(file);
+            bool succeeded = load_set(file);
 
             if (succeeded && !file_reload)
-                sets_file = file;
+                set_file = file;
 
             return succeeded;
         }
@@ -324,26 +341,29 @@ namespace net
         return false;
     }
 
-    bool file_manager::write_sets_to_file(const std::string &file, const net_sets &n_sets)
+    bool file_manager::write_set_to_file(const std::string &file, const net_set &n_set)
     {
         ofstream file_handler(PATH + '/' + file + ".csv", ios::out | ios::trunc);
 
         if (file_handler.is_open())
         {
-            size_t data_size = n_sets.set_ins.size();
+            size_t data_size = n_set.set_ins.size();
             file_handler << data_size << SEPARATOR;
             file_handler << "\n\n";
 
             for (size_t i = 0; i < data_size; i++)
             {
-                for (auto &j : n_sets.set_ins[i])
+                for (auto &j : n_set.set_ins[i])
                     file_handler << j << SEPARATOR;
 
                 file_handler << "\n";
 
-                for (auto &j : n_sets.set_outs[i])
+                for (auto &j : n_set.set_outs[i])
                     file_handler << j << SEPARATOR;
 
+                file_handler << "\n";
+
+                file_handler << n_set.labels[i] << SEPARATOR;
                 file_handler << "\n\n";
             }
 

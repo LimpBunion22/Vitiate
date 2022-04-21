@@ -217,14 +217,14 @@ namespace net
             return vector<float>{-1.0f};
         }
 
-        if (manager.load_sets(file, file_reload))
-            return active_net->launch_gradient(manager.sets, iterations, batch_size);
+        if (manager.load_set(file, file_reload))
+            return active_net->launch_gradient(manager.set, iterations, batch_size);
 
         cout << RED << "failed to initialize net " << active_net_name << " from file \"" << file << '\"' << RESET "\n";
         return vector<float>{-1.0f};
     }
 
-    vector<float> net_handler::active_net_launch_gradient(const net::net_sets &sets, size_t iterations, size_t batch_size)
+    vector<float> net_handler::active_net_launch_gradient(const net::net_set &set, size_t iterations, size_t batch_size)
     {
         if (!active_net)
         {
@@ -232,7 +232,7 @@ namespace net
             return vector<float>{-1.0f};
         }
 
-        return active_net->launch_gradient(sets, iterations, batch_size);
+        return active_net->launch_gradient(set, iterations, batch_size);
     }
 
     void net_handler::active_net_print_inner_vals()
@@ -277,9 +277,9 @@ namespace net
             manager.write_net_to_file(file, active_net->get_net_data());
     }
 
-    void net_handler::write_sets_to_file(const std::string &file, const net_sets &sets)
+    void net_handler::write_set_to_file(const std::string &file, const net_set &set)
     {
-        manager.write_sets_to_file(file, sets);
+        manager.write_set_to_file(file, set);
     }
 
 //     void net_handler::process_video(const string &video_name)
