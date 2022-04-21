@@ -148,8 +148,8 @@ namespace net
             cout << YELLOW << "no active net" << RESET << "\n ";
             return vector<float>{-1.0f};
         }
-        else
-            return active_net->launch_forward(inputs);
+
+        return active_net->launch_forward(inputs);
     }
 
     void net_handler::enq_fpga_net(const string &net_key, const vector<float> &inputs, bool reload, bool same_in, bool big_nets)
@@ -198,49 +198,53 @@ namespace net
     #endif
     }
 
-    vector<float> net_handler::active_net_launch_gradient(size_t iterations, size_t batch_size, float alpha, float alpha_decay, float lambda,
-                                                          float error_threshold, int norm, size_t dropout_interval, const string &file, bool file_reload)
+    void net_handler::active_net_set_gradient_attribute(int attribute, float value)
     {
         if (!active_net)
         {
             cout << YELLOW << "no active net" << RESET << "\n ";
-            return vector<float>{-1.0f};
+            return;
         }
-        else
-        {
-            bool succeeded = manager.load_sets(file, file_reload);
 
-            if (succeeded)
-                return active_net->launch_gradient(manager.sets, iterations, batch_size, alpha, alpha_decay, lambda, error_threshold, norm, dropout_interval);
-            else
-            {
-                cout << RED << "failed to initialize net " << active_net_name << " from file \"" << file << '\"' << RESET "\n";
-                return vector<float>{-1.0f};
-            }
-        }
+        return active_net->set_gradient_attribute(attribute, value);
     }
 
-    vector<float> net_handler::active_net_launch_gradient(const net::net_sets &sets, size_t iterations, size_t batch_size, float alpha,
-                                                          float alpha_decay, float lambda, float error_threshold, int norm, size_t dropout_interval)
+    vector<float> net_handler::active_net_launch_gradient(size_t iterations, size_t batch_size, const string &file, bool file_reload)
     {
         if (!active_net)
         {
             cout << YELLOW << "no active net" << RESET << "\n ";
             return vector<float>{-1.0f};
         }
-        else
-            return active_net->launch_gradient(sets, iterations, batch_size, alpha, alpha_decay, lambda, error_threshold, norm, dropout_interval);
+
+        if (manager.load_sets(file, file_reload))
+            return active_net->launch_gradient(manager.sets, iterations, batch_size);
+
+        cout << RED << "failed to initialize net " << active_net_name << " from file \"" << file << '\"' << RESET "\n";
+        return vector<float>{-1.0f};
+    }
+
+    vector<float> net_handler::active_net_launch_gradient(const net::net_sets &sets, size_t iterations, size_t batch_size)
+    {
+        if (!active_net)
+        {
+            cout << YELLOW << "no active net" << RESET << "\n ";
+            return vector<float>{-1.0f};
+        }
+
+        return active_net->launch_gradient(sets, iterations, batch_size);
     }
 
     void net_handler::active_net_print_inner_vals()
     {
         if (!active_net)
-            cout << YELLOW << "no active net" << RESET << "\n ";
-        else
         {
-            cout << "printing net " << active_net_name << " inner vals\n";
-            active_net->print_inner_vals();
+            cout << YELLOW << "no active net" << RESET << "\n ";
+            return;
         }
+
+        cout << "printing net " << active_net_name << " inner vals\n";
+        active_net->print_inner_vals();
     }
 
     signed long net_handler::active_net_get_gradient_performance()
@@ -250,8 +254,8 @@ namespace net
             cout << YELLOW << "no active net" << RESET << "\n ";
             return -1;
         }
-        else
-            return active_net->get_gradient_performance();
+
+        return active_net->get_gradient_performance();
     }
 
     signed long net_handler::active_net_get_forward_performance()
@@ -261,11 +265,11 @@ namespace net
             cout << YELLOW << "no active net" << RESET << "\n ";
             return -1;
         }
-        else
-            return active_net->get_forward_performance();
+
+        return active_net->get_forward_performance();
     }
 
-    void net_handler::active_net_write_net_to_file(const string &file)
+    void net_handler::active_net_write_to_file(const string &file)
     {
         if (!active_net)
             cout << YELLOW << "no active net" << RESET << "\n ";

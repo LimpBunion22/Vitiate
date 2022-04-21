@@ -57,11 +57,9 @@ namespace net
             file_handler.close();
             return true;
         }
-        else
-        {
-            cout << RED << "unable to open file" << RESET << "\n";
-            return false;
-        }
+
+        cout << RED << "unable to open file" << RESET << "\n";
+        return false;
     }
 
     bool file_manager::load_net_structure(const string &file, bool file_reload)
@@ -135,11 +133,9 @@ namespace net
             file_handler.close();
             return true;
         }
-        else
-        {
-            cout << RED << "unable to open file" << RESET << "\n";
-            return false;
-        }
+
+        cout << RED << "unable to open file" << RESET << "\n";
+        return false;
     }
 
     bool file_manager::load_net(const string &file, bool file_reload)
@@ -254,11 +250,9 @@ namespace net
             file_handler.close();
             return true;
         }
-        else
-        {
-            cout << RED << "unable to open file" << RESET << "\n";
-            return false;
-        }
+
+        cout << RED << "unable to open file" << RESET << "\n";
+        return false;
     }
 
     bool file_manager::load_sets(const string &file, bool file_reload)
@@ -325,11 +319,9 @@ namespace net
             file_handler.close();
             return true;
         }
-        else
-        {
-            cout << RED << "unable to open file" << RESET << "\n";
-            return false;
-        }
+
+        cout << RED << "unable to open file" << RESET << "\n";
+        return false;
     }
 
     bool file_manager::write_sets_to_file(const std::string &file, const net_sets &n_sets)
@@ -358,11 +350,9 @@ namespace net
             file_handler.close();
             return true;
         }
-        else
-        {
-            cout << RED << "unable to open file" << RESET << "\n";
-            return false;
-        }
+
+        cout << RED << "unable to open file" << RESET << "\n";
+        return false;
     }
 
 }

@@ -18,10 +18,24 @@ PYBIND11_MODULE(netStandalone, m)
     py::bind_vector<vector<size_t>>(m, "v_size_t");
     py::bind_vector<vector<unsigned char>>(m, "v_uchar");
     py::bind_vector<vector<int>>(m, "v_int");
-    m.attr("RELU2") = py::int_(net::RELU2);
-    m.attr("SIGMOID") = py::int_(net::SIGMOID);
-    m.attr("RELU2_SOFT_MAX") = py::int_(net::RELU2_SOFT_MAX);
+
+    //*attributes
+    m.attr("ALPHA") = py::int_(net::ALPHA);
+    m.attr("ALPHA_DECAY") = py::int_(net::ALPHA_DECAY);
+    m.attr("ERROR_THRESHOLD") = py::int_(net::ERROR_THRESHOLD);
+    m.attr("REG_LAMBDA") = py::int_(net::REG_LAMBDA);
+    m.attr("NORM") = py::int_(net::NORM);
+    m.attr("DROPOUT_INTERVAL") = py::int_(net::DROPOUT_INTERVAL);
+    m.attr("ADAM") = py::int_(net::ADAM);
+    m.attr("MOMENTUM_BETA") = py::int_(net::MOMENTUM_BETA);
+    m.attr("RMS_BETA") = py::int_(net::RMS_BETA);
+
+    //*selections
     m.attr("FULL_BATCH") = py::size_t(net::FULL_BATCH);
+    m.attr("ON") = py::int_(net::ON);
+    m.attr("OFF") = py::int_(net::OFF);
+
+    //*normalization
     m.attr("NO_NORM_REG") = py::int_(net::NO_NORM_REG);
     m.attr("REG") = py::int_(net::REG);
     m.attr("NORM_0") = py::int_(net::NORM_0);
@@ -30,6 +44,14 @@ PYBIND11_MODULE(netStandalone, m)
     m.attr("NORM_REG_0") = py::int_(net::NORM_REG_0);
     m.attr("NORM_REG_1") = py::int_(net::NORM_REG_1);
     m.attr("NORM_REG_2") = py::int_(net::NORM_REG_2);
+
+    //*activations
+    m.attr("RELU") = py::int_(net::RELU);
+    m.attr("RELU2") = py::int_(net::RELU2);
+    m.attr("SIGMOID") = py::int_(net::SIGMOID);
+    m.attr("RELU2_SOFT_MAX") = py::int_(net::RELU2_SOFT_MAX);
+
+    //*implementation
     m.attr("CPU") = py::int_(net::CPU);
     m.attr("GPU") = py::int_(net::GPU);
 #ifdef USE_FPGA
@@ -57,9 +79,9 @@ PYBIND11_MODULE(netStandalone, m)
         .def("net_create", &net::net_handler::net_create, py::arg("net_key"), py::arg("implementation"),
              py::arg("random"), py::arg("file"), py::arg("file_reload"))
         .def("active_net_launch_forward", &net::net_handler::active_net_launch_forward, py::arg("inputs"))
-        .def("active_net_launch_gradient", py::overload_cast<size_t, size_t, float, float, float, float, int, size_t, const string &, bool>(&net::net_handler::active_net_launch_gradient),
-             py::arg("iterations"), py::arg("batch_size"), py::arg("alpha"), py::arg("alpha_decay"), py::arg("reg_lambda"),
-             py::arg("error_threshold"), py::arg("norm"), py::arg("dropout_interval"), py::arg("file"), py::arg("file_reload"))
+        .def("active_net_set_gradient_attribute", &net::net_handler::active_net_set_gradient_attribute, py::arg("attribute"), py::arg("value"))
+        .def("active_net_launch_gradient", py::overload_cast<size_t, size_t, const string &, bool>(&net::net_handler::active_net_launch_gradient),
+             py::arg("iterations"), py::arg("batch_size"), py::arg("file"), py::arg("file_reload"))
         .def("active_net_print_inner_vals", &net::net_handler::active_net_print_inner_vals)
         .def("active_net_get_gradient_performance", &net::net_handler::active_net_get_gradient_performance)
         .def("active_net_get_forward_performance", &net::net_handler::active_net_get_forward_performance)

@@ -23,11 +23,23 @@
 
 namespace net
 {
-    constexpr int RELU = 0;
-    constexpr int RELU2 = 1;
-    constexpr int SIGMOID = 2;
-    constexpr int RELU2_SOFT_MAX = 3;
+    //*attributes
+    constexpr int ALPHA = 0;
+    constexpr int ALPHA_DECAY = 1;
+    constexpr int ERROR_THRESHOLD = 2;
+    constexpr int REG_LAMBDA = 3;
+    constexpr int NORM = 4;
+    constexpr int DROPOUT_INTERVAL = 5;
+    constexpr int ADAM = 6;
+    constexpr int MOMENTUM_BETA = 7;
+    constexpr int RMS_BETA = 8;
+
+    //*selections
     constexpr size_t FULL_BATCH = 0;
+    constexpr int ON = 1;
+    constexpr int OFF = 0;
+
+    //*normalization
     constexpr int NO_NORM_REG = -1;
     constexpr int REG = 0;
     constexpr int NORM_0 = 1;
@@ -36,6 +48,12 @@ namespace net
     constexpr int NORM_REG_0 = 4;
     constexpr int NORM_REG_1 = 5;
     constexpr int NORM_REG_2 = 6;
+
+    //*activations
+    constexpr int RELU = 0;
+    constexpr int RELU2 = 1;
+    constexpr int SIGMOID = 2;
+    constexpr int RELU2_SOFT_MAX = 3;
 
     typedef struct
     {
