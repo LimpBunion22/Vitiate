@@ -264,7 +264,7 @@ def test_backward():
 def cpp_forward(bench_list, handler, test_input, net_name="_temporal_net"):
 
     handler.net_create("cpu_float_test", netStandalone.CPU,
-                       netStandalone.RANDOM, net_name, file_reload=True)
+                       netStandalone.RANDOM_NET, net_name, file_reload=True)
     handler.set_active_net("cpu_float_test")
     tic = time.perf_counter()
     res = handler.active_net_launch_forward(test_input)
@@ -276,11 +276,11 @@ def cpp_forward(bench_list, handler, test_input, net_name="_temporal_net"):
 def fpga_forward(bench_list, handler, test_input, net_name="_temporal_net"):
 
     handler.net_create("fpga_float_test", netStandalone.FPGA,
-                    netStandalone.FIXED, net_name+"_with_params", file_reload=True)
+                    netStandalone.FIXED_NET, net_name+"_with_params", file_reload=True)
     if(POP_FORWARD):
         for i in range(POPULATION):
             handler.net_create("fpga_float_test_"+str(i), netStandalone.FPGA,
-                            netStandalone.FIXED, net_name+"_with_params", file_reload=True)
+                            netStandalone.FIXED_NET, net_name+"_with_params", file_reload=True)
 
     handler.set_active_net("fpga_float_test")
     
@@ -323,7 +323,7 @@ def fpga_forward(bench_list, handler, test_input, net_name="_temporal_net"):
 def gpu_forward(bench_list, handler, test_input, net_name="_temporal_net"):
 
     handler.net_create("gpu_float_test", netStandalone.GPU,
-                       netStandalone.FIXED, net_name+"_with_params", file_reload=True)
+                       netStandalone.FIXED_NET, net_name+"_with_params", file_reload=True)
     handler.set_active_net("gpu_float_test")
     tic = time.perf_counter()
     res = handler.active_net_launch_forward(test_input)
@@ -345,7 +345,7 @@ def keras_forward(bench_list, structure):
 def cpp_backward(bench_list, handler, net_name="_temporal_net", set_name="_temporal_data"):
 
     handler.net_create("cpu_float_test", netStandalone.CPU,
-                       netStandalone.RANDOM, net_name, file_reload=True)
+                       netStandalone.RANDOM_NET, net_name, file_reload=True)
     handler.set_active_net("cpu_float_test")
     # handler.active_net_init_gradient(set_name, file_reload=True)
     tic = time.perf_counter()
@@ -358,7 +358,7 @@ def cpp_backward(bench_list, handler, net_name="_temporal_net", set_name="_tempo
 def gpu_backward(bench_list, handler, net_name="_temporal_net", set_name="_temporal_data"):
 
     handler.net_create("gpu_float_test", netStandalone.GPU,
-                       netStandalone.RANDOM, net_name, file_reload=True)
+                       netStandalone.RANDOM_NET, net_name, file_reload=True)
     handler.set_active_net("gpu_float_test")
     # handler.active_net_init_gradient(set_name, file_reload=True)
     tic = time.perf_counter()

@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.15.0)
 
-option(WITH_FPGA "build with FPGA" OFF)
+option(WITH_FPGA "build with FPGA" ON)
 
 if(WITH_FPGA)
     add_compile_definitions(USE_FPGA)
@@ -78,7 +78,6 @@ target_link_libraries(netStandalone PRIVATE
     $ENV{HOME}/intel/oneapi/compiler/latest/linux/compiler/lib/intel64_lin/libimf.so
     /usr/local/cuda/lib64/libcudart.so
     /usr/local/cuda/lib64/libcublas.so
-    ${LIB_FOLDER}/libinputnormCPU.so
     ${LIB_FOLDER}/libnetCPU.so
     ${LIB_FOLDER}/libnetGPU.so)
 

@@ -85,7 +85,7 @@ PYBIND11_MODULE(netStandalone, m)
         .def("active_net_print_inner_vals", &net::net_handler::active_net_print_inner_vals)
         .def("active_net_get_gradient_performance", &net::net_handler::active_net_get_gradient_performance)
         .def("active_net_get_forward_performance", &net::net_handler::active_net_get_forward_performance)
-        .def("active_net_write_net_to_file", &net::net_handler::active_net_write_net_to_file, py::arg("file"))
+        .def("active_net_write_net_to_file", &net::net_handler::active_net_write_to_file, py::arg("file"))
         // .def("process_video", &net::net_handler::process_video, py::arg("video_name"))
         // .def("process_img_1000x1000", &net::net_handler::process_img_1000x1000, py::arg("image"), py::arg("dwz_10") = false);
         .def("enq_fpga_net", &net::net_handler::enq_fpga_net, py::arg("net_key"), py::arg("inputs"), py::arg("reload")=true, py::arg("same_in")=false, py::arg("big_nets")=false)
