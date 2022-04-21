@@ -8,8 +8,8 @@
                 "${HOME}/intelFPGA_pro/18.1/hld/host/include",
                 "${HOME}/intelFPGA_pro/18.1/hld/examples_aoc/common/inc",
                 "/usr/local/cuda/include",
-                "/home/gabi/anaconda3/envs/Vitiate/include",
-                "/home/gabi/anaconda3/envs/Vitiate/include/python3.8"
+                "/home/hai/anaconda3/envs/Vitiate/include",
+                "/home/hai/anaconda3/envs/Vitiate/include/python3.8"
             ],
             "defines": [],
             "compilerPath": "/usr/bin/gcc",

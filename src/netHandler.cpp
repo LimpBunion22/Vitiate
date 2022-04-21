@@ -75,7 +75,16 @@ namespace net
             break;
 #ifdef USE_FPGA
         case FPGA:
-            nets[net_key] = unique_ptr<net_abstract>(new fpga::net_fpga());
+            if (mustang_handler_init == false){
+                //cout << BLUE << "NET_HANDLER: Activating  handler" << RESET << "\n";
+                mustang_handler_init = true;
+                mustang_handler.activate_handler();
+                //cout << BLUE << "NET_HANDLER: Handler activated" << RESET << "\n";
+            }
+
+            //cout << BLUE << "NET_HANDLER: Creating fpga net" << RESET << "\n";
+            nets[net_key] = unique_ptr<net_abstract>(new fpga::net_fpga(n_ins, n_p_l, activation_type, mustang_handler));
+            //cout << BLUE << "NET_HANDLER: FPGA net created" << RESET << "\n";
             implementations[net_key] = implementation;
             break;
 #endif
@@ -109,7 +118,16 @@ namespace net
             break;
 #ifdef USE_FPGA
         case FPGA:
-            nets[net_key] = unique_ptr<net_abstract>(new fpga::net_fpga(manager.data, random));
+            if (mustang_handler_init == false){
+                //cout << BLUE << "NET_HANDLER: Activating  handler" << RESET << "\n";
+                mustang_handler_init = true;
+                mustang_handler.activate_handler();
+                //cout << BLUE << "NET_HANDLER: Handler activated" << RESET << "\n";
+            }
+
+            //cout << BLUE << "NET_HANDLER: Creating fpga net" << RESET << "\n";
+            nets[net_key] = unique_ptr<net_abstract>(new fpga::net_fpga(manager.data, random, mustang_handler));
+            //cout << BLUE << "NET_HANDLER: FPGA net created" << RESET << "\n";
             implementations[net_key] = implementation;
             break;
 #endif
@@ -132,6 +150,52 @@ namespace net
         }
         else
             return active_net->launch_forward(inputs);
+    }
+
+    void net_handler::enq_fpga_net(const string &net_key, const vector<float> &inputs, bool reload, bool same_in, bool big_nets)
+    {
+    #ifdef USE_FPGA
+        if (nets.find(net_key) == nets.end())
+            cout << YELLOW << "net " << net_key << " doesn't exist" << RESET << "\n";
+        else
+        {
+            if (implementations[net_key] != FPGA)
+                cout << YELLOW << "net " << net_key << " is not a fpga net" << RESET << "\n";
+            else{
+                fpga::net_fpga* enq_net = dynamic_cast<fpga::net_fpga*>(nets[net_key].get());
+                enq_net->enqueue_net(inputs, reload, same_in, big_nets);
+            }
+        }
+    #endif
+    }
+
+    void net_handler::exe_fpga_nets(){
+
+        #ifdef USE_FPGA
+        if (implementations[active_net_name] != FPGA)
+            cout << YELLOW << "active net " << active_net_name << " is not a fpga net" << RESET << "\n";
+        else{
+                fpga::net_fpga* enq_net = dynamic_cast<fpga::net_fpga*>(nets[active_net_name].get());
+                enq_net->solve_pack();
+        }
+        #endif
+    }
+
+    vector<float> net_handler::read_fpga_net(const string &net_key)
+    {
+    #ifdef USE_FPGA
+        if (nets.find(net_key) == nets.end())
+            cout << YELLOW << "net " << net_key << " doesn't exist" << RESET << "\n";
+        else
+        {
+            if (implementations[net_key] != FPGA)
+                cout << YELLOW << "net " << net_key << " is not a fpga net" << RESET << "\n";
+            else{
+                fpga::net_fpga* enq_net = dynamic_cast<fpga::net_fpga*>(nets[net_key].get());
+                return enq_net->read_net();
+            }
+        }
+    #endif
     }
 
     vector<float> net_handler::active_net_launch_gradient(size_t iterations, size_t batch_size, float alpha, float alpha_decay, float lambda,
@@ -214,137 +278,137 @@ namespace net
         manager.write_sets_to_file(file, sets);
     }
 
-    void net_handler::process_video(const string &video_name)
-    {
-#ifdef USE_FPGA
-        if (implementations[active_net_name] != FPGA)
-        {
-            cout << YELLOW << "active net is not an FPGA implementation" << RESET << "\n";
-            return;
-        }
+//     void net_handler::process_video(const string &video_name)
+//     {
+// #ifdef USE_FPGA
+//         if (implementations[active_net_name] != FPGA)
+//         {
+//             cout << YELLOW << "active net is not an FPGA implementation" << RESET << "\n";
+//             return;
+//         }
 
-        fpga::net_fpga *net = dynamic_cast<fpga::net_fpga *>(active_net);
-        // auto it = experimental::filesystem::directory_iterator("./");
-        // for (const auto &file : it)
-        //     cout << file.path() << endl;
+//         fpga::net_fpga *net = dynamic_cast<fpga::net_fpga *>(active_net);
+//         // auto it = experimental::filesystem::directory_iterator("./");
+//         // for (const auto &file : it)
+//         //     cout << file.path() << endl;
 
-        VideoCapture cap(0); // open the default camera
-        if (!cap.isOpened()) // check if we succeeded
-        {
-            cout << "Fallo al abrir el archivo\n";
-            return;
-        }
-        // cap.set(CAP_PROP_FRAME_WIDTH, 854);
-        // cap.set(CAP_PROP_FRAME_HEIGHT, 480);
-        cap.set(CAP_PROP_FRAME_WIDTH, 1920);
-        cap.set(CAP_PROP_FRAME_HEIGHT, 1080);
-        cap.set(CAP_PROP_BUFFERSIZE, 1);
+//         VideoCapture cap(0); // open the default camera
+//         if (!cap.isOpened()) // check if we succeeded
+//         {
+//             cout << "Fallo al abrir el archivo\n";
+//             return;
+//         }
+//         // cap.set(CAP_PROP_FRAME_WIDTH, 854);
+//         // cap.set(CAP_PROP_FRAME_HEIGHT, 480);
+//         cap.set(CAP_PROP_FRAME_WIDTH, 1920);
+//         cap.set(CAP_PROP_FRAME_HEIGHT, 1080);
+//         cap.set(CAP_PROP_BUFFERSIZE, 1);
 
-        namedWindow("Camara", WINDOW_NORMAL); // WINDOW_OPENGL
-        namedWindow("FPGA", WINDOW_NORMAL);
-        // Mat frame;
-        unsigned char *red_image = new unsigned char[1920 * 1080]();
-        unsigned char *green_image = new unsigned char[1920 * 1080]();
-        unsigned char *blue_image = new unsigned char[1920 * 1080]();
+//         namedWindow("Camara", WINDOW_NORMAL); // WINDOW_OPENGL
+//         namedWindow("FPGA", WINDOW_NORMAL);
+//         // Mat frame;
+//         unsigned char *red_image = new unsigned char[1920 * 1080]();
+//         unsigned char *green_image = new unsigned char[1920 * 1080]();
+//         unsigned char *blue_image = new unsigned char[1920 * 1080]();
 
-        int batch_load = 0;
-        Mat cpu_frame;
+//         int batch_load = 0;
+//         Mat cpu_frame;
 
-        cap.read(cpu_frame);
-        int cn = cpu_frame.channels();
+//         cap.read(cpu_frame);
+//         int cn = cpu_frame.channels();
 
-        for (;;)
-        {
-            while (batch_load < 1)
-            {
-                batch_load++;
-                cap.read(cpu_frame);
+//         for (;;)
+//         {
+//             while (batch_load < 1)
+//             {
+//                 batch_load++;
+//                 cap.read(cpu_frame);
 
-                for (int x = 0; x < min(1920, cpu_frame.cols); x++)
-                {
-                    for (int y = 0; y < min(1080, cpu_frame.rows); y++)
-                    {
-                        Vec3b &intensity = cpu_frame.at<Vec3b>(y, x);
-                        red_image[y + x * 1080] = (unsigned char)(intensity.val[2]);   // R
-                        green_image[y + x * 1080] = (unsigned char)(intensity.val[1]); // G
-                        blue_image[y + x * 1080] = (unsigned char)(intensity.val[0]);  // B
-                    }
-                }
+//                 for (int x = 0; x < min(1920, cpu_frame.cols); x++)
+//                 {
+//                     for (int y = 0; y < min(1080, cpu_frame.rows); y++)
+//                     {
+//                         Vec3b &intensity = cpu_frame.at<Vec3b>(y, x);
+//                         red_image[y + x * 1080] = (unsigned char)(intensity.val[2]);   // R
+//                         green_image[y + x * 1080] = (unsigned char)(intensity.val[1]); // G
+//                         blue_image[y + x * 1080] = (unsigned char)(intensity.val[0]);  // B
+//                     }
+//                 }
 
-                // cout << "Entrando en filter_image\n";
-                net->process_img_1920_1080(red_image, green_image, blue_image);
-                // cout << "Saliendo de filter_image\n";
-            }
+//                 // cout << "Entrando en filter_image\n";
+//                 net->process_img_1920_1080(red_image, green_image, blue_image);
+//                 // cout << "Saliendo de filter_image\n";
+//             }
 
-            // cap.read(gpu_frame);
-            imshow("Camara", cpu_frame);
+//             // cap.read(gpu_frame);
+//             imshow("Camara", cpu_frame);
 
-            image_set out_image = net->get_img_1920_1080();
-            batch_load--;
+//             image_set out_image = net->get_img_1920_1080();
+//             batch_load--;
 
-            for (int x = 0; x < min(1920, cpu_frame.cols); x++)
-            {
-                for (int y = 0; y < min(1080, cpu_frame.rows); y++)
-                {
-                    Vec3b &intensity = cpu_frame.at<Vec3b>(y, x);
-                    for (int k = 0; k < cn; k++)
-                        intensity.val[k] = min(255, out_image.resized_image_data[y + x * 1080] * 3);
-                }
-            }
+//             for (int x = 0; x < min(1920, cpu_frame.cols); x++)
+//             {
+//                 for (int y = 0; y < min(1080, cpu_frame.rows); y++)
+//                 {
+//                     Vec3b &intensity = cpu_frame.at<Vec3b>(y, x);
+//                     for (int k = 0; k < cn; k++)
+//                         intensity.val[k] = min(255, out_image.resized_image_data[y + x * 1080] * 3);
+//                 }
+//             }
 
-            if (waitKey(30) >= 0)
-                break;
-            imshow("FPGA", cpu_frame);
-        }
+//             if (waitKey(30) >= 0)
+//                 break;
+//             imshow("FPGA", cpu_frame);
+//         }
 
-#else
-        cout << YELLOW << "compiled without FPGA suppport" << RESET << "\n";
-#endif
-    }
+// #else
+//         cout << YELLOW << "compiled without FPGA suppport" << RESET << "\n";
+// #endif
+//     }
 
-    std::vector<float> net_handler::process_img_1000x1000(const vector<float> &image, bool dwz_10)
-    {
-        // cout << "Llamando al metodo 1000x1000\n";
-#ifdef USE_FPGA
-        if (implementations[active_net_name] != FPGA)
-        {
-            cout << YELLOW << "active net is not an FPGA implementation" << RESET << "\n";
-            return;
-        }
+//     std::vector<float> net_handler::process_img_1000x1000(const vector<float> &image, bool dwz_10)
+//     {
+//         // cout << "Llamando al metodo 1000x1000\n";
+// #ifdef USE_FPGA
+//         if (implementations[active_net_name] != FPGA)
+//         {
+//             cout << YELLOW << "active net is not an FPGA implementation" << RESET << "\n";
+//             return;
+//         }
 
-        fpga::net_fpga *net = dynamic_cast<fpga::net_fpga *>(active_net);
+//         fpga::net_fpga *net = dynamic_cast<fpga::net_fpga *>(active_net);
 
-        unsigned char *red_image = new unsigned char[1000 * 1000]();
-        unsigned char *green_image = new unsigned char[1000 * 1000]();
-        unsigned char *blue_image = new unsigned char[1000 * 1000]();
+//         unsigned char *red_image = new unsigned char[1000 * 1000]();
+//         unsigned char *green_image = new unsigned char[1000 * 1000]();
+//         unsigned char *blue_image = new unsigned char[1000 * 1000]();
 
-        for (int x = 0; x < 1000 * 1000; x++)
-        {
-            red_image[x] = (unsigned char)(image[x]);             // R
-            green_image[x] = (unsigned char)(image[x + 1000000]); // G
-            blue_image[x] = (unsigned char)(image[x + 2000000]);  // B
-        }
+//         for (int x = 0; x < 1000 * 1000; x++)
+//         {
+//             red_image[x] = (unsigned char)(image[x]);             // R
+//             green_image[x] = (unsigned char)(image[x + 1000000]); // G
+//             blue_image[x] = (unsigned char)(image[x + 2000000]);  // B
+//         }
 
-        // cout << "Enqueuing image\n";
-        vector<float> out_image;
+//         // cout << "Enqueuing image\n";
+//         vector<float> out_image;
 
-        if (dwz_10)
-        {
-            net->process_img_1000_1000_dwz10(red_image, green_image, blue_image);
-            out_image = net->get_img_100_100();
-        }
-        else
-        {
-            net->process_img_1000_1000(red_image, green_image, blue_image);
-            out_image = net->get_img_1000_1000();
-        }
+//         if (dwz_10)
+//         {
+//             net->process_img_1000_1000_dwz10(red_image, green_image, blue_image);
+//             out_image = net->get_img_100_100();
+//         }
+//         else
+//         {
+//             net->process_img_1000_1000(red_image, green_image, blue_image);
+//             out_image = net->get_img_1000_1000();
+//         }
 
-        // cout << "Returning\n";
-        return out_image;
-#else
-        cout << YELLOW << "compiled without FPGA suppport" << RESET << "\n";
-        return vector<float>{-1.0f};
+//         // cout << "Returning\n";
+//         return out_image;
+// #else
+//         cout << YELLOW << "compiled without FPGA suppport" << RESET << "\n";
+//         return vector<float>{-1.0f};
 
-#endif
-    }
+// #endif
+//     }
 }

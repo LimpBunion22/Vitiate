@@ -163,7 +163,7 @@ class ag_handler:
         for p in range(self.pop_size):
             self.handler.set_active_net(self.names[p])
             # self.handler.active_net_init_gradient(train_set_name)
-            aux = self.handler.active_net_launch_gradient(iterations=GRADIENT_ITERATIONS, batch_size=netStandalone.FULL_BATCH, alpha=1, alpha_decay=0.001, reg_lambda=0.1, error_threshold=1, norm=netStandalone.NORM_2, file=train_set_name, file_reload=netStandalone.REUSE_FILE)
+            aux = self.handler.active_net_launch_gradient(iterations=GRADIENT_ITERATIONS, batch_size=netStandalone.FULL_BATCH, alpha=1, alpha_decay=0.001, reg_lambda=0.1, error_threshold=1, norm=netStandalone.NORM_2, dropout_interval=0, file=train_set_name, file_reload=netStandalone.REUSE_FILE)
             for i in range(len(aux)):
                 if np.isnan(aux[i]):
                     log("NaN en red "+str(p)+". Arch: "+str(self.archs[p][0])+", "+str(self.archs[p][1])+", "+str(self.archs[p][2])+", ","ERROR")

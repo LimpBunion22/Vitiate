@@ -8,6 +8,7 @@
 #include <netFileManager.h>
 #include <netAbstract.h>
 #include <netGPU.h>
+#include <fpgaHandler.h>
 
 namespace net
 {
@@ -32,6 +33,9 @@ namespace net
         cudaStream_t stream;
         gpu::cuda_libs_data libs_data;
 
+        fpga::fpga_handler mustang_handler;
+        bool mustang_handler_init = false;
+
     public:
         net_handler(const std::string &path);
         ~net_handler();
@@ -50,8 +54,11 @@ namespace net
         signed long active_net_get_forward_performance();
         void active_net_write_net_to_file(const std::string &file);
         void write_sets_to_file(const std::string &file, const net_sets &sets);
-        void process_video(const std::string &video_name);
-        std::vector<float> process_img_1000x1000(const std::vector<float> &image, bool dwz_10 = false);
+        // void process_video(const std::string &video_name);
+        // std::vector<float> process_img_1000x1000(const std::vector<float> &image, bool dwz_10 = false);
+        void enq_fpga_net(const std::string &net_key, const std::vector<float> &inputs, bool reload=true, bool same_in=false, bool big_nets=false);
+        void exe_fpga_nets();
+        std::vector<float> read_fpga_net(const std::string &net_key);
     };
 }
 #endif
