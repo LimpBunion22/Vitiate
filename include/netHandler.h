@@ -22,7 +22,7 @@ namespace net
     class handler
     {
     private:
-        std::map<std::string, std::unique_ptr<builder>> _nets;
+        std::map<std::string, std::shared_ptr<builder>> _nets; // using shared instead of unique for returning handler& in python
         std::map<std::string, int> _implementations;
         file_manager _file_manager;
         builder *_active_net;
@@ -32,6 +32,7 @@ namespace net
         CREATE_CUBLAS_DATA(_cublas);
 
     public:
+        handler() = delete;
         handler(const std::string &path);
         ~handler();
 

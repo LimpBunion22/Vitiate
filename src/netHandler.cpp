@@ -11,17 +11,6 @@
 
 namespace net
 {
-    handler::handler(const std::string &path) : _file_manager(path), _active_net(nullptr), _stream(gpu::create_stream())
-    {
-    }
-
-    handler::~handler()
-    {
-        gpu::destroy_stream(_stream);
-        gpu::cub_free(_cub);
-        gpu::cublas_free(_cublas);
-    }
-
     // management
     void handler::set_active_net(const std::string &key)
     {
@@ -63,11 +52,11 @@ namespace net
         switch (implementation)
         {
         case GPU:
-            _nets[key] = std::make_unique<gpu::gpu_builder>(_cub, _cublas, _stream);
+            _nets[key] = std::make_shared<gpu::gpu_builder>(_cub, _cublas, _stream);
             _implementations[key] = implementation;
             break;
         case CPU:
-            _nets[key] = std::make_unique<cpu::cpu_builder>();
+            _nets[key] = std::make_shared<cpu::cpu_builder>();
             _implementations[key] = implementation;
             break;
 #ifdef USE_FPGA
@@ -226,4 +215,17 @@ namespace net
     {
         _file_manager.write_set_to_file(file, set);
     }
+
+    // ctors/dtors
+    handler::handler(const std::string &path) : _file_manager(path), _active_net(nullptr), _stream(gpu::create_stream())
+    {
+    }
+
+    handler::~handler()
+    {
+        gpu::destroy_stream(_stream);
+        gpu::cub_free(_cub);
+        gpu::cublas_free(_cublas);
+    }
+
 }

@@ -1,4 +1,6 @@
 make all --print-data-base --no-builtin-variables --no-builtin-rules --question
+make: *** No rule to make target 'all'.  Stop.
+
 # GNU Make 4.2.1
 # Built for x86_64-pc-linux-gnu
 # Copyright (C) 1988-2016 Free Software Foundation, Inc.
@@ -6,7 +8,7 @@ make all --print-data-base --no-builtin-variables --no-builtin-rules --question
 # This is free software: you are free to change and redistribute it.
 # There is NO WARRANTY, to the extent permitted by law.
 
-# Make data base, printed on Wed Apr 27 09:17:19 2022
+# Make data base, printed on Wed Apr 27 20:49:15 2022
 
 # Variables
 
@@ -49,7 +51,7 @@ VSCODE_NLS_CONFIG = {"locale":"en-us","availableLanguages":{},"_languagePackSupp
 # environment
 _ = /usr/share/code/code
 # environment
-JOURNAL_STREAM = 8:46067
+JOURNAL_STREAM = 8:50587
 # environment
 XDG_CONFIG_DIRS = /etc/xdg/xdg-ubuntu:/etc/xdg
 # makefile
@@ -71,7 +73,7 @@ DBUS_SESSION_BUS_ADDRESS = unix:path=/run/user/1000/bus
 # environment
 VSCODE_VERBOSE_LOGGING = true
 # environment
-MANAGERPID = 1889
+MANAGERPID = 1763
 # environment
 LESSOPEN = | /usr/bin/lesspipe %s
 # environment
@@ -87,7 +89,7 @@ GPG_AGENT_INFO = /run/user/1000/gnupg/S.gpg-agent:0:1
 # environment
 GJS_DEBUG_OUTPUT = stderr
 # environment
-SESSION_MANAGER = local/gabipc:@/tmp/.ICE-unix/2150,unix/gabipc:/tmp/.ICE-unix/2150
+SESSION_MANAGER = local/gabipc:@/tmp/.ICE-unix/2021,unix/gabipc:/tmp/.ICE-unix/2021
 # environment
 XDG_RUNTIME_DIR = /run/user/1000
 # environment
@@ -99,7 +101,7 @@ VSCODE_LOG_STACK = false
 # environment
 ELECTRON_RUN_AS_NODE = 1
 # environment
-INVOCATION_ID = 138da3b6197c43c5bec06b391c80a731
+INVOCATION_ID = 7b654492b4354f3f9508c275f76f43b2
 # default
 .FEATURES := target-specific order-only second-expansion else-if shortest-stem undefine oneshell archives jobserver output-sync check-symlink load
 # environment
@@ -109,7 +111,7 @@ XDG_SESSION_DESKTOP = ubuntu
 # environment
 SSH_AUTH_SOCK = /run/user/1000/keyring/ssh
 # environment
-GIO_LAUNCHED_DESKTOP_FILE_PID = 2474
+GIO_LAUNCHED_DESKTOP_FILE_PID = 2491
 # automatic
 %F = $(notdir $%)
 # environment
@@ -123,7 +125,7 @@ PWD = /home/gabi/Vitiate
 # default
 .LOADED := 
 # environment
-SSH_AGENT_PID = 2115
+SSH_AGENT_PID = 1986
 # environment
 ORIGINAL_XDG_CURRENT_DESKTOP = ubuntu:GNOME
 # environment
@@ -169,7 +171,7 @@ GNOME_SHELL_SESSION_MODE = ubuntu
 # environment
 LIBVA_DRIVER_NAME = iHD
 # environment
-VSCODE_IPC_HOOK_EXTHOST = /run/user/1000/vscode-ipc-63b0eab5-8d3a-4f78-80ad-ccfc0127f91c.sock
+VSCODE_IPC_HOOK_EXTHOST = /run/user/1000/vscode-ipc-cabd0e00-3353-4950-b8d8-a8322f36f9a8.sock
 # default
 MAKE_VERSION := 4.2.1
 # environment
@@ -247,7 +249,7 @@ LC_ADDRESS = es_ES.UTF-8
 # environment
 LANG = C
 # environment
-VSCODE_PID = 2474
+VSCODE_PID = 2491
 # environment
 _CE_CONDA = 
 # variable set hash-table stats:
@@ -277,9 +279,6 @@ all:
 #  File has not been updated.
 
 # Not a target:
- 
-make: *** No rule to make target 'all'.  Stop.
-
 Makefile:
 #  Implicit rule search has been done.
 #  File does not exist.
@@ -289,6 +288,7 @@ Makefile:
 # Not a target:
 makefile:
 #  Implicit rule search has been done.
+ 
 #  File does not exist.
 #  File has been updated.
 #  Failed to be updated.
@@ -320,6 +320,6 @@ GNUmakefile:
 # strcache performance: lookups = 33 / hit rate = 9%
 # hash-table stats:
 # Load=30/8192=0%, Rehash=0, Collisions=1/33=3%
-# Finished Make data base on Wed Apr 27 09:17:19 2022
+# Finished Make data base on Wed Apr 27 20:49:15 2022
 
  
