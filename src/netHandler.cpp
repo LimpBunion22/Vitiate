@@ -4,10 +4,10 @@
 #ifdef USE_FPGA
 #include <netFPGA.h>
 #include <experimental/filesystem>
+#endif
 #include <opencv2/opencv.hpp>
 #include <opencv2/highgui/highgui.hpp>
 #include <opencv2/videoio/videoio_c.h>
-#endif
 
 namespace net
 {
@@ -63,6 +63,18 @@ namespace net
         case FPGA:
             _nets[key] = unique_ptr<net_abstract>(new fpga::net_fpga());
             implementations[key] = implementation;
+            if (mustang_handler_init == false)
+            {
+                // cout << BLUE << "handler: Activating  handler" << RESET << "\n";
+                mustang_handler_init = true;
+                mustang_handler.activate_handler();
+                // cout << BLUE << "handler: Handler activated" << RESET << "\n";
+            }
+
+            // cout << BLUE << "handler: Creating fpga net" << RESET << "\n";
+            nets[net_key] = unique_ptr<net_abstract>(new fpga::net_fpga(n_ins, n_p_l, activation_type, mustang_handler));
+            // cout << BLUE << "handler: FPGA net created" << RESET << "\n";
+            implementations[net_key] = implementation;
             break;
 #endif
         default:
@@ -78,8 +90,6 @@ namespace net
             std::cout << YELLOW << "no active net" << RESET << "\n ";
             return;
         }
-
-        _active_net->set_input_size(input_size);
     }
 
     void handler::build_fully_layer(int layer_size, int activation)
@@ -216,6 +226,53 @@ namespace net
         _file_manager.write_set_to_file(file, set);
     }
 
+// fpga
+#ifdef USE_FPGA
+    void handler::enq_fpga_net(const std::string &net_key, const std::vector<float> &inputs, bool reload, bool same_in, bool big_nets)
+    {
+        if (nets.find(net_key) == nets.end())
+            cout << YELLOW << "net " << net_key << " doesn't exist" << RESET << "\n";
+        else
+        {
+            if (implementations[net_key] != FPGA)
+                cout << YELLOW << "net " << net_key << " is not a fpga net" << RESET << "\n";
+            else
+            {
+                fpga::net_fpga *enq_net = dynamic_cast<fpga::net_fpga *>(nets[net_key].get());
+                enq_net->enqueue_net(inputs, reload, same_in, big_nets);
+            }
+        }
+    }
+
+    void handler::exe_fpga_nets()
+    {
+
+        if (implementations[active_net_name] != FPGA)
+            cout << YELLOW << "active net " << active_net_name << " is not a fpga net" << RESET << "\n";
+        else
+        {
+            fpga::net_fpga *enq_net = dynamic_cast<fpga::net_fpga *>(nets[active_net_name].get());
+            enq_net->solve_pack();
+        }
+    }
+
+    std::vector<float> handler::read_fpga_net(const std::string &net_key)
+    {
+        if (nets.find(net_key) == nets.end())
+            cout << YELLOW << "net " << net_key << " doesn't exist" << RESET << "\n";
+        else
+        {
+            if (implementations[net_key] != FPGA)
+                cout << YELLOW << "net " << net_key << " is not a fpga net" << RESET << "\n";
+            else
+            {
+                fpga::net_fpga *enq_net = dynamic_cast<fpga::net_fpga *>(nets[net_key].get());
+                return enq_net->read_net();
+            }
+        }
+    }
+#endif
+
     // ctors/dtors
     handler::handler(const std::string &path) : _file_manager(path), _active_net(nullptr), _stream(gpu::create_stream())
     {
@@ -227,5 +284,4 @@ namespace net
         gpu::cub_free(_cub);
         gpu::cublas_free(_cublas);
     }
-
 }

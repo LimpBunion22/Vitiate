@@ -9,6 +9,10 @@
 #include <netBuilder.h>
 #include <builderGPU.h>
 
+#ifdef USE_FPGA
+#include <fpgaHandler.h>
+#endif
+
 namespace net
 {
     class builder;
@@ -30,6 +34,11 @@ namespace net
         cudaStream_t _stream;
         CREATE_CUB_DATA(_cub);
         CREATE_CUBLAS_DATA(_cublas);
+
+#ifdef USE_FPGA
+        fpga::fpga_handler mustang_handler;
+        bool mustang_handler_init = false;
+#endif
 
     public:
         handler() = delete;
@@ -59,6 +68,13 @@ namespace net
         // disk
         void write_net_to_file(const std::string &file);
         void write_set_to_file(const std::string &file, const set &set);
+
+// fpga
+#ifdef USE_FPGA
+        void enq_fpga_net(const std::string &net_key, const std::vector<float> &inputs, bool reload = true, bool same_in = false, bool big_nets = false);
+        void exe_fpga_nets();
+        std::vector<float> read_fpga_net(const std::string &net_key);
+#endif
     };
 }
 #endif

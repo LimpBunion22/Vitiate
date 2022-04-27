@@ -3,6 +3,7 @@
 cd ./utils/VIT-FPGA
 make
 cp ./include/netFPGA.h $HOME/workspace_development/include/
+cp ./include/fpgaHandler.h $HOME/workspace_development/include/
 
 cd ../../build
 

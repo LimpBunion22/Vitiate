@@ -57,6 +57,17 @@
         "thread": "cpp",
         "cinttypes": "cpp",
         "typeinfo": "cpp",
-        "bit": "cpp"
+        "bit": "cpp",
+        "variant": "cpp",
+        "__functional_base": "cpp",
+        "locale": "cpp",
+        "hash_map": "cpp",
+        "hash_set": "cpp",
+        "bitset": "cpp",
+        "forward_list": "cpp",
+        "unordered_set": "cpp",
+        "typeindex": "cpp",
+        "valarray": "cpp",
+        "__nullptr": "cpp"
     }
 }
