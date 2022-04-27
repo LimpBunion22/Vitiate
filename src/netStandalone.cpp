@@ -98,6 +98,8 @@ PYBIND11_MODULE(netStandalone, m)
          .def("enq_fpga_net", &net::net_handler::enq_fpga_net, py::arg("net_key"), py::arg("inputs"), py::arg("reload") = true, py::arg("same_in") = false, py::arg("big_nets") = false)
          .def("exe_fpga_nets", &net::net_handler::exe_fpga_nets)
          .def("read_fpga_net", &net::net_handler::read_fpga_net, py::arg("net_key"));
+#else
+         ; // close semicolon
 #endif
 }
 
