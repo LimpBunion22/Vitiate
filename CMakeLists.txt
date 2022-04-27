@@ -56,17 +56,17 @@ if(WITH_FPGA)
     list(APPEND CMAKE_INSTALL_RPATH "$ENV{HOME}/intelFPGA_pro/18.1/hld/host/linux64/lib")
 endif()
 
-#pybind 
-pybind11_add_module(netStandalone
-    ${DEF_FILES}
-    ${SRC_FILES}
-    ${INCLUDE_FILES})
-
-# # executable
-# add_executable(netStandalone
+# #pybind 
+# pybind11_add_module(netStandalone
 #     ${DEF_FILES}
 #     ${SRC_FILES}
 #     ${INCLUDE_FILES})
+
+# executable
+add_executable(netStandalone
+    ${DEF_FILES}
+    ${SRC_FILES}
+    ${INCLUDE_FILES})
 
 set_target_properties(netStandalone PROPERTIES BUILD_WITH_INSTALL_RPATH TRUE)
 set_target_properties(netStandalone PROPERTIES INSTALL_RPATH_USE_LINK_PATH TRUE)
@@ -78,9 +78,8 @@ target_link_libraries(netStandalone PRIVATE
     $ENV{HOME}/intel/oneapi/compiler/latest/linux/compiler/lib/intel64_lin/libimf.so
     /usr/local/cuda/lib64/libcudart.so
     /usr/local/cuda/lib64/libcublas.so
-    ${LIB_FOLDER}/libinputnormCPU.so
-    ${LIB_FOLDER}/libnetCPU.so
-    ${LIB_FOLDER}/libnetGPU.so)
+    ${LIB_FOLDER}/libbuilderCPU.so
+    ${LIB_FOLDER}/libbuilderGPU.so)
 
 if(WITH_FPGA)
     target_link_libraries(netStandalone PRIVATE 

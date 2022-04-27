@@ -1,5 +1,5 @@
-#ifndef NETIMAGESTESTER_H
-#define NETIMAGESTESTER_H
+#ifndef SHAPEGENERATOR_H
+#define SHAPEGENERATOR_H
 
 #include <defines.h>
 #include <opencv2/opencv.hpp>
@@ -11,13 +11,13 @@ namespace net
     constexpr int LEARN_RECTANGLES = 2;
     constexpr int LEARN_ELLIPSES = 3;
 
-    class net_handler;
+    class handler;
 
-    class images_tester
+    class shape_generator
     {
     private:
-        size_t outs = 0;
-        size_t ins = 0;
+        int _out_size = 0;
+        int _in_size = 0;
 
     private:
         int my_random(int max, int min);
@@ -26,10 +26,10 @@ namespace net
         void triangle(int w, cv::Mat &img);
 
     public:
-        size_t input_size();
-        size_t ouput_size();
-        net_set generate_shapes(int w, int n_images, int type);
-        void check_images(net_set &set, net_handler &handler, int type);
+        int input_size();
+        int output_size();
+        set generate_shapes(int w, int n_images, int type);
+        void check_shapes(set &set, handler &handler, int type);
         void image_demo();
     };
 }
