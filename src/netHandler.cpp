@@ -133,6 +133,17 @@ namespace net
         std::cout << RED << "failed to build net " << _active_net_name << " from file \"" << file << '\"' << RESET "\n";
     }
 
+    void handler::build_net_from_data(int input_size, const std::vector<int> &n_p_l, const std::vector<int> &activations)
+    {
+        if (!_active_net)
+        {
+            std::cout << YELLOW << "no active net" << RESET << "\n ";
+            return;
+        }
+
+        _active_net->build_net_from_data(input_size, n_p_l, activations);
+    }
+
     handler &handler::attr(int attr, float value)
     {
         if (!_active_net)

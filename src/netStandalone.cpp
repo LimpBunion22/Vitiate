@@ -76,6 +76,7 @@ PYBIND11_MODULE(netStandalone, m)
          .def("build_fully_layer", &net::handler::build_fully_layer, py::arg("layer_size"), py::arg("activation") = net::RELU2)
          .def("build_net", &net::handler::build_net)
          .def("build_net_from_file", &net::handler::build_net_from_file, py::arg("file"), py::arg("file_reload"))
+         .def("build_net_from_data", &net::handler::build_net_from_data, py::arg("input_size"), py::arg("n_p_l"), py::arg("activations"))
          .def("attr", py::overload_cast<int, float>(&net::handler::attr), py::arg("attr"), py::arg("value"),
               py::return_value_policy::reference)
          .def("attr", py::overload_cast<int, int>(&net::handler::attr), py::arg("attr"), py::arg("value") = 0,

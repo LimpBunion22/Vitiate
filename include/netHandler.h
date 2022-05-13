@@ -53,6 +53,7 @@ namespace net
         void build_fully_layer(int layer_size, int activation = net::RELU2);
         void build_net();
         void build_net_from_file(const std::string &file, bool file_reload);
+        void build_net_from_data(int input_size, const std::vector<int> &n_p_l, const std::vector<int> &activations);
         handler &attr(int attr, float value);
         handler &attr(int attr, int value = 0);
 
