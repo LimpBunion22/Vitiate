@@ -10,17 +10,17 @@ from python.utils import plotter as plt
 from python.utils import logger
 import keras
 
-STEP = 160
+STEP = 250
 TEST_DIM = {
-    'inputs': 15*STEP,
-    'layers': 15*STEP,
-    'n_per_layer': 15*STEP
+    'inputs': 0*STEP,
+    'layers': 0*STEP,
+    'n_per_layer': 6*STEP
 }
 
 ITERATIONS = 5
 IT_FORWARD = False
 
-POPULATION = 10
+POPULATION = 8
 POP_FORWARD = False
 
 PATH = os.path.join(os.environ['HOME'], "workspace_development")
@@ -277,22 +277,24 @@ def fpga_forward(bench_list, handler, test_input, net_name="_temporal_net"):
 
     handler.net_create("fpga_float_test", netStandalone.FPGA,
                     netStandalone.FIXED_NET, net_name+"_with_params", file_reload=True)
+    res=0
     if(POP_FORWARD):
         for i in range(POPULATION):
             handler.net_create("fpga_float_test_"+str(i), netStandalone.FPGA,
-                            netStandalone.FIXED_NET, net_name+"_with_params", file_reload=True)
+                            netStandalone.FIXED_NET, net_name+"_with_params", file_reload=False)
 
     handler.set_active_net("fpga_float_test")
     
     if(POP_FORWARD):
-        tic = time.perf_counter()
-        handler.enq_fpga_net("fpga_float_test",test_input)
+        # handler.enq_fpga_net("fpga_float_test",test_input)
         for i in range(POPULATION):
             handler.enq_fpga_net("fpga_float_test_"+str(i),test_input,True,True)
 
+        tic = time.perf_counter()
         handler.exe_fpga_nets()
+        toc = time.perf_counter()
 
-        res = handler.read_fpga_net("fpga_float_test")
+        # res = handler.read_fpga_net("fpga_float_test")
         for i in range(POPULATION):
             handler.read_fpga_net("fpga_float_test_"+str(i))
 
@@ -309,7 +311,7 @@ def fpga_forward(bench_list, handler, test_input, net_name="_temporal_net"):
                     handler.read_fpga_net("fpga_float_test_"+str(i))
             bench_list.append((time.perf_counter()-tic)/((POPULATION+1)*(ITERATIONS+1)))
         else:
-            bench_list.append((time.perf_counter()-tic)/(POPULATION+1))
+            bench_list.append((toc-tic)/(POPULATION))
     else:
         tic = time.perf_counter()
         res = handler.active_net_launch_forward(test_input)

@@ -68,6 +68,8 @@
         "unordered_set": "cpp",
         "typeindex": "cpp",
         "valarray": "cpp",
-        "__nullptr": "cpp"
+        "__nullptr": "cpp",
+        "numeric": "cpp",
+        "random": "cpp"
     }
 }

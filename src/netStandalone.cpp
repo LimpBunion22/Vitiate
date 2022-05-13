@@ -101,44 +101,49 @@ PYBIND11_MODULE(netStandalone, m)
 
 // int main()
 // {
-//     net::net_handler handler("/home/gabi/workspace_development");
-//     float alpha = 30.0f;
-//     float alpha_decay = 0.00001f;
-//     float error_threshold = 0.00001f;
-//     float lambda = 0.1f;
-//     int n_nets = 8;
+//     net::net_handler handler("/home/hai/workspace_development");
+//     // float alpha = 30.0f;
+//     // float alpha_decay = 0.00001f;
+//     // float error_threshold = 0.00001f;
+//     // float lambda = 0.1f;
+//     // int n_nets = 8;
 
-//     net::images_tester images;
-//     net::net_set set = images.generate_shapes(100, 300, net::LEARN_ALL);
+//     // net::images_tester images;
+//     // net::net_set set = images.generate_shapes(100, 300, net::LEARN_ALL);
 
-//     size_t n_ins = images.input_size();
-//     size_t n_outs = images.ouput_size();
+//     size_t n_ins = 5; //images.input_size();
+//     size_t n_outs = 5; //images.ouput_size();
 //     vector<size_t> n_p_l = {15, 15, n_outs};
 //     vector<int> activation_type = {
 //         net::RELU2,
 //         net::RELU2,
-//         net::RELU2_SOFT_MAX};
-//     handler.net_create_random_from_vector("gpu", net::CPU, n_ins, n_p_l, activation_type);
-//     handler.set_active_net("gpu");
-//     handler.active_net_set_gradient_attribute(net::ALPHA, alpha);
-//     handler.active_net_set_gradient_attribute(net::ALPHA_DECAY, alpha_decay);
-//     handler.active_net_set_gradient_attribute(net::REG_LAMBDA, lambda);
-//     handler.active_net_set_gradient_attribute(net::ERROR_THRESHOLD, error_threshold);
-//     handler.active_net_set_gradient_attribute(net::NORM, net::ABS);
-//     handler.active_net_set_gradient_attribute(net::ADAM, net::ON);
-//     auto out = handler.active_net_launch_gradient(set, 50, 64);
+//         net::RELU2};
+//     handler.net_create_random_from_vector("fpga", net::FPGA, n_ins, n_p_l, activation_type);
+//     handler.set_active_net("fpga");
+//     // handler.active_net_set_gradient_attribute(net::ALPHA, alpha);
+//     // handler.active_net_set_gradient_attribute(net::ALPHA_DECAY, alpha_decay);
+//     // handler.active_net_set_gradient_attribute(net::REG_LAMBDA, lambda);
+//     // handler.active_net_set_gradient_attribute(net::ERROR_THRESHOLD, error_threshold);
+//     // handler.active_net_set_gradient_attribute(net::NORM, net::ABS);
+//     // handler.active_net_set_gradient_attribute(net::ADAM, net::ON);
+//     // auto out = handler.active_net_launch_gradient(set, 50, 64);
 
-//     for (auto &i : out)
-//         cout << i << " ";
+//     std::vector<float> inputs = {1.0f,2.0f,3.0f,4.0f,5.0f};
+//     std::vector<float> outs = handler.active_net_launch_forward(inputs);
 
-//     cout << "\n";
-//     cout << handler.active_net_get_gradient_performance() << "\n";
+//     for(int i=0;i<outs.size();i++)
+//         cout << outs[i] <<  "\n";
+//     // for (auto &i : out)
+//     //     cout << i << " ";
 
-//     cout << "training set\n";
-//     images.check_images(set, handler, net::LEARN_ALL);
-//     cout << "validation set\n";
-//     net::net_set validation = images.generate_shapes(100, 50, net::LEARN_ALL);
-//     images.check_images(validation, handler, net::LEARN_ALL);
+//     // cout << "\n";
+//     // cout << handler.active_net_get_gradient_performance() << "\n";
+
+//     // cout << "training set\n";
+//     // images.check_images(set, handler, net::LEARN_ALL);
+//     // cout << "validation set\n";
+//     // net::net_set validation = images.generate_shapes(100, 50, net::LEARN_ALL);
+//     // images.check_images(validation, handler, net::LEARN_ALL);
 
 //     // for (int i = 0; i < n_nets; i++)
 //     // {

@@ -141,7 +141,7 @@ namespace net
         }
     }
 
-    vector<float> net_handler::active_net_launch_forward(const vector<float> &inputs)
+    vector<float> net_handler::active_net_launch_forward(const vector<float> &inputs)//Mirar como pasar big nets y reload a launc forward
     {
         if (!active_net)
         {
