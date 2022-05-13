@@ -1,6 +1,16 @@
 #ifndef UTILS_H
 #define UTILS_H
 #include <random>
+#include <iostream>
+
+template <class T>
+void print(const T *data, int size)
+{
+    for (int i = 0; i < size; i++)
+        std::cout << data[i] << " ";
+
+    std::cout << "\n";
+}
 
 class pcg
 {

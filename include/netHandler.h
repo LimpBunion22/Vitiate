@@ -36,8 +36,8 @@ namespace net
         CREATE_CUBLAS_DATA(_cublas);
 
 #ifdef USE_FPGA
-        fpga::fpga_handler mustang_handler;
-        bool mustang_handler_init = false;
+        fpga::fpga_handler _mustang_handler;
+        bool _mustang_handler_init = false;
 #endif
 
     public:
@@ -71,9 +71,9 @@ namespace net
 
 // fpga
 #ifdef USE_FPGA
-        void enq_fpga_net(const std::string &net_key, const std::vector<float> &inputs, bool reload = true, bool same_in = false, bool big_nets = false);
+        void enq_fpga_net(const std::string &key, const std::vector<float> &inputs, bool reload = true, bool same_in = false, bool big_nets = false);
         void exe_fpga_nets();
-        std::vector<float> read_fpga_net(const std::string &net_key);
+        std::vector<float> read_fpga_net(const std::string &key);
 #endif
     };
 }
