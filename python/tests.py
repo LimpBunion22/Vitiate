@@ -262,21 +262,22 @@ def test_backward():
 
 
 def cpp_forward(bench_list, handler, test_input, net_name="_temporal_net"):
-
-    handler.net_create("cpu_float_test", netStandalone.CPU,
-                       netStandalone.RANDOM_NET, net_name, file_reload=True)
+    
+    handler.instantiate("cpu_float_test", netStandalone.CPU)
     handler.set_active_net("cpu_float_test")
+    handler.build_net_from_data(net_name,netStandalone.REUSE_FILE)
     tic = time.perf_counter()
-    res = handler.active_net_launch_forward(test_input)
+    res = handler.run_forward(test_input)
     bench_list.append(time.perf_counter()-tic)
-    handler.active_net_write_net_to_file(net_name+"_with_params")
+    handler.write_net_to_file(net_name+"_with_params")
     return res
 
 
 def fpga_forward(bench_list, handler, test_input, net_name="_temporal_net"):
 
-    handler.net_create("fpga_float_test", netStandalone.FPGA,
-                    netStandalone.FIXED_NET, net_name+"_with_params", file_reload=True)
+    handler.instantiate("fpga_float_test", netStandalone.FPGA)
+    handler.set_active_net("fpga_float_test")
+    handler.build_net_from_file(net_name+"_with_params",netStandalone.REUSE_FILE)
     res=0
     if(POP_FORWARD):
         for i in range(POPULATION):
@@ -314,21 +315,22 @@ def fpga_forward(bench_list, handler, test_input, net_name="_temporal_net"):
             bench_list.append((toc-tic)/(POPULATION))
     else:
         tic = time.perf_counter()
-        res = handler.active_net_launch_forward(test_input)
+        res = handler.run_forward(test_input)
         if(IT_FORWARD):
             for it in range(ITERATIONS):
-                handler.active_net_launch_forward(test_input)
+                handler.run_forward(test_input)
         bench_list.append((time.perf_counter()-tic)/(ITERATIONS+1))
     return res
 
 
 def gpu_forward(bench_list, handler, test_input, net_name="_temporal_net"):
-
-    handler.net_create("gpu_float_test", netStandalone.GPU,
-                       netStandalone.FIXED_NET, net_name+"_with_params", file_reload=True)
-    handler.set_active_net("gpu_float_test")
+    
+    handler.instantiate("fpga_float_test", netStandalone.GPU)
+    handler.set_active_net("fpga_float_test")
+    handler.build_net_from_file(net_name+"_with_params",netStandalone.REUSE_FILE)
+    
     tic = time.perf_counter()
-    res = handler.active_net_launch_forward(test_input)
+    res = handler.run_forward(test_input)
     bench_list.append(time.perf_counter()-tic)
     return res
 

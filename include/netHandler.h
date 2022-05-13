@@ -6,58 +6,75 @@
 #include <string>
 #include <memory>
 #include <netFileManager.h>
-#include <netAbstract.h>
-#include <netGPU.h>
+#include <netBuilder.h>
+#include <builderGPU.h>
+
+#ifdef USE_FPGA
 #include <fpgaHandler.h>
+#endif
 
 namespace net
 {
-    class net_abstract;
+    class builder;
 
     constexpr int CPU = 0;
     constexpr int GPU = 1;
 #ifdef USE_FPGA
     constexpr int FPGA = 2;
 #endif
-    constexpr bool RANDOM_NET = true;
-    constexpr bool FIXED_NET = false;
 
-    class net_handler
+    class handler
     {
     private:
-        std::map<std::string, std::unique_ptr<net_abstract>> nets;
-        std::map<std::string, int> implementations;
-        file_manager manager;
-        net_abstract *active_net;
-        std::string active_net_name;
-        cudaStream_t stream;
-        gpu::cuda_libs_data libs_data;
+        std::map<std::string, std::shared_ptr<builder>> _nets; // using shared instead of unique for returning handler& in python
+        std::map<std::string, int> _implementations;
+        file_manager _file_manager;
+        builder *_active_net;
+        std::string _active_net_name;
+        cudaStream_t _stream;
+        CREATE_CUB_DATA(_cub);
+        CREATE_CUBLAS_DATA(_cublas);
 
-        fpga::fpga_handler mustang_handler;
-        bool mustang_handler_init = false;
+#ifdef USE_FPGA
+        fpga::fpga_handler _mustang_handler;
+        bool _mustang_handler_init = false;
+#endif
 
     public:
-        net_handler(const std::string &path);
-        ~net_handler();
+        handler() = delete;
+        handler(const std::string &path);
+        ~handler();
 
-        void set_active_net(const std::string &net_key);
-        void delete_net(const std::string &net_key);
-        void net_create_random_from_vector(const std::string &net_key, int implementation, size_t n_ins, const std::vector<size_t> &n_p_l, const std::vector<int> activation_type);
-        void net_create(const std::string &net_key, int implementation, bool random, const std::string &file, bool file_reload);
-        std::vector<float> active_net_launch_forward(const std::vector<float> &inputs);
-        void active_net_set_gradient_attribute(int attribute, float value);
-        std::vector<float> active_net_launch_gradient(size_t iterations, size_t batch_size, const std::string &file, bool file_reload);
-        std::vector<float> active_net_launch_gradient(const net::net_set &set, size_t iterations, size_t batch_size);
-        void active_net_print_inner_vals();
-        signed long active_net_get_gradient_performance();
-        signed long active_net_get_forward_performance();
-        void active_net_write_to_file(const std::string &file);
-        void write_set_to_file(const std::string &file, const net_set &sets);
-        // void process_video(const std::string &video_name);
-        // std::vector<float> process_img_1000x1000(const std::vector<float> &image, bool dwz_10 = false);
-        void enq_fpga_net(const std::string &net_key, const std::vector<float> &inputs, bool reload=true, bool same_in=false, bool big_nets=false);
+        // management
+        void set_active_net(const std::string &key);
+        void delete_net(const std::string &key);
+        void instantiate(const std::string &key, int implementation);
+        void set_input_size(int input_size);
+        void build_fully_layer(int layer_size, int activation = net::RELU2);
+        void build_net();
+        void build_net_from_file(const std::string &file, bool file_reload);
+        handler &attr(int attr, float value);
+        handler &attr(int attr, int value = 0);
+
+        // run methods
+        std::vector<float> run_forward(const std::vector<float> &input);
+        std::vector<float> run_gradient(const net::set &set);
+        std::vector<float> run_gradient(const std::string &file, bool file_reload);
+
+        // metrics
+        signed long get_gradient_performance() const;
+        signed long get_forward_performance() const;
+
+        // disk
+        void write_net_to_file(const std::string &file);
+        void write_set_to_file(const std::string &file, const set &set);
+
+// fpga
+#ifdef USE_FPGA
+        void enq_fpga_net(const std::string &key, const std::vector<float> &inputs, bool reload = true, bool same_in = false, bool big_nets = false);
         void exe_fpga_nets();
-        std::vector<float> read_fpga_net(const std::string &net_key);
+        std::vector<float> read_fpga_net(const std::string &key);
+#endif
     };
 }
 #endif

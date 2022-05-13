@@ -5,152 +5,92 @@
 
 namespace net
 {
-    using namespace std;
-
-    bool file_manager::load_net_structure(const string &file)
+    bool file_manager::_load_net(const std::string &file)
     {
-        ifstream file_handler(PATH + '/' + file + ".csv", ios::in);
+        std::ifstream file_handler(_PATH + '/' + file + ".csv", std::ios::in);
 
         if (file_handler.is_open())
         {
-            string val, line;
+            _net.activation.clear(); // clear prev stored vals
+            _net.n_p_l.clear();
+            _net.param_bias.clear();
+
+            std::string val, line;
             auto skip_lines = [&](int n_lines)
             {
                 for (int i = 0; i < n_lines; i++)
                     getline(file_handler, line);
             };
 
+            skip_lines(1); // structure info
             getline(file_handler, line);
 
             {
-                stringstream s(line);
+                std::stringstream s(line);
                 getline(s, val, SEPARATOR);
-                data.n_ins = (size_t)stoi(val);
-                data.n_p_l.clear();
+                _net.input_size = stoi(val); // input size
 
                 while (getline(s, val, SEPARATOR))
-                    if (val[0] != ' ') //* asegurar que no hay un espacio al final
-                        data.n_p_l.push_back((size_t)stoi(val));
-
-                data.n_layers = data.n_p_l.size();
+                    if (val[0] != ' ')                      //* get rid of any final blank space
+                        _net.n_p_l.emplace_back(stoi(val)); // n_p_l
             }
 
-            skip_lines(1);
+            skip_lines(2); // activations info
             getline(file_handler, line);
 
             {
-                stringstream s(line);
-                data.activation_type.clear();
-                data.activation_type.reserve(data.n_layers);
+                std::stringstream s(line);
 
                 while (getline(s, val, SEPARATOR))
                     if (val[0] != ' ')
-                        data.activation_type.emplace_back(val == "R"
-                                                              ? net::RELU
-                                                          : val == "R2"
-                                                              ? net::RELU2
-                                                          : val == "R2S"
-                                                              ? net::RELU2_SOFT_MAX
-                                                              : net::SIGMOID);
+                        _net.activation.emplace_back(val == "R"
+                                                         ? net::RELU
+                                                     : val == "R2"
+                                                         ? net::RELU2
+                                                     : val == "R2S"
+                                                         ? net::RELU2_SOFT_MAX
+                                                         : net::SIGMOID); // activations
             }
 
-            file_handler.close();
-            return true;
-        }
+            size_t net_size = 0; // get net_size
 
-        cout << RED << "unable to open file" << RESET << "\n";
-        return false;
-    }
-
-    bool file_manager::load_net_structure(const string &file, bool file_reload)
-    {
-        if (net_structure_file != file || file_reload) //* load new file
-        {
-            bool succeeded = load_net_structure(file);
-
-            if (succeeded && !file_reload) //* si es un nuevo archivo
-                net_structure_file = file;
-
-            return succeeded;
-        }
-
-        return true;
-    }
-
-    bool file_manager::load_net(const string &file)
-    {
-        ifstream file_handler(PATH + '/' + file + ".csv", ios::in);
-
-        if (file_handler.is_open())
-        {
-            string val, line;
-            data.params.clear();
-            data.bias.clear();
-            data.params.reserve(data.n_layers);
-            data.bias.reserve(data.n_layers);
-            auto skip_lines = [&](int n_lines)
-            {
-                for (int i = 0; i < n_lines; i++)
-                    getline(file_handler, line);
-            };
-
-            skip_lines(4);
-
-            for (size_t i = 0; i < data.n_layers; i++)
+            for (size_t i = 0; i < _net.n_p_l.size(); i++)
             {
                 if (i == 0)
-                    data.params.emplace_back(data.n_p_l[i] * data.n_ins);
+                    net_size += _net.n_p_l[i] * _net.input_size + _net.n_p_l[i]; // params+bias
                 else
-                    data.params.emplace_back(data.n_p_l[i] * data.n_p_l[i - 1]);
+                    net_size += _net.n_p_l[i] * _net.n_p_l[i - 1] + _net.n_p_l[i];
+            }
 
-                data.bias.emplace_back(data.n_p_l[i], 0);
-                size_t rows = data.bias[i].size();
-                size_t cols = data.params[i].size() / rows;
+            _net.param_bias.reserve(net_size);
 
-                for (size_t j = 0; j < rows; j++)
-                {
-                    getline(file_handler, line);
-                    stringstream s(line);
-                    size_t k = 0;
+            skip_lines(2); // net values info
+            getline(file_handler, line);
 
-                    while (getline(s, val, SEPARATOR))
-                        if (val[0] != ' ')
-                            data.params[i][j * cols + k++] = stof(val);
-                }
-
-                skip_lines(1);
-                getline(file_handler, line);
-                stringstream s(line);
-                size_t j = 0;
+            {
+                std::stringstream s(line);
 
                 while (getline(s, val, SEPARATOR))
                     if (val[0] != ' ')
-                        data.bias[i][j++] = stof(val);
-
-                skip_lines(1);
+                        _net.param_bias.emplace_back(stof(val)); // params +bias
             }
 
             file_handler.close();
             return true;
         }
 
-        cout << RED << "unable to open file" << RESET << "\n";
+        std::cout << RED << "unable to open file" << RESET << "\n";
         return false;
     }
 
-    bool file_manager::load_net(const string &file, bool file_reload)
+    bool file_manager::load_net(const std::string &file, bool file_reload)
     {
-        if (net_file != file || file_reload) //* load new file
+        if (_net_file != file || file_reload) //* if new data to be loaded
         {
-            bool succeeded = load_net_structure(file, file_reload);
+            bool succeeded = _load_net(file);
 
-            if (succeeded)
-                succeeded = load_net(file);
-            else
-                return false;
-
-            if (succeeded && !file_reload) //* si es un nuevo archivo
-                net_file = file;
+            if (succeeded && !file_reload) //* if new file name
+                _net_file = file;
 
             return succeeded;
         }
@@ -158,128 +98,96 @@ namespace net
         return true;
     }
 
-    bool file_manager::load_set(const string &file)
+    bool file_manager::_load_set(const std::string &file)
     {
-        ifstream file_handler(PATH + '/' + file + ".csv", ios::in);
+        std::ifstream file_handler(_PATH + '/' + file + ".csv", std::ios::in);
 
         if (file_handler.is_open())
         {
-            string val, line;
-            set.set_ins.clear();
-            set.set_outs.clear();
+            _set.input_data.clear(); // clear prev stored vals
+            _set.output_data.clear();
+            _set.labels.clear();
+
+            std::string val, line;
             auto skip_lines = [&](int n_lines)
             {
                 for (int i = 0; i < n_lines; i++)
                     getline(file_handler, line);
             };
 
-            getline(file_handler, line);
-            stringstream s(line);
-            getline(s, val, SEPARATOR);
-            size_t n_set = (size_t)stoi(val);
-            set.set_ins.reserve(n_set);
-            set.set_outs.reserve(n_set);
-            set.labels.reserve(n_set);
-            set.set_ins.emplace_back(0, 0); //* load first set to get n_ins and n_outs, so we can reuse them later
-            set.set_outs.emplace_back(0, 0);
-            size_t n_ins = 0;
-            size_t n_outs = 0;
+            size_t samples_num, out_size, in_size;
 
-            skip_lines(1);
+            skip_lines(1); // samples info
             getline(file_handler, line);
 
             {
-                stringstream s(line);
-
-                while (getline(s, val, SEPARATOR))
-                {
-                    if (val[0] != ' ')
-                    {
-                        n_ins++;
-                        set.set_ins[0].emplace_back(stof(val));
-                    }
-                }
-            }
-
-            getline(file_handler, line);
-
-            {
-                stringstream s(line);
-
-                while (getline(s, val, SEPARATOR))
-                {
-                    if (val[0] != ' ')
-                    {
-                        n_outs++;
-                        set.set_outs[0].emplace_back(stof(val));
-                    }
-                }
-            }
-
-            getline(file_handler, line);
-
-            {
-                stringstream s(line);
+                std::stringstream s(line);
                 getline(s, val, SEPARATOR);
-                set.labels.emplace_back(stoi(val));
+                _set.data_num = stoi(val); // number of samples
+                samples_num = (size_t)_set.data_num;
             }
 
-            skip_lines(1);
+            skip_lines(2); // sizes info
+            getline(file_handler, line);
 
-            for (int i = 1; i < n_set; i++) //* remaining set
             {
-                set.set_ins.emplace_back(n_ins, 0);
-                set.set_outs.emplace_back(n_outs, 0);
+                std::stringstream s(line);
+                getline(s, val, SEPARATOR);
+                out_size = stoi(val);
+                getline(s, val, SEPARATOR);
+                in_size = stoi(val);
+            }
 
-                getline(file_handler, line);
+            _set.input_data.reserve(samples_num * out_size); // reserve mem
+            _set.output_data.reserve(samples_num * in_size);
+            _set.labels.reserve(samples_num);
 
-                {
-                    stringstream s(line);
-                    size_t j = 0;
+            skip_lines(2); // sample order info
+            getline(file_handler, line);
 
-                    while (getline(s, val, SEPARATOR))
-                        if (val[0] != ' ')
-                            set.set_ins[i][j++] = stof(val);
-                }
+            {
+                std::stringstream s(line); // inputs
+                while (getline(s, val, SEPARATOR))
+                    if (val[0] != ' ')
+                        _set.input_data.emplace_back(stof(val));
+            }
 
-                getline(file_handler, line);
+            skip_lines(1); // blank
+            getline(file_handler, line);
 
-                {
-                    stringstream s(line);
-                    size_t j = 0;
+            {
+                std::stringstream s(line); // outputs
+                while (getline(s, val, SEPARATOR))
+                    if (val[0] != ' ')
+                        _set.output_data.emplace_back(stof(val));
+            }
 
-                    while (getline(s, val, SEPARATOR))
-                        if (val[0] != ' ')
-                            set.set_outs[i][j++] = stof(val);
-                }
+            skip_lines(1); // blank
+            getline(file_handler, line);
 
-                getline(file_handler, line);
-
-                {
-                    stringstream s(line);
-                    getline(s, val, SEPARATOR);
-                    set.labels.emplace_back(stoi(val));
-                }
-
-                skip_lines(1);
+            {
+                std::stringstream s(line); // labels
+                while (getline(s, val, SEPARATOR))
+                    if (val[0] != ' ')
+                        _set.labels.emplace_back(stoi(val));
             }
 
             file_handler.close();
             return true;
         }
 
-        cout << RED << "unable to open file" << RESET << "\n";
+        std::cout << RED << "unable to open file" << RESET << "\n";
         return false;
     }
 
-    bool file_manager::load_set(const string &file, bool file_reload)
+    bool file_manager::load_set(const std::string &file, bool file_reload)
     {
-        if (set_file != file || file_reload) //* load new file
+        if (_set_file != file || file_reload) //* load new file
         {
-            bool succeeded = load_set(file);
+            bool succeeded = _load_set(file);
 
             if (succeeded && !file_reload)
-                set_file = file;
+                _set_file = file;
 
             return succeeded;
         }
@@ -287,20 +195,21 @@ namespace net
         return true;
     }
 
-    bool file_manager::write_net_to_file(const string &file, const net_data &n_data)
+    bool file_manager::write_net_to_file(const std::string &file, const layout &layout)
     {
-        ofstream file_handler(PATH + '/' + file + ".csv", ios::out | ios::trunc);
+        std::ofstream file_handler(_PATH + '/' + file + ".csv", std::ios::out | std::ios::trunc);
 
         if (file_handler.is_open())
         {
-            file_handler << n_data.n_ins << SEPARATOR;
+            file_handler << "//input size, neurons per layer\n";
+            file_handler << layout.input_size << SEPARATOR;
 
-            for (auto &i : n_data.n_p_l)
+            for (auto &i : layout.n_p_l)
                 file_handler << i << SEPARATOR;
 
-            file_handler << "\n\n";
+            file_handler << "\n\n//activations\n";
 
-            for (auto &i : n_data.activation_type)
+            for (auto &i : layout.activation)
                 file_handler << (i == net::RELU
                                      ? "R"
                                  : i == net::RELU2
@@ -310,69 +219,52 @@ namespace net
                                      : "S")
                              << SEPARATOR;
 
-            file_handler << "\n\n";
+            file_handler << "\n\n//params + bias (interleaved)\n";
 
-            for (size_t i = 0; i < n_data.n_layers; i++)
-            {
-                size_t rows = n_data.bias[i].size();
-                size_t cols = n_data.params[i].size() / rows;
-
-                for (size_t j = 0; j < rows; j++)
-                {
-                    for (size_t k = 0; k < cols; k++)
-                        file_handler << n_data.params[i][j * cols + k] << SEPARATOR;
-
-                    file_handler << "\n";
-                }
-
-                file_handler << "\n";
-
-                for (size_t j = 0; j < rows; j++)
-                    file_handler << n_data.bias[i][j] << SEPARATOR;
-
-                file_handler << "\n\n";
-            }
+            for (auto &i : layout.param_bias)
+                file_handler << i << SEPARATOR;
 
             file_handler.close();
             return true;
         }
 
-        cout << RED << "unable to open file" << RESET << "\n";
+        std::cout << RED << "unable to open file" << RESET << "\n";
         return false;
     }
 
-    bool file_manager::write_set_to_file(const std::string &file, const net_set &n_set)
+    bool file_manager::write_set_to_file(const std::string &file, const set &set)
     {
-        ofstream file_handler(PATH + '/' + file + ".csv", ios::out | ios::trunc);
+        std::ofstream file_handler(_PATH + '/' + file + ".csv", std::ios::out | std::ios::trunc);
 
         if (file_handler.is_open())
         {
-            size_t data_size = n_set.set_ins.size();
-            file_handler << data_size << SEPARATOR;
+            file_handler << "//samples num\n";
+            file_handler << set.data_num << SEPARATOR;
+
+            file_handler << "\n\n//input & output size (label size = 1)\n";
+            file_handler << ((int)set.input_data.size() / set.data_num) << SEPARATOR
+                         << ((int)set.output_data.size() / set.data_num) << SEPARATOR;
+
+            file_handler << "\n\n//inputs, outputs & labels\n";
+
+            for (auto &i : set.input_data)
+                file_handler << i << SEPARATOR;
+
             file_handler << "\n\n";
 
-            for (size_t i = 0; i < data_size; i++)
-            {
-                for (auto &j : n_set.set_ins[i])
-                    file_handler << j << SEPARATOR;
+            for (auto &i : set.output_data)
+                file_handler << i << SEPARATOR;
 
-                file_handler << "\n";
+            file_handler << "\n\n";
 
-                for (auto &j : n_set.set_outs[i])
-                    file_handler << j << SEPARATOR;
-
-                file_handler << "\n";
-
-                file_handler << n_set.labels[i] << SEPARATOR;
-                file_handler << "\n\n";
-            }
+            for (auto &i : set.labels)
+                file_handler << i << SEPARATOR;
 
             file_handler.close();
             return true;
         }
 
-        cout << RED << "unable to open file" << RESET << "\n";
+        std::cout << RED << "unable to open file" << RESET << "\n";
         return false;
     }
-
 }
