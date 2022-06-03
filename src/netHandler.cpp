@@ -54,7 +54,7 @@ namespace net
         switch (implementation)
         {
         case GPU:
-            _nets[key] = std::make_shared<gpu::gpu_builder>(_cub, _cublas, _stream);
+            _nets[key] = std::make_shared<gpu::gpu_builder>(_cub, _cublas, _streams);
             _implementations[key] = implementation;
             break;
         case CPU:
@@ -202,6 +202,17 @@ namespace net
         return {-1.0f};
     }
 
+    void handler::mutate(float limit)
+    {
+        if (!_active_net)
+        {
+            std::cout << YELLOW << "no active net" << RESET << "\n ";
+            return;
+        }
+
+        _active_net->mutate(limit);
+    }
+
     // metrics
     signed long handler::get_gradient_performance() const
     {
@@ -290,14 +301,36 @@ namespace net
 #endif
 
     // ctors/dtors
-    handler::handler(const std::string &path) : _file_manager(path), _active_net(nullptr), _stream(gpu::create_stream())
+    handler::handler(const std::string &path) : _file_manager(path), _active_net(nullptr), _streams(1)
     {
+        for (auto &i : _streams)
+            i = gpu::create_stream();
     }
 
     handler::~handler()
     {
-        gpu::destroy_stream(_stream);
+        for (auto &i : _streams)
+            gpu::destroy_stream(i);
+
         gpu::cub_free(_cub);
         gpu::cublas_free(_cublas);
+    }
+
+    void handler::clone(const std::string &original, const std::string &clone)
+    {
+        if (_nets.find(original) == _nets.end())
+        {
+            std::cout << YELLOW << "net " << original << " to be cloned doesn't exist" << RESET << "\n";
+            return;
+        }
+
+        if (original == clone)
+        {
+            std::cout << YELLOW << "original and clone cannot be equally named" << RESET << "\n";
+            return;
+        }
+
+        _nets[clone].reset(_nets[original]->clone()); // reset automatically deletes any previously existing net so no need to manually erase
+        _implementations[clone] = _implementations[original];
     }
 }

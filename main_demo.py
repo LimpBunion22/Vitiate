@@ -4,8 +4,8 @@ import os
 
 PATH = os.path.join(os.environ["HOME"], "workspace_development")
 handler = netStandalone.handler(PATH)
-handler.instantiate("net0", netStandalone.GPU)
-handler.set_active_net("net0")
+handler.instantiate("optimusPrime", netStandalone.GPU)
+handler.set_active_net("optimusPrime")
 
 # ins = netStandalone.v_float([1, 1])
 # handler.set_input_size(5)
@@ -29,5 +29,12 @@ handler.attr(netStandalone.EPOCHS, 20)\
     .attr(netStandalone.ERROR_THRESHOLD, 0.00001)\
     .attr(netStandalone.ABS)
 
+# print(handler.run_gradient("set", netStandalone.REUSE_FILE))
+# print(handler.get_gradient_performance())
+
+handler.clone("optimusPrimec", "barricade")
+handler.clone("optimusPrime", "optimusPrime")
+handler.clone("optimusPrime", "barricade")
+handler.set_active_net("barricade")
+handler.mutate(0.2)
 print(handler.run_gradient("set", netStandalone.REUSE_FILE))
-print(handler.get_gradient_performance())

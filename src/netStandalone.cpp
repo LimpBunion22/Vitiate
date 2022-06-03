@@ -1,3 +1,4 @@
+#ifdef BIND
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
 #include <pybind11/stl_bind.h>
@@ -69,6 +70,7 @@ PYBIND11_MODULE(netStandalone, m)
      py::class_<net::handler>(m, "handler")
          // management
          .def(py::init<const std::string &>(), py::arg("path"))
+         .def("clone", &net::handler::clone, py::arg("original"), py::arg("clone"))
          .def("set_active_net", &net::handler::set_active_net)
          .def("delete_net", &net::handler::delete_net)
          .def("instantiate", &net::handler::instantiate, py::arg("key"), py::arg("implementation"))
@@ -86,6 +88,7 @@ PYBIND11_MODULE(netStandalone, m)
          .def("run_forward", &net::handler::run_forward)
          .def("run_gradient", py::overload_cast<const std::string &, bool>(&net::handler::run_gradient),
               py::arg("file"), py::arg("file_reload"))
+         .def("mutate", &net::handler::mutate)
 
          // metrics
          .def("get_gradient_performance", &net::handler::get_gradient_performance)
@@ -104,52 +107,54 @@ PYBIND11_MODULE(netStandalone, m)
 #endif
 }
 
-// #include <defines.h>
-// #include <netHandler.h>
-// #include <shapeGenerator.h>
+#else
+#include <defines.h>
+#include <netHandler.h>
+#include <shapeGenerator.h>
 
-// int main()
-// {
-//      net::handler handler("/home/gabi/workspace_development");
-//      float alpha = 50.0f;
-//      float alpha_decay = 0.00001f;
-//      float error_threshold = 0.00001f;
-//      float lambda = 0.1f;
+int main()
+{
+     net::handler handler("/home/gabi/workspace_development");
+     float alpha = 50.0f;
+     float alpha_decay = 0.00001f;
+     float error_threshold = 0.00001f;
+     float lambda = 0.1f;
 
-//      net::shape_generator shapes;
-//      net::set set = shapes.generate_shapes(100, 300, net::LEARN_ALL);
+     net::shape_generator shapes;
+     net::set set = shapes.generate_shapes(100, 300, net::LEARN_ALL);
 
-//      handler.instantiate("net0", net::GPU);
-//      handler.set_active_net("net0");
-//      handler.set_input_size(shapes.input_size());
-//      handler.build_fully_layer(15);
-//      handler.build_fully_layer(15);
-//      handler.build_fully_layer(shapes.output_size(), net::RELU2_SOFT_MAX);
-//      handler.build_net();
-//      // handler.build_net_from_file("net", net::REUSE_FILE);
+     handler.instantiate("net0", net::GPU);
+     handler.set_active_net("net0");
+     handler.set_input_size(shapes.input_size());
+     handler.build_fully_layer(15);
+     handler.build_fully_layer(15);
+     handler.build_fully_layer(shapes.output_size(), net::RELU2_SOFT_MAX);
+     handler.build_net();
+     // handler.build_net_from_file("net", net::REUSE_FILE);
 
-//      handler.attr(net::EPOCHS, 50)
-//          .attr(net::BATCH_SIZE, 64)
-//          .attr(net::ALPHA, alpha)
-//          .attr(net::ALPHA_DECAY, alpha_decay)
-//          .attr(net::ERROR_THRESHOLD, error_threshold)
-//          .attr(net::ABS)
-//          .attr(net::ADAM);
+     handler.attr(net::EPOCHS, 50)
+         .attr(net::BATCH_SIZE, 64)
+         .attr(net::ALPHA, alpha)
+         .attr(net::ALPHA_DECAY, alpha_decay)
+         .attr(net::ERROR_THRESHOLD, error_threshold)
+         .attr(net::ABS)
+         .attr(net::ADAM);
 
-//      //     auto out = handler.run_gradient("set", net::REUSE_FILE);
-//      auto out = handler.run_gradient(set);
+     // auto out = handler.run_gradient("set", net::REUSE_FILE);
+     auto out = handler.run_gradient(set);
 
-//      for (auto &i : out)
-//           std::cout << i << " ";
+     for (auto &i : out)
+          std::cout << i << " ";
 
-//      std::cout << "\n";
-//      std::cout << handler.get_gradient_performance() << "\n";
+     std::cout << "\n";
+     std::cout << handler.get_gradient_performance() << "\n";
 
-//      std::cout << "training set\n";
-//      shapes.check_shapes(set, handler, net::LEARN_ALL);
-//      std::cout << "validation set\n";
-//      net::set validation = shapes.generate_shapes(100, 50, net::LEARN_ALL);
-//      shapes.check_shapes(validation, handler, net::LEARN_ALL);
+     std::cout << "training set\n";
+     shapes.check_shapes(set, handler, net::LEARN_ALL);
+     std::cout << "validation set\n";
+     net::set validation = shapes.generate_shapes(100, 50, net::LEARN_ALL);
+     shapes.check_shapes(validation, handler, net::LEARN_ALL);
 
-//      return 0;
-// }
+     return 0;
+}
+#endif

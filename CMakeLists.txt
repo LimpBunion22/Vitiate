@@ -1,12 +1,20 @@
 cmake_minimum_required(VERSION 3.15.0)
 
 option(WITH_FPGA "build with FPGA" OFF)
+option(WITH_BIND "build with binding" ON)
 
 if(WITH_FPGA)
     add_compile_definitions(USE_FPGA)
     message(STATUS "using FPGA")
 else()
     message(STATUS "FPGA disabled")
+endif()
+
+if(WITH_BIND)
+    add_compile_definitions(BIND)
+    message(STATUS "builing for python")
+else()
+    message(STATUS "building exe")
 endif()
 
 set(CMAKE_CXX_STANDARD 17)
@@ -56,17 +64,19 @@ if(WITH_FPGA)
     list(APPEND CMAKE_INSTALL_RPATH "$ENV{HOME}/intelFPGA_pro/18.1/hld/host/linux64/lib")
 endif()
 
-# #pybind 
+if(WITH_BIND)
+#pybind 
 pybind11_add_module(netStandalone
     ${DEF_FILES}
     ${SRC_FILES}
     ${INCLUDE_FILES})
-
-# # executable
-# add_executable(netStandalone
-#     ${DEF_FILES}
-#     ${SRC_FILES}
-#     ${INCLUDE_FILES})
+else()
+# executable
+add_executable(netStandalone
+    ${DEF_FILES}
+    ${SRC_FILES}
+    ${INCLUDE_FILES})
+endif()
 
 set_target_properties(netStandalone PROPERTIES BUILD_WITH_INSTALL_RPATH TRUE)
 set_target_properties(netStandalone PROPERTIES INSTALL_RPATH_USE_LINK_PATH TRUE)
@@ -88,8 +98,10 @@ if(WITH_FPGA)
         ${LIB_FOLDER}/libnetFPGA.a)
 endif()
 
+if(WITH_BIND)
 #install to conda python lib dir
 install(TARGETS netStandalone DESTINATION ${PYTHON_LIBRARY_DIR})
+endif()
 
 set(CPACK_PROJECT_NAME ${PROJECT_NAME})
 set(CPACK_PROJECT_VERSION ${PROJECT_VERSION})
