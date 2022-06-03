@@ -8,6 +8,7 @@ namespace net
     class builder
     {
     public:
+        virtual builder *clone() const { return nullptr; }
         virtual ~builder() {}
 
         virtual void set_input_size(int input_size) = 0;
@@ -22,6 +23,7 @@ namespace net
         virtual signed long get_gradient_performance() const = 0;
         virtual signed long get_forward_performance() const = 0;
         virtual net::layout get_net_data() const = 0;
+        virtual void mutate(float limit) {}
     };
 }
 #endif

@@ -31,9 +31,9 @@ namespace net
         file_manager _file_manager;
         builder *_active_net;
         std::string _active_net_name;
-        cudaStream_t _stream;
-        CREATE_CUB_DATA(_cub);
-        CREATE_CUBLAS_DATA(_cublas);
+        gpu::stream_pack _streams;
+        gpu::CREATE_CUB_DATA(_cub);
+        gpu::CREATE_CUBLAS_DATA(_cublas);
 
 #ifdef USE_FPGA
         fpga::fpga_handler _mustang_handler;
@@ -44,6 +44,7 @@ namespace net
         handler() = delete;
         handler(const std::string &path);
         ~handler();
+        void clone(const std::string &original, const std::string &clone);
 
         // management
         void set_active_net(const std::string &key);
@@ -61,6 +62,7 @@ namespace net
         std::vector<float> run_forward(const std::vector<float> &input);
         std::vector<float> run_gradient(const net::set &set);
         std::vector<float> run_gradient(const std::string &file, bool file_reload);
+        void mutate(float limit);
 
         // metrics
         signed long get_gradient_performance() const;

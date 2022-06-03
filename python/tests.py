@@ -10,10 +10,10 @@ from python.utils import plotter as plt
 from python.utils import logger
 import keras
 
-STEP = 250
+STEP = 25
 TEST_DIM = {
-    'inputs': 0*STEP,
-    'layers': 0*STEP,
+    'inputs': 2*STEP,
+    'layers': 2*STEP,
     'n_per_layer': 6*STEP
 }
 
