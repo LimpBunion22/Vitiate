@@ -63,9 +63,6 @@ namespace net
             break;
 #ifdef USE_FPGA
         case FPGA:
-            _nets[key] = std::make_unique<fpga::net_fpga>();
-            _implementations[key] = implementation;
-
             if (_mustang_handler_init == false)
             {
                 // std::cout << BLUE << "handler: Activating  handler" << RESET << "\n";
@@ -75,7 +72,7 @@ namespace net
             }
 
             // std::cout << BLUE << "handler: Creating fpga net" << RESET << "\n";
-            _nets[key] = std::make_unique<fpga::net_fpga>(n_ins, n_p_l, activation_type, mustang_handler);
+            _nets[key] = std::make_unique<fpga::net_fpga>( _mustang_handler);
             // std::cout << BLUE << "handler: FPGA net created" << RESET << "\n";
             _implementations[key] = implementation;
             break;
@@ -131,6 +128,17 @@ namespace net
             return _active_net->build_net_from_file(_file_manager._net);
 
         std::cout << RED << "failed to build net " << _active_net_name << " from file \"" << file << '\"' << RESET "\n";
+    }
+
+    void handler::build_net_from_data(int input_size, const std::vector<int> &n_p_l, const std::vector<int> &activations)
+    {
+        if (!_active_net)
+        {
+            std::cout << YELLOW << "no active net" << RESET << "\n ";
+            return;
+        }
+
+        _active_net->build_net_from_data(input_size, n_p_l, activations);
     }
 
     handler &handler::attr(int attr, float value)

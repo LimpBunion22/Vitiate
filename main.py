@@ -30,7 +30,7 @@ tests.test_forward()
 # ins = netStandalone.v_float([1, 3])
 
 # #logger.log("PYTHON: Creating handler", "INFO")
-# handler = netStandalone.net_handler(PATH)
+# handler = netStandalone.handler(PATH)
 # #logger.log("PYTHON: Handler created", "INFO")
 
 # # #logger.log("PYTHON: Creating net", "INFO")
@@ -97,7 +97,7 @@ tests.test_forward()
 # with open(PATH_NET, "w") as file:
 #     file.write(f"{inputs}1,1,")
 
-# handler = netStandalone.net_handler(PATH)
+# handler = netStandalone.handler(PATH)
 # handler.net_create("fpga_float_test", netStandalone.FPGA, netStandalone.FIXED, "_temporal_net_with_params", file_reload = True)
 # handler.set_active_net("fpga_float_test")
 

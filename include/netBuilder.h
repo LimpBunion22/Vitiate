@@ -14,7 +14,7 @@ namespace net
         virtual void build_fully_layer(int layer_size, int activation = net::RELU2) = 0;
         virtual void build_net() = 0;
         virtual void build_net_from_file(const net::layout &layout) = 0;
-        virtual void build_net_from_data(int input_size, const std::vector<int> n_p_l, const std::vector<int> activations) = 0;
+        virtual void build_net_from_data(int input_size, const std::vector<int> &n_p_l, const std::vector<int> &activations) = 0;
         virtual builder &attr(int attr, float value) = 0;
         virtual builder &attr(int attr, int value = 0) = 0;
         virtual std::vector<float> run_gradient(const net::set &set) = 0;
