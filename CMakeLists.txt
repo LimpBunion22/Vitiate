@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.15.0)
 
-option(WITH_FPGA "build with FPGA" OFF)
+option(WITH_FPGA "build with FPGA" ON)
 option(WITH_BIND "build with binding" ON)
 
 if(WITH_FPGA)
