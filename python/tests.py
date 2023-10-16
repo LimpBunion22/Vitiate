@@ -5,9 +5,9 @@ from tqdm import tqdm
 import copy
 
 import netStandalone
-from python.utils import decorators
-from python.utils import plotter as plt
-from python.utils import logger
+from utils import decorators
+from utils import plotter as plt
+from utils import logger
 import keras
 
 STEP = 250

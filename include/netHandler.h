@@ -7,7 +7,10 @@
 #include <memory>
 #include <netFileManager.h>
 #include <netBuilder.h>
+
+#ifdef USE_NVIDIA
 #include <builderGPU.h>
+#endif
 
 #ifdef USE_FPGA
 #include <fpgaHandler.h>
@@ -31,9 +34,12 @@ namespace net
         file_manager _file_manager;
         builder *_active_net;
         std::string _active_net_name;
+
+#ifdef USE_NVIDIA
         gpu::stream_pack _streams;
         gpu::CREATE_CUB_DATA(_cub);
         gpu::CREATE_CUBLAS_DATA(_cublas);
+#endif
 
 #ifdef USE_FPGA
         fpga::fpga_handler _mustang_handler;

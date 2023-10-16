@@ -7,9 +7,9 @@
 #include <experimental/filesystem>
 #endif
 
-#include <opencv2/opencv.hpp>
-#include <opencv2/highgui/highgui.hpp>
-#include <opencv2/videoio/videoio_c.h>
+//#include <opencv2/opencv.hpp>
+//#include <opencv2/highgui/highgui.hpp>
+//#include <opencv2/videoio/videoio_c.h>
 
 namespace net
 {
@@ -53,14 +53,16 @@ namespace net
 
         switch (implementation)
         {
-        case GPU:
-            _nets[key] = std::make_shared<gpu::gpu_builder>(_cub, _cublas, _streams);
-            _implementations[key] = implementation;
-            break;
         case CPU:
             _nets[key] = std::make_shared<cpu::cpu_builder>();
             _implementations[key] = implementation;
             break;
+#ifdef USE_NVIDIA
+        case GPU:
+            _nets[key] = std::make_shared<gpu::gpu_builder>(_cub, _cublas, _streams);
+            _implementations[key] = implementation;
+            break;
+#endif
 #ifdef USE_FPGA
         case FPGA:
             if (_mustang_handler_init == false)
@@ -164,6 +166,7 @@ namespace net
     // run methods
     std::vector<float> handler::run_forward(const std::vector<float> &input) // Mirar como pasar big nets y reload a run forward
     {
+        
         if (!_active_net)
         {
             std::cout << YELLOW << "no active net" << RESET << "\n ";
@@ -300,19 +303,27 @@ namespace net
 #endif
 
     // ctors/dtors
-    handler::handler(const std::string &path) : _file_manager(path), _active_net(nullptr), _streams(1)
+    handler::handler(const std::string &path) : _file_manager(path), _active_net(nullptr)
+#ifdef USE_NVIDIA
+    , _streams(1)
+#endif
+
     {
+#ifdef USE_NVIDIA
         for (auto &i : _streams)
             i = gpu::create_stream();
+#endif
     }
 
     handler::~handler()
     {
+#ifdef USE_NVIDIA
         for (auto &i : _streams)
             gpu::destroy_stream(i);
 
         gpu::cub_free(_cub);
         gpu::cublas_free(_cublas);
+#endif
     }
 
     void handler::clone(const std::string &original, const std::string &clone)
