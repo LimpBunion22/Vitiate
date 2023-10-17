@@ -4,7 +4,8 @@ import numpy as np
 from schmidt import BaseElement
 from utils import plotter as plt
 
-PATH = os.path.join(os.environ['USERPROFILE'], "Desktop/CE")
+# PATH = os.path.join(os.environ['USERPROFILE'], os.path.join("Desktop","CE"))
+PATH = "D:/DiegoRemirez/Desktop/CE" #os.path.join(os.path.join("D:","DiegoRemirez"), os.path.join("Desktop","CE"))
 handler = netStandalone.handler(PATH)
 
 # Paso de integración para los productos escalares
@@ -27,7 +28,7 @@ myBase.graph_representation(yfunc, coefs)
 entradas = 5
 npl = [myBase.max_index,5]
 
-myBase.write_params(PATH+"/pyparams.csv",entradas,npl,[myElement])
+myBase.write_params(os.path.join(PATH,"pyparams.csv"),entradas,npl,[myElement])
 
 ins = entradas
 npl = npl
