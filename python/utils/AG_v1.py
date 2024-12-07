@@ -4,7 +4,7 @@ import numpy as np
 import copy
 import os
 from tqdm import tqdm
-from logger import log
+from .logger import log
 
 PATH = os.path.join(os.environ['HOME'], "workspace_development")
 SETS_NAME = "_temporal_sets"

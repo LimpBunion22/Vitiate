@@ -8,7 +8,9 @@ import netStandalone
 from python.utils import decorators
 from python.utils import plotter as plt
 from python.utils import logger
-import keras
+# from utils import plotter as plt
+# from utils import logger
+# import keras
 
 STEP = 250
 TEST_DIM = {
@@ -42,9 +44,9 @@ def test_forward():
         'n_per_layer': []
     }
     cpp_bench = benchmarks
-    fpga_bench = copy.deepcopy(benchmarks)
+    # fpga_bench = copy.deepcopy(benchmarks)
     gpu_bench = copy.deepcopy(benchmarks)
-    keras_bench = copy.deepcopy(benchmarks)
+    # keras_bench = copy.deepcopy(benchmarks)
     handler = netStandalone.handler(PATH)
 
     # Inputs
@@ -60,9 +62,9 @@ def test_forward():
 
         test_input = netStandalone.v_float(np.random.rand(i))
         res_cpu = cpp_forward(cpp_bench['inputs'], handler, test_input,ins,npl,act)
-        res_fpga = fpga_forward(fpga_bench['inputs'], handler, test_input,ins,npl,act)
+        # res_fpga = fpga_forward(fpga_bench['inputs'], handler, test_input,ins,npl,act)
         res_gpu = gpu_forward(gpu_bench['inputs'], handler, test_input,ins,npl,act)
-        keras_forward(keras_bench['inputs'], structure)
+        # keras_forward(keras_bench['inputs'], structure)
         # validate_forward(res_cpu, res_fpga, "inputs ", i)
 
     print("\n")
@@ -83,9 +85,9 @@ def test_forward():
         #     file.write(aux_string+"\n\n"+aux_string_2+"\n\n")
 
         res_cpu = cpp_forward(cpp_bench['layers'], handler, test_input,ins,npl,act)
-        res_fpga = fpga_forward(fpga_bench['layers'], handler, test_input,ins,npl,act)
+        # res_fpga = fpga_forward(fpga_bench['layers'], handler, test_input,ins,npl,act)
         res_gpu = gpu_forward(gpu_bench['layers'], handler, test_input,ins,npl,act)
-        keras_forward(keras_bench['layers'], structure)
+        # keras_forward(keras_bench['layers'], structure)
 
         for j in range(STEP):
             aux_string += "5,"
@@ -113,9 +115,9 @@ def test_forward():
         #     file.write(aux_string+"\n\n"+aux_string_2+"\n\n")
 
         res_cpu = cpp_forward(cpp_bench['n_per_layer'], handler, test_input,ins,npl,act)
-        res_fpga = fpga_forward(fpga_bench['n_per_layer'], handler, test_input,ins,npl,act)
+        # res_fpga = fpga_forward(fpga_bench['n_per_layer'], handler, test_input,ins,npl,act)
         res_gpu = gpu_forward(gpu_bench['n_per_layer'], handler, test_input,ins,npl,act)
-        keras_forward(keras_bench['n_per_layer'], structure)
+        # keras_forward(keras_bench['n_per_layer'], structure)
         # validate_forward(res_cpu, res_fpga, "npl ", i)
     print("\n")
 
@@ -141,20 +143,20 @@ def test_forward():
     #         'x_label': "[Neurons per layer number]", 'y_label': "[ms]", 'label': ["Cpp", "Keras", "GPU"]}
     # plt.multiple_plot_and_wait(x_npl, y, args)
 
-    y = [1000*np.array(cpp_bench['inputs']), 1000*np.array(keras_bench['inputs']),
-         1000*np.array(fpga_bench['inputs']), 1000*np.array(gpu_bench['inputs'])]
+    y = [1000*np.array(cpp_bench['inputs']), 1000*np.array(cpp_bench['inputs']),
+         1000*np.array(gpu_bench['inputs']), 1000*np.array(gpu_bench['inputs'])]
     args = {'title': "FORWARD: INPUTS BENCH",
             'x_label': "[Inputs number]", 'y_label': "[ms]", 'label': ["Cpp", "Keras", "FPGA", "GPU"]}
     plt.multiple_plot(x_in, y, args)
 
-    y = [1000*np.array(cpp_bench['layers']), 1000*np.array(keras_bench['layers']),
-         1000*np.array(fpga_bench['layers']), 1000*np.array(gpu_bench['layers'])]
+    y = [1000*np.array(cpp_bench['layers']), 1000*np.array(cpp_bench['layers']),
+         1000*np.array(gpu_bench['layers']), 1000*np.array(gpu_bench['layers'])]
     args = {'title': "FORWARD: LAYERS BENCH",
             'x_label': "[Layers number]", 'y_label': "[ms]", 'label': ["Cpp", "Keras", "FPGA", "GPU"]}
     plt.multiple_plot(x_ly, y, args)
 
-    y = [1000*np.array(cpp_bench['n_per_layer']), 1000*np.array(keras_bench['n_per_layer']),
-         1000*np.array(fpga_bench['n_per_layer']), 1000*np.array(gpu_bench['n_per_layer'])]
+    y = [1000*np.array(cpp_bench['n_per_layer']), 1000*np.array(cpp_bench['n_per_layer']),
+         1000*np.array(gpu_bench['n_per_layer']), 1000*np.array(gpu_bench['n_per_layer'])]
     args = {'title': "FORWARD: NEURONS PER LAYER BENCH",
             'x_label': "[Neurons per layer number]", 'y_label': "[ms]", 'label': ["Cpp", "Keras", "FPGA", "GPU"]}
     plt.multiple_plot_and_wait(x_npl, y, args)
@@ -178,7 +180,7 @@ def test_backward():
     }
     cpp_bench = benchmarks
     gpu_bench = copy.deepcopy(benchmarks)
-    keras_bench = copy.deepcopy(benchmarks)
+    # keras_bench = copy.deepcopy(benchmarks)
     handler = netStandalone.handler(PATH)
 
     # Inputs
@@ -197,7 +199,7 @@ def test_backward():
 
         cpp_backward(cpp_bench['inputs'], handler)
         gpu_backward(gpu_bench['inputs'], handler)
-        keras_backward(keras_bench['inputs'], structure)
+        # keras_backward(keras_bench['inputs'], structure)
 
     print("\n")
 
@@ -217,7 +219,7 @@ def test_backward():
 
         cpp_backward(cpp_bench['layers'], handler)
         gpu_backward(gpu_bench['layers'], handler)
-        keras_backward(keras_bench['layers'], structure)
+        # keras_backward(keras_bench['layers'], structure)
 
         for j in range(STEP):
             aux_string += "5,"
@@ -245,7 +247,7 @@ def test_backward():
 
         cpp_backward(cpp_bench['n_per_layer'], handler)
         gpu_backward(gpu_bench['n_per_layer'], handler)
-        keras_backward(keras_bench['n_per_layer'], structure)
+        # keras_backward(keras_bench['n_per_layer'], structure)
 
     print("\n")
 
@@ -254,19 +256,19 @@ def test_backward():
     x_npl = np.arange(5, TEST_DIM['n_per_layer'], STEP)
 
     y = [1000*np.array(cpp_bench['inputs']), 1000 *
-         np.array(keras_bench['inputs']), 1000*np.array(gpu_bench['inputs'])]
+         np.array(cpp_bench['inputs']), 1000*np.array(gpu_bench['inputs'])]
     args = {'title': "BACKWARD: INPUTS BENCH",
             'x_label': "[Inputs number]", 'y_label': "[ms]", 'label': ["Cpp", "Keras", "GPU"]}
     plt.multiple_plot(x_in, y, args)
 
     y = [1000*np.array(cpp_bench['layers']), 1000 *
-         np.array(keras_bench['layers']), 1000*np.array(gpu_bench['layers'])]
+         np.array(cpp_bench['layers']), 1000*np.array(gpu_bench['layers'])]
     args = {'title': "BACKWARD: LAYERS BENCH",
             'x_label': "[Inputs number]", 'y_label': "[ms]", 'label': ["Cpp", "Keras", "GPU"]}
     plt.multiple_plot(x_ly, y, args)
 
     y = [1000*np.array(cpp_bench['n_per_layer']), 1000*np.array(
-        keras_bench['n_per_layer']), 1000*np.array(gpu_bench['n_per_layer'])]
+        cpp_bench['n_per_layer']), 1000*np.array(gpu_bench['n_per_layer'])]
     args = {'title': "BACKWARD: NEURONS PER LAYER BENCH",
             'x_label': "[Inputs number]", 'y_label': "[ms]", 'label': ["Cpp", "Keras", "GPU"]}
     plt.multiple_plot_and_wait(x_npl, y, args)
@@ -286,57 +288,57 @@ def cpp_forward(bench_list, handler, test_input, ins,npl,act ,net_name="_tempora
     return res
 
 
-def fpga_forward(bench_list, handler, test_input, ins,npl,act, net_name="_temporal_net"):
+# def fpga_forward(bench_list, handler, test_input, ins,npl,act, net_name="_temporal_net"):
 
-    handler.instantiate("fpga_float_test", netStandalone.FPGA)
-    handler.set_active_net("fpga_float_test")
-    # handler.build_net_from_file(net_name+"_with_params",netStandalone.RELOAD_FILE)
-    handler.build_net_from_data(ins,netStandalone.v_int(npl),netStandalone.v_int(act))
-    res=0
-    if(POP_FORWARD):
-        for i in range(POPULATION):
-            handler.instantiate("fpga_float_test_"+str(i), netStandalone.FPGA)
-            handler.set_active_net("fpga_float_test_"+str(i))
-            handler.build_net_from_file(net_name+"_with_params",netStandalone.RELOAD_FILE)
-    handler.set_active_net("fpga_float_test")
+#     handler.instantiate("fpga_float_test", netStandalone.FPGA)
+#     handler.set_active_net("fpga_float_test")
+#     # handler.build_net_from_file(net_name+"_with_params",netStandalone.RELOAD_FILE)
+#     handler.build_net_from_data(ins,netStandalone.v_int(npl),netStandalone.v_int(act))
+#     res=0
+#     if(POP_FORWARD):
+#         for i in range(POPULATION):
+#             handler.instantiate("fpga_float_test_"+str(i), netStandalone.FPGA)
+#             handler.set_active_net("fpga_float_test_"+str(i))
+#             handler.build_net_from_file(net_name+"_with_params",netStandalone.RELOAD_FILE)
+#     handler.set_active_net("fpga_float_test")
     
-    if(POP_FORWARD):
-        # handler.enq_fpga_net("fpga_float_test",test_input)
-        for i in range(POPULATION):
-            handler.enq_fpga_net("fpga_float_test_"+str(i),test_input,True,True)
+#     if(POP_FORWARD):
+#         # handler.enq_fpga_net("fpga_float_test",test_input)
+#         for i in range(POPULATION):
+#             handler.enq_fpga_net("fpga_float_test_"+str(i),test_input,True,True)
 
-        tic = time.perf_counter()
-        handler.exe_fpga_nets()
-        toc = time.perf_counter()
+#         tic = time.perf_counter()
+#         handler.exe_fpga_nets()
+#         toc = time.perf_counter()
 
-        # res = handler.read_fpga_net("fpga_float_test")
-        for i in range(POPULATION):
-            handler.read_fpga_net("fpga_float_test_"+str(i))
+#         # res = handler.read_fpga_net("fpga_float_test")
+#         for i in range(POPULATION):
+#             handler.read_fpga_net("fpga_float_test_"+str(i))
 
-        if(IT_FORWARD):
-            for it in range(ITERATIONS):
-                handler.enq_fpga_net("fpga_float_test",test_input,False)
-                for i in range(POPULATION):
-                    handler.enq_fpga_net("fpga_float_test_"+str(i),test_input,False,True)
+#         if(IT_FORWARD):
+#             for it in range(ITERATIONS):
+#                 handler.enq_fpga_net("fpga_float_test",test_input,False)
+#                 for i in range(POPULATION):
+#                     handler.enq_fpga_net("fpga_float_test_"+str(i),test_input,False,True)
 
-                handler.exe_fpga_nets()
+#                 handler.exe_fpga_nets()
 
-                res = handler.read_fpga_net("fpga_float_test")
-                for i in range(POPULATION):
-                    handler.read_fpga_net("fpga_float_test_"+str(i))
-            bench_list.append((time.perf_counter()-tic)/((POPULATION+1)*(ITERATIONS+1)))
-        else:
-            bench_list.append((toc-tic)/(POPULATION))
-    else:
-        tic = time.perf_counter()
-        res = handler.run_forward(test_input)
-        if(IT_FORWARD):
-            for it in range(ITERATIONS):
-                handler.run_forward(test_input)
-            bench_list.append((time.perf_counter()-tic)/(ITERATIONS+1))
-        else:
-            bench_list.append((time.perf_counter()-tic))
-    return res
+#                 res = handler.read_fpga_net("fpga_float_test")
+#                 for i in range(POPULATION):
+#                     handler.read_fpga_net("fpga_float_test_"+str(i))
+#             bench_list.append((time.perf_counter()-tic)/((POPULATION+1)*(ITERATIONS+1)))
+#         else:
+#             bench_list.append((toc-tic)/(POPULATION))
+#     else:
+#         tic = time.perf_counter()
+#         res = handler.run_forward(test_input)
+#         if(IT_FORWARD):
+#             for it in range(ITERATIONS):
+#                 handler.run_forward(test_input)
+#             bench_list.append((time.perf_counter()-tic)/(ITERATIONS+1))
+#         else:
+#             bench_list.append((time.perf_counter()-tic))
+#     return res
 
 
 def gpu_forward(bench_list, handler, test_input, ins,npl,act, net_name="_temporal_net"):
@@ -352,15 +354,15 @@ def gpu_forward(bench_list, handler, test_input, ins,npl,act, net_name="_tempora
     return res
 
 
-def keras_forward(bench_list, structure):
+# def keras_forward(bench_list, structure):
 
-    keras_model = keras.create_keras_net(
-        structure['inputs_n'], structure['layers_n'], structure['neurons_per_layer'])
-    test_input = keras.create_test_input(structure['inputs_n'])
-    tic = time.perf_counter()
-    keras_model(test_input)
-    bench_list.append(time.perf_counter()-tic)
-    return
+#     keras_model = keras.create_keras_net(
+#         structure['inputs_n'], structure['layers_n'], structure['neurons_per_layer'])
+#     test_input = keras.create_test_input(structure['inputs_n'])
+#     tic = time.perf_counter()
+#     keras_model(test_input)
+#     bench_list.append(time.perf_counter()-tic)
+#     return
 
 
 def cpp_backward(bench_list, handler, net_name="_temporal_net", set_name="_temporal_data"):
@@ -389,14 +391,14 @@ def gpu_backward(bench_list, handler, net_name="_temporal_net", set_name="_tempo
     return
 
 
-def keras_backward(bench_list, structure):
+# def keras_backward(bench_list, structure):
 
-    keras_model = keras.create_keras_net(
-        structure['inputs_n'], structure['layers_n'], structure['neurons_per_layer'])
-    tic = time.perf_counter()
-    keras.run_backward(keras_model, structure, ITERATIONS)
-    bench_list.append(time.perf_counter()-tic)
-    return
+#     keras_model = keras.create_keras_net(
+#         structure['inputs_n'], structure['layers_n'], structure['neurons_per_layer'])
+#     tic = time.perf_counter()
+#     keras.run_backward(keras_model, structure, ITERATIONS)
+#     bench_list.append(time.perf_counter()-tic)
+#     return
 
 
 def validate_forward(res_cpu, res_fpga, error_msg, error_index):

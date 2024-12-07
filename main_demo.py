@@ -1,5 +1,5 @@
 import netStandalone
-import tensorflow as tf
+# import tensorflow as tf
 import os
 
 PATH = os.path.join(os.environ["HOME"], "workspace_development")
