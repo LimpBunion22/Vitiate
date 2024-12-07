@@ -60,4 +60,7 @@ class dron_simulator():
             if(np.rand()>0.95):
                 self.vampire = True
 
+        
+        res = np.concatenate((dist,))
+
 
