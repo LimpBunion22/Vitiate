@@ -10,8 +10,8 @@ PATH = os.path.join(os.environ["HOME"], "workspace_development")
 handler = netStandalone.handler(PATH)
 
 
-POPULATION = 5
-GENERATIONS = 20
+POPULATION = 25
+GENERATIONS = 50
 SIMS = 5
 
 name_list = []
@@ -90,7 +90,7 @@ for g in tqdm(range(GENERATIONS)):
     
     results = handler.get_gradient_worload_results()
     for p in range(POPULATION):
-        scores[p] = results[p][1]
+        scores[p] = -results[p][1]
 
     sorted_index = np.argsort(scores)
     for p in range(POPULATION-saved_batch):

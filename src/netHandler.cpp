@@ -225,7 +225,8 @@ namespace net
             return;
         }
         auto enqueue_net = _nets[key].get();
-        oneTBB_task_group.run([enqueue_net, this]{std::vector<float> results = enqueue_net->run_gradient(_file_manager._set); this->workload_results[this->enqueue_cnt] = std::make_pair(results.front(),results.back());});
+        int indx = enqueue_cnt;
+        oneTBB_task_group.run([indx, enqueue_net, this]{std::vector<float> results = enqueue_net->run_gradient(_file_manager._set); this->workload_results[indx] = std::make_pair(results.front(),results.back());});
         enqueue_cnt++;
     }
 
@@ -233,6 +234,9 @@ namespace net
     {
         oneTBB_task_group.wait();
         std::vector<std::pair<float,float>> results(workload_results.begin(),workload_results.end());
+        // std::vector<std::pair<float,float>> results(task_group_size);
+        // for (int i = 0; i<task_group_size; i++)
+        //     results[i] = workload_results[i];
 
         return results;
     }
