@@ -199,6 +199,44 @@ namespace net
         return {-1.0f};
     }
 
+    void handler::configure_gradient_workload(int tasks_number, const std::string &file)
+    {
+        task_group_size = tasks_number;
+        enqueue_cnt = 0;
+        workload_results.clear();
+        workload_results.resize(tasks_number);
+        if (!_file_manager.load_set(file, true))
+            std::cout << RED << "failed to configure gradient from file \"" << file << '\"' << RESET "\n";
+        return;
+    }
+
+    void handler::enqueue_gradient(const std::string &key)
+    {   
+
+        if (_nets.find(key) == _nets.end())
+        {
+            std::cout << YELLOW << "net " << key << " doesn't exist" << RESET << "\n";
+            return;
+        }
+
+        if (enqueue_cnt == task_group_size)
+        {
+            std::cout << YELLOW << "Too many enqueues" << RESET << "\n";
+            return;
+        }
+        auto enqueue_net = _nets[key].get();
+        oneTBB_task_group.run([enqueue_net, this]{std::vector<float> results = enqueue_net->run_gradient(_file_manager._set); this->workload_results[this->enqueue_cnt] = std::make_pair(results.front(),results.back());});
+        enqueue_cnt++;
+    }
+
+    std::vector<std::pair<float,float>>  handler::get_gradient_worload_results()
+    {
+        oneTBB_task_group.wait();
+        std::vector<std::pair<float,float>> results(workload_results.begin(),workload_results.end());
+
+        return results;
+    }
+
     void handler::mutate(float limit)
     {
         if (!_active_net)

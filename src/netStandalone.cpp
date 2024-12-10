@@ -9,6 +9,8 @@ namespace py = pybind11;
 PYBIND11_MAKE_OPAQUE(std::vector<float>);
 PYBIND11_MAKE_OPAQUE(std::vector<unsigned char>);
 PYBIND11_MAKE_OPAQUE(std::vector<int>);
+PYBIND11_MAKE_OPAQUE(std::vector<std::pair<float, float>>);
+
 
 PYBIND11_MODULE(netStandalone, m)
 {
@@ -17,6 +19,7 @@ PYBIND11_MODULE(netStandalone, m)
      py::bind_vector<std::vector<float>>(m, "v_float");
      py::bind_vector<std::vector<unsigned char>>(m, "v_uchar");
      py::bind_vector<std::vector<int>>(m, "v_int");
+     py::bind_vector<std::vector<std::pair<float, float>>>(m, "v_pair_float");
 
      m.attr("DISABLE") = py::int_(net::DISABLE);
 
@@ -88,6 +91,9 @@ PYBIND11_MODULE(netStandalone, m)
          .def("run_forward", &net::handler::run_forward)
          .def("run_gradient", py::overload_cast<const std::string &, bool>(&net::handler::run_gradient),
               py::arg("file"), py::arg("file_reload"))
+          .def("configure_gradient_workload", &net::handler::configure_gradient_workload, py::arg("tasks_number"), py::arg("file"))
+          .def("enqueue_gradient", &net::handler::enqueue_gradient, py::arg("key"))
+          .def("get_gradient_worload_results", &net::handler::get_gradient_worload_results)
          .def("mutate", &net::handler::mutate)
 
          // metrics

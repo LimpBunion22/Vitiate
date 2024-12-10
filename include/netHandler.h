@@ -1,6 +1,8 @@
 #ifndef NETHANDLER_H
 #define NETHANDLER_H
 
+#include <tbb/task_group.h>
+#include <tbb/concurrent_vector.h>
 #include <defines.h>
 #include <map>
 #include <string>
@@ -35,6 +37,10 @@ namespace net
         gpu::CREATE_CUB_DATA(_cub);
         gpu::CREATE_CUBLAS_DATA(_cublas);
 
+        tbb::task_group oneTBB_task_group;
+        int task_group_size, enqueue_cnt;
+        tbb::concurrent_vector<std::pair<float,float>> workload_results;
+
 #ifdef USE_FPGA
         fpga::fpga_handler _mustang_handler;
         bool _mustang_handler_init = false;
@@ -62,6 +68,11 @@ namespace net
         std::vector<float> run_forward(const std::vector<float> &input);
         std::vector<float> run_gradient(const net::set &set);
         std::vector<float> run_gradient(const std::string &file, bool file_reload);
+
+        void configure_gradient_workload(int tasks_number, const std::string &file);
+        void enqueue_gradient(const std::string &key);
+        std::vector<std::pair<float,float>> get_gradient_worload_results();
+
         void mutate(float limit);
 
         // metrics
